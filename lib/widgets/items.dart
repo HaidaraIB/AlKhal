@@ -42,13 +42,13 @@ class _ItemsState extends State<Items> {
           return const Center(
             child: Text("Something went wrong!"),
           );
-        } else if (state.items.isNotEmpty) {
+        } else if (state.items!.isNotEmpty) {
           return ExpandableFAB(
             fabs: addFabs,
             body: ListView.builder(
-              itemCount: state.items.length,
+              itemCount: state.items!.length,
               itemBuilder: (BuildContext context, int index) {
-                return ItemCard(item: state.items[index] as Item);
+                return ItemCard(item: state.items![index] as Item);
               },
             ),
           );

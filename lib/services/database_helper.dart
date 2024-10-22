@@ -93,9 +93,18 @@ class DatabaseHelper {
   }
 
   // Read all
-  static Future<List<Model>> getAll(String tableName, String model) async {
+  static Future<List<Model>> getAll(
+    String tableName,
+    String model, [
+    String? where,
+    List? whereArgs,
+  ]) async {
     final db = await DatabaseHelper.db;
-    final List<Map<String, Object?>>? maps = await db?.query(tableName);
+    final List<Map<String, Object?>>? maps = await db?.query(
+      tableName,
+      where: where,
+      whereArgs: whereArgs,
+    );
     return List.generate(maps!.length, (i) => Model.fromMap(maps[i], model));
   }
 

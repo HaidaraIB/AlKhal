@@ -7,7 +7,7 @@ class Transaction extends Model {
   final double totalPrice;
   final double totalProfit;
   final String date;
-  final bool isSale;
+  final int isSale;
 
   Transaction({
     super.id,
@@ -35,7 +35,7 @@ class Transaction extends Model {
       id: map['id'],
       discount: map['discount'],
       date: map['date'],
-      isSale: map['is_sale'] == 0 ? false : true,
+      isSale: map['is_sale'],
       totalPrice: map['total_price'],
       totalProfit: map['total_profit'],
     );

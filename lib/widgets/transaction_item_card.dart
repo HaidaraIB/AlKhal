@@ -1,30 +1,119 @@
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/transaction_item.dart';
-import 'package:alkhal/services/database_helper.dart';
+import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 
-class TransactionItemCard extends StatelessWidget {
+class TransactionItemCard extends StatefulWidget {
   final TransactionItem transactionItem;
+  final int isSale;
 
-  const TransactionItemCard({super.key, required this.transactionItem});
+  const TransactionItemCard({
+    super.key,
+    required this.transactionItem,
+    required this.isSale,
+  });
+
+  @override
+  State<TransactionItemCard> createState() => _TransactionItemCardState();
+}
+
+class _TransactionItemCardState extends State<TransactionItemCard> {
+  late Future<Item> _value;
+  @override
+  void initState() {
+    super.initState();
+    _value = Item.getItem((widget.transactionItem.itemId));
+  }
+
   @override
   Widget build(BuildContext context) {
-    Item item =
-        DatabaseHelper.getById(Item.tableName, "Item", transactionItem.itemId)
-            as Item;
+    return FutureBuilder(
+      future: _value,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return TransactoinItemCardWidget(
+            quantity: (snapshot.data!.unit.name == "kg" && widget.isSale == 0)
+                ? formatDouble(widget.transactionItem.quantity / 1000)
+                : formatDouble(widget.transactionItem.quantity),
+            itemName: snapshot.data!.name,
+            unit: (snapshot.data!.unit.name == 'kg')
+                ? (widget.isSale == 1 ? "غرام" : "كيلو غرام")
+                : "قطعة",
+            price: (snapshot.data!.unit.name == "kg")
+                ? formatDouble(
+                    widget.transactionItem.quantity /
+                        1000 *
+                        (widget.isSale == 1
+                            ? snapshot.data!.sellingPrice
+                            : snapshot.data!.purchasePrice),
+                  )
+                : formatDouble(
+                    widget.transactionItem.quantity *
+                        (widget.isSale == 1
+                            ? snapshot.data!.sellingPrice
+                            : snapshot.data!.purchasePrice),
+                  ),
+          );
+        } else {
+          return TransactoinItemCardWidget(
+            quantity: widget.transactionItem.quantity.toString(),
+            itemName: '-',
+            unit: '-',
+            price: '0',
+          );
+        }
+      },
+    );
+  }
+}
+
+class TransactoinItemCardWidget extends StatelessWidget {
+  const TransactoinItemCardWidget({
+    super.key,
+    required this.quantity,
+    required this.itemName,
+    required this.unit,
+    required this.price,
+  });
+
+  final String quantity;
+  final String itemName;
+  final String unit;
+  final String price;
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              item.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            const SizedBox(),
+            Column(
+              children: [
+                Text(
+                  'الكمية: $quantity $unit',
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+                Text(
+                  'السعر: $price ل.س',
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ],
             ),
             Text(
-              'Quantity: ${transactionItem.quantity} ${item.unit}',
+              itemName,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
+            const SizedBox(),
           ],
         ),
       ),

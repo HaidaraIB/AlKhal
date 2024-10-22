@@ -2,8 +2,8 @@ part of 'item_cubit.dart';
 
 @immutable
 sealed class ItemState {
-  final List<Model> items;
-  const ItemState({required this.items});
+  final List<Model>? items;
+  const ItemState({this.items});
 }
 
 final class ItemInitial extends ItemState {

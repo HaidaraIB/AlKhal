@@ -28,7 +28,7 @@ class AddTransactionFAB extends StatelessWidget {
                   );
                 },
               );
-            } else if (state.items.isNotEmpty) {
+            } else if (state.items!.isNotEmpty) {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (newContext) {

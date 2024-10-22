@@ -2,9 +2,10 @@ import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/price_history.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/models/transaction_item.dart';
 
 abstract class Model {
-  final int? id;
+  int? id;
   Model({this.id});
   Map<String, dynamic> toMap();
   factory Model.fromMap(Map<String, dynamic> map, String type) {
@@ -14,6 +15,8 @@ abstract class Model {
       return PriceHistory.fromMap(map);
     } else if (type == "Transaction") {
       return Transaction.fromMap(map);
+    } else if (type == "TransactionItem") {
+      return TransactionItem.fromMap(map);
     } else if (type == "Category") {
       return Category.fromMap(map);
     } else {

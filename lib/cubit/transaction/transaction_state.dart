@@ -3,7 +3,7 @@ part of 'transaction_cubit.dart';
 @immutable
 sealed class TransactionState {
   final List<Model> transactions;
-  final TransactionFilter? filter;
+  final TransactionFilter filter;
   const TransactionState({
     required this.transactions,
     required this.filter,

@@ -30,22 +30,22 @@ class TransactionCubit extends Cubit<TransactionState> {
   void loadTransactions() async {
     emit(LoadingTransactions(transactions: const [], filter: filter));
     try {
+      await getFilter();
       await DatabaseHelper.getAll(Transaction.tableName, "Transaction").then(
         (value) {
-          transactions = value;
+          transactions = value.where((t) {
+            t = (t as Transaction);
+            return t.isSale != 0 &&
+                    [TransactionFilter.all, TransactionFilter.sell]
+                        .contains(filter) ||
+                t.isSale == 0 &&
+                    [TransactionFilter.all, TransactionFilter.buy]
+                        .contains(filter);
+          }).toList();
         },
       );
-      await getFilter();
       emit(TransactionsLoaded(
-        transactions: transactions.where((t) {
-          t = (t as Transaction);
-          return t.isSale &&
-                  [TransactionFilter.all, TransactionFilter.sell]
-                      .contains(filter) ||
-              !t.isSale &&
-                  [TransactionFilter.all, TransactionFilter.buy]
-                      .contains(filter);
-        }).toList(),
+        transactions: transactions,
         filter: filter,
       ));
     } catch (e) {
@@ -58,12 +58,17 @@ class TransactionCubit extends Cubit<TransactionState> {
 
   Future<int?> addTransaction(Transaction transaction) async {
     try {
+      await getFilter();
       int? transactionId =
           await DatabaseHelper.insert(Transaction.tableName, transaction);
-      transactions.add(transaction);
-      transactions.sort((a, b) => DateTime.parse((a as Transaction).date)
-          .compareTo(DateTime.parse((b as Transaction).date)));
-      await getFilter();
+      transaction.id = transactionId;
+      if (filter.name == "all" ||
+          (filter.name == "sell" && transaction.isSale == 1) ||
+          (filter.name == "buy" && transaction.isSale == 0)) {
+        transactions.add(transaction);
+        transactions.sort((a, b) => DateTime.parse((a as Transaction).date)
+            .compareTo(DateTime.parse((b as Transaction).date)));
+      }
       emit(AddTransactionSuccess(
         transactions: transactions,
         filter: filter,
@@ -82,6 +87,19 @@ class TransactionCubit extends Cubit<TransactionState> {
     filter = f;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('filter', filter.toString());
+    await DatabaseHelper.getAll(Transaction.tableName, "Transaction").then(
+      (value) {
+        transactions = value.where((t) {
+          t = (t as Transaction);
+          return t.isSale != 0 &&
+                  [TransactionFilter.all, TransactionFilter.sell]
+                      .contains(filter) ||
+              t.isSale == 0 &&
+                  [TransactionFilter.all, TransactionFilter.buy]
+                      .contains(filter);
+        }).toList();
+      },
+    );
     emit(
       TransactionsFiltered(filter: filter, transactions: transactions),
     );

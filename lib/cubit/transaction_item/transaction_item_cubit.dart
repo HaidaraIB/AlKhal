@@ -11,9 +11,26 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
   TransactionItemCubit()
       : super(const TransactionItemInitial(transactionItems: []));
 
-  void addTransactionItem(TransactionItem transactionItem) {
+  void loadItems(int transactionId) async {
+    emit(LoadingTransactionItems(transactionItems: transactionItems));
     try {
-      DatabaseHelper.insert(TransactionItem.tableName, transactionItem);
+      await DatabaseHelper.getAll(
+        TransactionItem.tableName,
+        "TransactionItem",
+        "transaction_id = ?",
+        [transactionId],
+      ).then(
+        (value) => transactionItems = value,
+      );
+      emit(TransactionItemsLoaded(transactionItems: transactionItems));
+    } catch (e) {
+      emit(LoadingTransactionItemsFailed(transactionItems: transactionItems));
+    }
+  }
+
+  void addTransactionItem(TransactionItem transactionItem) async {
+    try {
+      await DatabaseHelper.insert(TransactionItem.tableName, transactionItem);
       transactionItems.add(transactionItem);
       transactionItems.sort((a, b) => (a as TransactionItem)
           .itemId

@@ -1,12 +1,22 @@
+import 'package:alkhal/cubit/item/item_cubit.dart';
+import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/screens/transaction_items_screen.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart' as intl;
 
-class TransactionCard extends StatelessWidget {
+class TransactionCard extends StatefulWidget {
   final Transaction transaction;
 
   const TransactionCard({super.key, required this.transaction});
+
+  @override
+  State<TransactionCard> createState() => _TransactionCardState();
+}
+
+class _TransactionCardState extends State<TransactionCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -18,7 +28,7 @@ class TransactionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                transaction.isSale ? "مبيع" : "شراء",
+                widget.transaction.isSale == 1 ? "مبيع" : "شراء",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
@@ -32,7 +42,7 @@ class TransactionCard extends StatelessWidget {
             height: 10,
           ),
           Text(
-            intl.DateFormat().format(DateTime.parse(transaction.date)),
+            intl.DateFormat().format(DateTime.parse(widget.transaction.date)),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
@@ -45,7 +55,36 @@ class TransactionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.info)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (newContext) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider<TransactionItemCubit>.value(
+                                value: BlocProvider.of(context),
+                              ),
+                              BlocProvider<ItemCubit>.value(
+                                value: BlocProvider.of(context),
+                              ),
+                            ],
+                            child: Scaffold(
+                              appBar: AppBar(
+                                title: const Text('تفاصيل فاتورة'),
+                                centerTitle: true,
+                              ),
+                              body: TransactionItems(
+                                transactionId: widget.transaction.id!,
+                                isSale: widget.transaction.isSale,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.info)),
               RichText(
                 textDirection: TextDirection.rtl,
                 text: TextSpan(
@@ -53,7 +92,7 @@ class TransactionCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 20, color: Colors.black),
                   children: <TextSpan>[
                     TextSpan(
-                      text: formatDouble(transaction.discount),
+                      text: formatDouble(widget.transaction.discount),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const TextSpan(
@@ -63,7 +102,7 @@ class TransactionCard extends StatelessWidget {
                       text: 'السعر الإجمالي: ',
                     ),
                     TextSpan(
-                      text: formatDouble(transaction.totalPrice),
+                      text: formatDouble(widget.transaction.totalPrice),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const TextSpan(

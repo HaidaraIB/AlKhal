@@ -73,7 +73,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       Transaction transaction = Transaction(
           date: DateTime.now().toIso8601String(),
           discount: discount,
-          isSale: _isSale,
+          isSale: _isSale ? 1 : 0,
           totalPrice: totalPrice - discount,
           totalProfit: totalProfit - (discount * totalProfit / totalPrice));
       int? transactionId = await BlocProvider.of<TransactionCubit>(context)
@@ -301,16 +301,6 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                     child: ElevatedButton(
                       onPressed: _submitForm,
                       child: const Text('حفظ الفاتورة'),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50.0,
-                    width: 150.0,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        print(_selectedItems[0]['item'].quantity);
-                      },
-                      child: const Text('Test'),
                     ),
                   ),
                 ],

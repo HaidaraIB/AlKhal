@@ -30,16 +30,16 @@ class _TransactionsState extends State<Transactions> {
             floatingActionButton: const AddTransactionFAB(),
             body: Column(
               children: [
-                DropdownButton<TransactionFilter>(
-                  value: state.filter ?? TransactionFilter.all,
-                  items: TransactionFilter.values
-                      .map((filter) => DropdownMenuItem(
-                            value: filter,
-                            child: Text(filter.name),
-                          ))
-                      .toList(),
-                  onChanged: (filter) =>
-                      context.read<TransactionCubit>().setFilter(filter!),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    TransactionFilterDropDown(
+                      filter: state.filter,
+                    ),
+                  ],
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -55,14 +55,60 @@ class _TransactionsState extends State<Transactions> {
             ),
           );
         } else {
-          return const Scaffold(
-            floatingActionButton: AddTransactionFAB(),
-            body: Center(
-              child: Text("لا فواتير بعد"),
+          return Scaffold(
+            floatingActionButton: const AddTransactionFAB(),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    TransactionFilterDropDown(
+                      filter: state.filter,
+                    ),
+                  ],
+                ),
+                Text(
+                  "!لا فواتير ${state.filter.name != 'all' ? '${TransactionFilter.toArabic(state.filter.name)} بعد' : 'بعد'}",
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(),
+              ],
             ),
           );
         }
       },
+    );
+  }
+}
+
+class TransactionFilterDropDown extends StatelessWidget {
+  const TransactionFilterDropDown({
+    super.key,
+    required this.filter,
+  });
+
+  final TransactionFilter? filter;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<TransactionFilter>(
+      dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+      borderRadius: BorderRadius.circular(10),
+      value: filter ?? TransactionFilter.all,
+      items: TransactionFilter.values
+          .map(
+            (filter) => DropdownMenuItem(
+              value: filter,
+              child: Text(TransactionFilter.toArabic(filter.name)),
+            ),
+          )
+          .toList(),
+      onChanged: (filter) =>
+          context.read<TransactionCubit>().setFilter(filter!),
     );
   }
 }

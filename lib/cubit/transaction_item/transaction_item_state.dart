@@ -17,3 +17,15 @@ final class AddTransactionItemSuccess extends TransactionItemState {
 final class AddTransactionItemFail extends TransactionItemState {
   const AddTransactionItemFail({required super.transactionItems});
 }
+
+final class LoadingTransactionItems extends TransactionItemState {
+  const LoadingTransactionItems({required super.transactionItems});
+}
+
+final class LoadingTransactionItemsFailed extends TransactionItemState {
+  const LoadingTransactionItemsFailed({required super.transactionItems});
+}
+
+final class TransactionItemsLoaded extends TransactionItemState {
+  const TransactionItemsLoaded({required super.transactionItems});
+}

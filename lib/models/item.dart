@@ -59,4 +59,10 @@ class Item extends Model {
     }
     return null;
   }
+
+  static Future<Item> getItem(int itemId) async {
+    Item item =
+        await DatabaseHelper.getById(Item.tableName, "Item", itemId) as Item;
+    return item;
+  }
 }
