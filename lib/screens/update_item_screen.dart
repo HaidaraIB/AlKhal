@@ -1,27 +1,31 @@
 import 'package:alkhal/cubit/item/item_cubit.dart';
+import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
-import 'package:alkhal/models/measurement_unit.dart';
+import 'package:alkhal/models/item_history.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/services/database_helper.dart';
+import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddItemForm extends StatefulWidget {
-  const AddItemForm({super.key});
+class UpdateItemForm extends StatefulWidget {
+  const UpdateItemForm({
+    super.key,
+    required this.oldItem,
+  });
+  final Item oldItem;
 
   @override
-  State<AddItemForm> createState() => _AddItemFormState();
+  State<UpdateItemForm> createState() => _AddItemFormState();
 }
 
-class _AddItemFormState extends State<AddItemForm> {
+class _AddItemFormState extends State<UpdateItemForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _unitController = TextEditingController();
   final _categoryController = TextEditingController();
-  final _quantityController = TextEditingController();
-  final _purchasePriceController = TextEditingController();
   final _sellingPriceController = TextEditingController();
+  final _purchasePriceController = TextEditingController();
 
   final FocusNode _nameFocusNode = FocusNode();
 
@@ -40,7 +44,7 @@ class _AddItemFormState extends State<AddItemForm> {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('إضافة عنصر'),
+              title: const Text('تعديل عنصر'),
               centerTitle: true,
             ),
             body: SingleChildScrollView(
@@ -56,11 +60,11 @@ class _AddItemFormState extends State<AddItemForm> {
                           bottom: MediaQuery.of(context).viewInsets.bottom,
                         ),
                         controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'الاسم'),
+                        decoration: InputDecoration(
+                          labelText: 'الاسم',
+                          hintText: widget.oldItem.name,
+                        ),
                         validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'الرجاء إدخال اسم';
-                          }
                           var i = BlocProvider.of<ItemCubit>(context)
                               .items
                               .where((element) {
@@ -79,7 +83,7 @@ class _AddItemFormState extends State<AddItemForm> {
                       DropdownButtonFormField<String>(
                         value: _categoryController.text.isNotEmpty
                             ? _categoryController.text
-                            : null,
+                            : widget.oldItem.categoryId.toString(),
                         onChanged: (value) {
                           setState(
                             () => _categoryController.text = value!.toString(),
@@ -102,64 +106,29 @@ class _AddItemFormState extends State<AddItemForm> {
                           return null;
                         },
                       ),
-                      DropdownButtonFormField<String>(
-                        value: _unitController.text.isNotEmpty
-                            ? _unitController.text
-                            : null,
-                        onChanged: (value) {
-                          setState(
-                              () => _unitController.text = value!.toString());
-                        },
-                        items: MeasurementUnit.values.map((unit) {
-                          return DropdownMenuItem<String>(
-                            value: unit.value,
-                            child: Text(MeasurementUnit.toArabic(unit.value)),
-                          );
-                        }).toList(),
-                        decoration: const InputDecoration(labelText: 'الواحدة'),
-                        validator: (value) {
-                          if (value == null) {
-                            return 'الرجاء اختيار واحدة';
-                          }
-                          return null;
-                        },
-                        isExpanded: true,
-                      ),
-                      TextFormField(
-                        scrollPadding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        controller: _quantityController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'الكمية'),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'الرجاء اختيار كمية';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'الرجاء إدخال رقم';
-                          }
-                          return null;
-                        },
-                      ),
                       TextFormField(
                         scrollPadding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom,
                         ),
                         controller: _purchasePriceController,
                         keyboardType: TextInputType.number,
-                        decoration:
-                            const InputDecoration(labelText: 'سعر الشراء'),
+                        decoration: InputDecoration(
+                          labelText: 'سعر الشراء',
+                          hintText: formatDouble(widget.oldItem.purchasePrice),
+                        ),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'الرجاء إدخال سعر شراء';
+                            return null;
                           } else if (double.tryParse(value) == null) {
                             return 'الرجاء إدخال رقم';
-                          } else if (double.tryParse(
-                                      _sellingPriceController.text) !=
-                                  null &&
-                              double.tryParse(_sellingPriceController.text)! <
-                                  double.tryParse(value)!) {
+                          } else if ((double.tryParse(
+                                          _sellingPriceController.text) !=
+                                      null &&
+                                  double.tryParse(
+                                          _sellingPriceController.text)! <=
+                                      double.tryParse(value)!) ||
+                              (widget.oldItem.sellingPrice <=
+                                  double.tryParse(value)!)) {
                             return 'سعر الشراء يجب أن يكون أصغر من سعر المبيع';
                           }
                           return null;
@@ -171,18 +140,23 @@ class _AddItemFormState extends State<AddItemForm> {
                         ),
                         controller: _sellingPriceController,
                         keyboardType: TextInputType.number,
-                        decoration:
-                            const InputDecoration(labelText: 'سعر المبيع'),
+                        decoration: InputDecoration(
+                          labelText: 'سعر المبيع',
+                          hintText: formatDouble(widget.oldItem.sellingPrice),
+                        ),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'الرجاء إدخال سعر مبيع';
+                            return null;
                           } else if (double.tryParse(value) == null) {
                             return 'الرجاء إدخال رقم';
-                          } else if (double.tryParse(
-                                      _purchasePriceController.text) !=
-                                  null &&
-                              double.tryParse(_purchasePriceController.text)! >
-                                  double.tryParse(value)!) {
+                          } else if ((double.tryParse(
+                                          _purchasePriceController.text) !=
+                                      null &&
+                                  double.tryParse(
+                                          _purchasePriceController.text)! >=
+                                      double.tryParse(value)!) ||
+                              (widget.oldItem.purchasePrice >=
+                                  double.tryParse(value)!)) {
                             return 'سعر المبيع يجب أن يكون أكبر من سعر الشراء';
                           }
                           return null;
@@ -195,18 +169,47 @@ class _AddItemFormState extends State<AddItemForm> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             final newItem = Item(
-                              categoryId: int.parse(_categoryController.text),
-                              name: _nameController.text,
-                              unit: MeasurementUnit.fromString(
-                                  _unitController.text),
-                              quantity: double.parse(_quantityController.text),
-                              purchasePrice:
-                                  double.parse(_purchasePriceController.text),
-                              sellingPrice:
-                                  double.parse(_sellingPriceController.text),
+                              id: widget.oldItem.id,
+                              categoryId:
+                                  int.tryParse(_categoryController.text) ??
+                                      widget.oldItem.categoryId,
+                              name: _nameController.text.isEmpty
+                                  ? widget.oldItem.name
+                                  : _nameController.text,
+                              unit: widget.oldItem.unit,
+                              quantity: widget.oldItem.quantity,
+                              purchasePrice: double.tryParse(
+                                      _purchasePriceController.text) ??
+                                  widget.oldItem.purchasePrice,
+                              sellingPrice: double.tryParse(
+                                      _sellingPriceController.text) ??
+                                  widget.oldItem.sellingPrice,
+                            );
+                            BlocProvider.of<ItemHistoryCubit>(context)
+                                .addItemHistory(
+                              ItemHistory(
+                                updateDate: DateTime.now().toIso8601String(),
+                                itemId: widget.oldItem.id!,
+                                newCategoryId:
+                                    int.tryParse(_categoryController.text) ??
+                                        widget.oldItem.categoryId,
+                                oldCategoryId: widget.oldItem.categoryId,
+                                newName: _nameController.text.isEmpty
+                                    ? widget.oldItem.name
+                                    : _nameController.text,
+                                oldName: widget.oldItem.name,
+                                newPurchasePrice: double.tryParse(
+                                        _purchasePriceController.text) ??
+                                    widget.oldItem.purchasePrice,
+                                oldPurchasePrice: widget.oldItem.purchasePrice,
+                                newSellingPrice: double.tryParse(
+                                        _sellingPriceController.text) ??
+                                    widget.oldItem.sellingPrice,
+                                oldSellingPrice: widget.oldItem.sellingPrice,
+                              ),
                             );
                             BlocProvider.of<ItemCubit>(context)
-                                .addItem(newItem);
+                                .updateItem(newItem);
                             Navigator.pop(context);
                           }
                         },
@@ -221,7 +224,7 @@ class _AddItemFormState extends State<AddItemForm> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
-                        child: const Text('إضافة'),
+                        child: const Text('تعديل'),
                       ),
                     ],
                   ),

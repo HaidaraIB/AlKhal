@@ -30,7 +30,9 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
 
   void addTransactionItem(TransactionItem transactionItem) async {
     try {
-      await DatabaseHelper.insert(TransactionItem.tableName, transactionItem);
+      int? transactionItemId = await DatabaseHelper.insert(
+          TransactionItem.tableName, transactionItem);
+      transactionItem.id = transactionItemId;
       transactionItems.add(transactionItem);
       transactionItems.sort((a, b) => (a as TransactionItem)
           .itemId

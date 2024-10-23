@@ -50,11 +50,18 @@ class DatabaseHelper {
         );
       """);
     await db.execute("""
-        CREATE TABLE price_history (
+        CREATE TABLE item_history (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           item_id INTEGER,
-          date TEXT,
-          price REAL,
+          old_name TEXT,
+          new_name TEXT,
+          old_category_id INTEGER,
+          new_category_id INTEGER,
+          old_selling_price REAL,
+          new_selling_price REAL,
+          old_purchase_price REAL,
+          new_purchase_price REAL,
+          update_date TEXT,
           FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE
         );
       """);

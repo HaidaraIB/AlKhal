@@ -37,3 +37,11 @@ final class UpdateItemSuccess extends ItemState {
 final class UpdateItemFail extends ItemState {
   const UpdateItemFail({required super.items});
 }
+
+final class DeleteItemSuccess extends ItemState {
+  const DeleteItemSuccess({required super.items});
+}
+
+final class DeleteItemFail extends ItemState {
+  const DeleteItemFail({required super.items});
+}

@@ -18,17 +18,17 @@ class TransactionItemCard extends StatefulWidget {
 }
 
 class _TransactionItemCardState extends State<TransactionItemCard> {
-  late Future<Item> _value;
+  late Future<Item> _getItem;
   @override
   void initState() {
     super.initState();
-    _value = Item.getItem((widget.transactionItem.itemId));
+    _getItem = Item.getItem((widget.transactionItem.itemId));
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _value,
+      future: _getItem,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return TransactoinItemCardWidget(

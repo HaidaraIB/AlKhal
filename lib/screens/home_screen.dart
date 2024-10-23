@@ -42,29 +42,34 @@ class _CashScreenState extends State<CashScreen> {
           );
         } else if (state is CashRefreshed) {
           return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                    child: NumberWidget(label: 'كاش', value: state.cash),
-                  ),
-                  const SizedBox(height: 50),
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                    child: NumberWidget(label: 'ربح', value: state.profit),
-                  ),
-                  const SizedBox(height: 50),
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                    child: NumberWidget(label: 'فواتير', value: state.bills),
-                  ),
-                  const SizedBox(height: 100),
-                ],
+            body: SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: NumberWidget(label: 'كاش', value: state.cash),
+                    ),
+                    const SizedBox(height: 50),
+                    AnimatedContainer(
+                      duration: const Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: NumberWidget(label: 'ربح', value: state.profit),
+                    ),
+                    const SizedBox(height: 50),
+                    AnimatedContainer(
+                      duration: const Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: NumberWidget(label: 'فواتير', value: state.bills),
+                    ),
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
             floatingActionButton: FloatingActionButton(

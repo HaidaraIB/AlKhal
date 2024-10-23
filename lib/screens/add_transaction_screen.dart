@@ -29,26 +29,20 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       "quantity": 0,
     }
   ];
-  List<Model> _items = [];
+  late Future<List<Model>> _getItems;
   @override
   void initState() {
     super.initState();
-    DatabaseHelper.getAll(Item.tableName, "Item").then(
-      (items) => setState(
-        () {
-          _items = items;
-        },
-      ),
-    );
+    _getItems = DatabaseHelper.getAll(Item.tableName, "Item");
   }
 
-  Future<void> _submitForm() async {
+  Future<void> _submitForm(List<Model> items) async {
     if (_formKey.currentState!.validate()) {
       List<Item> itemsToSave = [];
       double totalPrice = 0;
       double totalProfit = 0;
       for (var si in _selectedItems) {
-        for (Model i in _items) {
+        for (Model i in items) {
           if ((i as Item).id == si['item_id']) {
             itemsToSave.add(i);
             double sellingPrice = (i.sellingPrice *
@@ -109,11 +103,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     }
   }
 
-  void _addItem() {
-    if (_selectedItems.length == _items.length) {
-      String itemsCountSnackBarMsg = _items.length == 1
+  void _addItem(List<Model> items) {
+    if (_selectedItems.length == items.length) {
+      String itemsCountSnackBarMsg = items.length == 1
           ? 'عنصر واحد'
-          : (_items.length == 2 ? "عنصرين" : '${_items.length} عناصر');
+          : (items.length == 2 ? "عنصرين" : '${items.length} عناصر');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -139,176 +133,193 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('إضافة فاتورة'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Switch(
-                    value: _isSale,
-                    onChanged: (value) {
-                      setState(() {
-                        _isSale = value;
-                      });
-                    },
-                  ),
-                  const Text(
-                    "فاتورة زبون؟",
-                    style: TextStyle(fontSize: 17),
-                  ),
-                ],
-              ),
-              TextFormField(
-                controller: _discountController,
-                decoration: const InputDecoration(labelText: 'الحسم'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null &&
-                      value.isNotEmpty &&
-                      double.tryParse(value) == null) {
-                    return 'الرجاء إدخال رقم';
-                  }
-                  return null;
-                },
-              ),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _selectedItems.length,
-                  itemBuilder: (context, index) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
+    return FutureBuilder(
+      future: _getItems,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('إضافة فاتورة'),
+              centerTitle: true,
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              label: const Text(
-                                'الكمية (غرام أو قطعة)',
-                                textDirection: TextDirection.rtl,
+                        Switch(
+                          value: _isSale,
+                          onChanged: (value) {
+                            setState(() {
+                              _isSale = value;
+                            });
+                          },
+                        ),
+                        const Text(
+                          "فاتورة زبون؟",
+                          style: TextStyle(fontSize: 17),
+                        ),
+                      ],
+                    ),
+                    TextFormField(
+                      controller: _discountController,
+                      decoration: const InputDecoration(labelText: 'الحسم'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            double.tryParse(value) == null) {
+                          return 'الرجاء إدخال رقم';
+                        }
+                        return null;
+                      },
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _selectedItems.length,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    label: const Text(
+                                      'الكمية (غرام أو قطعة)',
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                    hintText: _selectedItems[index]['item'] !=
+                                            null
+                                        ? "لديك ${_selectedItems[index]['item'].quantity.toString()} ${MeasurementUnit.toArabic(_selectedItems[index]['item'].unit.value)}"
+                                        : '',
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value.isEmpty ||
+                                        int.tryParse(value) == 0) {
+                                      return "الرجاء إدخال كمية";
+                                    }
+                                    var unSufficientQuantity =
+                                        snapshot.data!.where((item) {
+                                      Item i = item as Item;
+                                      return ((i.id ==
+                                              _selectedItems[index]
+                                                  ['item_id']) &&
+                                          (i.quantity <
+                                              (i.unit == MeasurementUnit.kg
+                                                  ? _selectedItems[index]
+                                                          ['quantity'] /
+                                                      1000
+                                                  : _selectedItems[index]
+                                                      ['quantity'])));
+                                    });
+                                    if (_isSale &&
+                                        unSufficientQuantity.isNotEmpty) {
+                                      return "الكمية تجاوزت المخزون";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    if (value.isNotEmpty) {
+                                      setState(() {
+                                        _selectedItems[index]['quantity'] =
+                                            double.tryParse(value);
+                                      });
+                                    }
+                                  },
+                                ),
                               ),
-                              hintText: _selectedItems[index]['item'] != null
-                                  ? "لديك ${_selectedItems[index]['item'].quantity.toString()} ${MeasurementUnit.toArabic(_selectedItems[index]['item'].unit.value)}"
-                                  : '',
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  int.tryParse(value) == 0) {
-                                return "الرجاء إدخال كمية";
-                              }
-                              var unSufficientQuantity = _items.where((item) {
-                                Item i = item as Item;
-                                return ((i.id ==
-                                        _selectedItems[index]['item_id']) &&
-                                    (i.quantity <
-                                        (i.unit ==
-                                                MeasurementUnit.kg
-                                            ? _selectedItems[index]
-                                                    ['quantity'] /
-                                                1000
-                                            : _selectedItems[index]
-                                                ['quantity'])));
-                              });
-                              if (_isSale && unSufficientQuantity.isNotEmpty) {
-                                return "الكمية تجاوزت المخزون";
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              if (value.isNotEmpty) {
-                                setState(() {
-                                  _selectedItems[index]['quantity'] =
-                                      double.tryParse(value);
-                                });
-                              }
-                            },
-                          ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  decoration: const InputDecoration(
+                                    labelText: 'العنصر',
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      int itemId = int.parse(value!);
+                                      _selectedItems[index]['item_id'] = itemId;
+                                      for (Model i in snapshot.data!) {
+                                        if ((i as Item).id == itemId) {
+                                          _selectedItems[index]['item'] = i;
+                                        }
+                                      }
+                                    });
+                                  },
+                                  items: snapshot.data!
+                                      .map(
+                                        (item) => DropdownMenuItem<String>(
+                                          value: item.id.toString(),
+                                          child: Text((item as Item).name),
+                                        ),
+                                      )
+                                      .toList(),
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return "الرجاء اختيار عنصر";
+                                    }
+                                    List<int> distinctItems = [];
+                                    for (var i in _selectedItems) {
+                                      if (distinctItems
+                                          .contains(i['item_id'])) {
+                                        return "عليك جمع العناصر المتكررة\nفي سجل واحد";
+                                      }
+                                      distinctItems.add(i['item_id']);
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => _deleteItem(index),
+                                icon: const Icon(Icons.delete),
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _addItem(snapshot.data!),
+                          child: const Text('إضافة عنصر'),
                         ),
                         const SizedBox(
-                          width: 10,
+                          height: 10.0,
                         ),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: const InputDecoration(
-                              labelText: 'العنصر',
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                int itemId = int.parse(value!);
-                                _selectedItems[index]['item_id'] = itemId;
-                                for (Model i in _items) {
-                                  if ((i as Item).id == itemId) {
-                                    _selectedItems[index]['item'] = i;
-                                  }
-                                }
-                              });
-                            },
-                            items: _items
-                                .map(
-                                  (item) => DropdownMenuItem<String>(
-                                    value: item.id.toString(),
-                                    child: Text((item as Item).name),
-                                  ),
-                                )
-                                .toList(),
-                            validator: (value) {
-                              if (value == null) {
-                                return "الرجاء اختيار عنصر";
-                              }
-                              List<int> distinctItems = [];
-                              for (var i in _selectedItems) {
-                                if (distinctItems.contains(i['item_id'])) {
-                                  return "عليك جمع العناصر المتكررة\nفي سجل واحد";
-                                }
-                                distinctItems.add(i['item_id']);
-                              }
-                              return null;
-                            },
+                        SizedBox(
+                          height: 50.0,
+                          width: 150.0,
+                          child: ElevatedButton(
+                            onPressed: () => _submitForm(snapshot.data!),
+                            child: const Text('حفظ الفاتورة'),
                           ),
                         ),
-                        IconButton(
-                          onPressed: () => _deleteItem(index),
-                          icon: const Icon(Icons.delete),
-                        )
                       ],
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: _addItem,
-                    child: const Text('إضافة عنصر'),
-                  ),
-                  const SizedBox(
-                    height: 10.0,
-                  ),
-                  SizedBox(
-                    height: 50.0,
-                    width: 150.0,
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      child: const Text('حفظ الفاتورة'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.blue,
+            ),
+          );
+        }
+      },
     );
   }
 }

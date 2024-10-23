@@ -12,18 +12,23 @@ class ItemCubit extends Cubit<ItemState> {
   ItemCubit() : super(const ItemInitial(items: []));
   void loadItems() async {
     emit(const LoadingItems(items: []));
-    await DatabaseHelper.getAll(Item.tableName, "Item").then(
-      (value) {
-        items = value;
-      },
-    );
-    items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
-    emit(ItemsLoaded(items: items));
+    try {
+      await DatabaseHelper.getAll(Item.tableName, "Item").then(
+        (value) {
+          items = value;
+        },
+      );
+      items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
+      emit(ItemsLoaded(items: items));
+    } catch (e) {
+      emit(LoadingItemsFailed(items: items));
+    }
   }
 
   void addItem(Item item) async {
     try {
-      DatabaseHelper.insert(Item.tableName, item);
+      int? itemId = await DatabaseHelper.insert(Item.tableName, item);
+      item.id = itemId;
       items.add(item);
       items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
       emit(AddItemSuccess(items: items));
@@ -34,12 +39,22 @@ class ItemCubit extends Cubit<ItemState> {
 
   void updateItem(Item item) async {
     try {
-      DatabaseHelper.update(Item.tableName, item);
+      await DatabaseHelper.update(Item.tableName, item);
       items[items.indexWhere((i) => item.id == i.id)] = item;
       items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
       emit(UpdateItemSuccess(items: items));
     } catch (e) {
       emit(UpdateItemFail(items: items));
+    }
+  }
+
+  void deleteItem(int itemId) async {
+    try {
+      await DatabaseHelper.delete(Item.tableName, itemId);
+      items.removeAt(items.indexWhere((i) => itemId == i.id));
+      emit(DeleteItemSuccess(items: items));
+    } catch (e) {
+      emit(DeleteItemFail(items: items));
     }
   }
 }
