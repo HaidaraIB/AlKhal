@@ -50,49 +50,63 @@ class _ItemsState extends State<Items> {
         } else if (state.items!.isNotEmpty) {
           return ExpandableFAB(
             fabs: addFabs,
-            body: Column(
-              children: [
-                // const SizedBox(height: 10),
-                // const Row(
-                //   children: [
-                //     SizedBox(width: 100),
-                //     ItemsCategoriesDropDown(),
-                //     SizedBox(width: 100),
-                //   ],
-                // ),
-                // const SizedBox(height: 10),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.items!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ItemCard(item: state.items![index] as Item);
-                    },
-                  ),
-                ),
-              ],
+            // body: Column(
+            //   children: [
+            //     const SizedBox(height: 10),
+            //     const Row(
+            //       children: [
+            //         SizedBox(width: 100),
+            //         ItemsCategoriesDropDown(),
+            //         SizedBox(width: 100),
+            //       ],
+            //     ),
+            //     const SizedBox(height: 10),
+            //     Expanded(
+            //       child: ListView.builder(
+            //         itemCount: state.items!.length,
+            //         itemBuilder: (BuildContext context, int index) {
+            //           return ItemCard(item: state.items![index] as Item);
+            //         },
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            body: Expanded(
+              child: ListView.builder(
+                itemCount: state.items!.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ItemCard(item: state.items![index] as Item);
+                },
+              ),
             ),
           );
         } else {
           return ExpandableFAB(
             fabs: addFabs,
-            body: const Column(
-              children: [
-                // SizedBox(height: 10),
-                // Row(
-                //   children: [
-                //     SizedBox(width: 100),
-                //     ItemsCategoriesDropDown(),
-                //     SizedBox(width: 100),
-                //   ],
-                // ),
-                // SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    '!ليس لديك عناصر بعد',
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-              ],
+            // body: const Column(
+            //   children: [
+            //     SizedBox(height: 10),
+            //     Row(
+            //       children: [
+            //         SizedBox(width: 100),
+            //         ItemsCategoriesDropDown(),
+            //         SizedBox(width: 100),
+            //       ],
+            //     ),
+            //     SizedBox(height: 10),
+            //     Center(
+            //       child: Text(
+            //         '!ليس لديك عناصر بعد',
+            //         style: TextStyle(fontSize: 20),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            body: const Center(
+              child: Text(
+                '!ليس لديك عناصر بعد',
+                style: TextStyle(fontSize: 20),
+              ),
             ),
           );
         }
