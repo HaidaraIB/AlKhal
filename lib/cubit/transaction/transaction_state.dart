@@ -31,6 +31,13 @@ final class TransactionsLoaded extends TransactionState {
   });
 }
 
+final class TransactionLoadingFailed extends TransactionState {
+  const TransactionLoadingFailed({
+    required super.transactions,
+    required super.filter,
+  });
+}
+
 final class AddTransactionSuccess extends TransactionState {
   const AddTransactionSuccess({
     required super.transactions,

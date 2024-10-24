@@ -17,3 +17,7 @@ final class LoadingCategories extends CategoryState {
 final class CategoriesLoaded extends CategoryState {
   const CategoriesLoaded({required super.categories});
 }
+
+final class LoadingCategoriesFailed extends CategoryState {
+  const LoadingCategoriesFailed({required super.categories});
+}

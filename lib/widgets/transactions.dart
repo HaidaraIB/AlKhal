@@ -15,14 +15,24 @@ class Transactions extends StatefulWidget {
 
 class _TransactionsState extends State<Transactions> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     BlocProvider.of<TransactionCubit>(context).loadTransactions();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<TransactionCubit, TransactionState>(
       builder: (context, state) {
         if (state is LoadingTransactions) {
           return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.blue,
+            child: CircularProgressIndicator(color: Colors.blue),
+          );
+        } else if (state is TransactionLoadingFailed) {
+          return const Center(
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(fontSize: 20),
             ),
           );
         } else if (state.transactions.isNotEmpty) {
@@ -30,21 +40,19 @@ class _TransactionsState extends State<Transactions> {
             floatingActionButton: const AddTransactionFAB(),
             body: Column(
               children: [
+                const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    TransactionFilterDropDown(
-                      filter: state.filter,
-                    ),
+                    const SizedBox(width: 100),
+                    TransactionFilterDropDown(filter: state.filter),
+                    const SizedBox(width: 100),
                   ],
                 ),
+                const SizedBox(height: 10),
                 Expanded(
                   child: ListView.builder(
                     itemCount: state.transactions.length,
-                    itemBuilder: (BuildContext context, int index) {
+                    itemBuilder: (context, index) {
                       return TransactionCard(
                         transaction: state.transactions[index] as Transaction,
                       );
@@ -58,24 +66,25 @@ class _TransactionsState extends State<Transactions> {
           return Scaffold(
             floatingActionButton: const AddTransactionFAB(),
             body: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    TransactionFilterDropDown(
-                      filter: state.filter,
-                    ),
+                    const SizedBox(width: 100),
+                    TransactionFilterDropDown(filter: state.filter),
+                    const SizedBox(width: 100),
                   ],
                 ),
-                Text(
-                  "!لا فواتير ${state.filter.name != 'all' ? '${TransactionFilter.toArabic(state.filter.name)} بعد' : 'بعد'}",
-                  style: const TextStyle(fontSize: 20),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "!لا فواتير ${state.filter.name != 'all' ? '${TransactionFilter.toArabic(state.filter.name)} بعد' : 'بعد'}",
+                      style: const TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-                const SizedBox(),
               ],
             ),
           );
@@ -95,20 +104,31 @@ class TransactionFilterDropDown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<TransactionFilter>(
-      dropdownColor: Theme.of(context).colorScheme.inversePrimary,
-      borderRadius: BorderRadius.circular(10),
-      value: filter ?? TransactionFilter.all,
-      items: TransactionFilter.values
-          .map(
-            (filter) => DropdownMenuItem(
-              value: filter,
-              child: Text(TransactionFilter.toArabic(filter.name)),
-            ),
-          )
-          .toList(),
-      onChanged: (filter) =>
-          context.read<TransactionCubit>().setFilter(filter!),
+    return Expanded(
+      child: DropdownButtonFormField<TransactionFilter>(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.inversePrimary,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+          hintText: 'Select an item',
+          hintStyle: TextStyle(color: Colors.purple[300]),
+        ),
+        dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+        borderRadius: BorderRadius.circular(10),
+        value: filter ?? TransactionFilter.all,
+        items: TransactionFilter.values.map((filter) {
+          return DropdownMenuItem(
+            value: filter,
+            child: Text(TransactionFilter.toArabic(filter.name)),
+          );
+        }).toList(),
+        onChanged: (filter) =>
+            context.read<TransactionCubit>().setFilter(filter!),
+      ),
     );
   }
 }

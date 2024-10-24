@@ -19,9 +19,14 @@ class TransactionItems extends StatefulWidget {
 
 class _ItemsState extends State<TransactionItems> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     BlocProvider.of<TransactionItemCubit>(context)
         .loadItems(widget.transactionId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<TransactionItemCubit, TransactionItemState>(
       builder: (context, state) {
         if (state is LoadingTransactionItems) {
@@ -32,7 +37,10 @@ class _ItemsState extends State<TransactionItems> {
           );
         } else if (state is LoadingTransactionItemsFailed) {
           return const Center(
-            child: Text("Something went wrong!"),
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(fontSize: 20),
+            ),
           );
         } else if (state.transactionItems.isNotEmpty) {
           return ListView.builder(
@@ -47,7 +55,10 @@ class _ItemsState extends State<TransactionItems> {
           );
         } else {
           return const Center(
-            child: Text('ليس لديك عناصر بعد'),
+            child: Text(
+              '!ليس لديك عناصر بعد',
+              style: TextStyle(fontSize: 20),
+            ),
           );
         }
       },

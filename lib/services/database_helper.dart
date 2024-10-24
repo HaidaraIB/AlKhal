@@ -61,14 +61,14 @@ class DatabaseHelper {
           new_selling_price REAL,
           old_purchase_price REAL,
           new_purchase_price REAL,
-          update_date TEXT,
+          update_date TIMESTAMP,
           FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE
         );
       """);
     await db.execute("""
         CREATE TABLE 'transaction' (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          date TEXT,
+          transaction_date TIMESTAMP,
           discount REAL,
           total_price REAL,
           total_profit REAL,
@@ -83,6 +83,14 @@ class DatabaseHelper {
           quantity REAL,
           FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE,
           FOREIGN KEY (transaction_id) REFERENCES 'transaction' (id) ON DELETE CASCADE
+        );
+      """);
+    await db.execute("""
+        CREATE TABLE cash_result (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          cash REAL,
+          profit REAL,
+          result_date TIMESTAMP
         );
       """);
   }
@@ -152,6 +160,7 @@ class DatabaseHelper {
 
   static Future<Map<String, dynamic>> computeCash() async {
     final db = await DatabaseHelper.db;
+    DateTime today = DateTime.now();
     final List<Map<String, dynamic>>? cashResult = await db?.rawQuery(
       '''
       SELECT 
@@ -159,7 +168,7 @@ class DatabaseHelper {
         SUM(total_profit) as profit
       FROM 
         'transaction'
-      WHERE is_sale = 1;
+      WHERE is_sale = 1 AND date(transaction_date) = '${today.year}-${today.month}-${today.day}';
         ''',
     );
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
@@ -168,7 +177,7 @@ class DatabaseHelper {
         SUM(total_price) as bills
       FROM 
         'transaction'
-      WHERE is_sale = 0;
+      WHERE is_sale = 0 AND date(transaction_date) = '${today.year}-${today.month}-${today.day}';
         ''',
     );
 

@@ -30,8 +30,13 @@ class CashScreen extends StatefulWidget {
 
 class _CashScreenState extends State<CashScreen> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     BlocProvider.of<CashCubit>(context).computeCash();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<CashCubit, CashState>(
       builder: (context, state) {
         if (state is LoadingCash) {
@@ -83,7 +88,10 @@ class _CashScreenState extends State<CashScreen> {
           );
         } else {
           return const Center(
-            child: Text("Something went wrong!"),
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(fontSize: 20),
+            ),
           );
         }
       },

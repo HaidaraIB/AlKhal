@@ -6,13 +6,13 @@ class Transaction extends Model {
   final double discount;
   final double totalPrice;
   final double totalProfit;
-  final String date;
+  final String transactionDate;
   final int isSale;
 
   Transaction({
     super.id,
     required this.discount,
-    required this.date,
+    required this.transactionDate,
     required this.isSale,
     required this.totalPrice,
     required this.totalProfit,
@@ -23,7 +23,7 @@ class Transaction extends Model {
     return {
       'id': id,
       'discount': discount,
-      'date': date,
+      'transaction_date': transactionDate,
       'is_sale': isSale,
       'total_price': totalPrice,
       'total_profit': totalProfit
@@ -34,7 +34,7 @@ class Transaction extends Model {
     return Transaction(
       id: map['id'],
       discount: map['discount'],
-      date: map['date'],
+      transactionDate: map['transaction_date'],
       isSale: map['is_sale'],
       totalPrice: map['total_price'],
       totalProfit: map['total_profit'],

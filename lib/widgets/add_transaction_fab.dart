@@ -5,12 +5,22 @@ import 'package:alkhal/screens/add_transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddTransactionFAB extends StatelessWidget {
+class AddTransactionFAB extends StatefulWidget {
   const AddTransactionFAB({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<AddTransactionFAB> createState() => _AddTransactionFABState();
+}
+
+class _AddTransactionFABState extends State<AddTransactionFAB> {
+  @override
+  void initState() {
+    super.initState();
     BlocProvider.of<ItemCubit>(context).loadItems();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<ItemCubit, ItemState>(
       builder: (context, state) {
         return FloatingActionButton(
@@ -52,7 +62,7 @@ class AddTransactionFAB extends StatelessWidget {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('ليس لديك عناصر بعد'),
+                  content: Text('!ليس لديك عناصر بعد'),
                 ),
               );
             }

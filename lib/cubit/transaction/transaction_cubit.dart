@@ -44,15 +44,9 @@ class TransactionCubit extends Cubit<TransactionState> {
           }).toList();
         },
       );
-      emit(TransactionsLoaded(
-        transactions: transactions,
-        filter: filter,
-      ));
+      emit(TransactionsLoaded(transactions: transactions, filter: filter));
     } catch (e) {
-      emit(LoadingTransactions(
-        transactions: const [],
-        filter: filter,
-      ));
+      emit(TransactionLoadingFailed(transactions: const [], filter: filter));
     }
   }
 
@@ -61,24 +55,11 @@ class TransactionCubit extends Cubit<TransactionState> {
       await getFilter();
       int? transactionId =
           await DatabaseHelper.insert(Transaction.tableName, transaction);
-      transaction.id = transactionId;
-      if (filter.name == "all" ||
-          (filter.name == "sell" && transaction.isSale == 1) ||
-          (filter.name == "buy" && transaction.isSale == 0)) {
-        transactions.add(transaction);
-        transactions.sort((a, b) => DateTime.parse((a as Transaction).date)
-            .compareTo(DateTime.parse((b as Transaction).date)));
-      }
-      emit(AddTransactionSuccess(
-        transactions: transactions,
-        filter: filter,
-      ));
+      loadTransactions();
+      emit(AddTransactionSuccess(transactions: transactions, filter: filter));
       return transactionId;
     } catch (e) {
-      emit(AddTransactionFail(
-        transactions: transactions,
-        filter: filter,
-      ));
+      emit(AddTransactionFail(transactions: const [], filter: filter));
       return -1;
     }
   }
@@ -87,19 +68,7 @@ class TransactionCubit extends Cubit<TransactionState> {
     filter = f;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('filter', filter.toString());
-    await DatabaseHelper.getAll(Transaction.tableName, "Transaction").then(
-      (value) {
-        transactions = value.where((t) {
-          t = (t as Transaction);
-          return t.isSale != 0 &&
-                  [TransactionFilter.all, TransactionFilter.sell]
-                      .contains(filter) ||
-              t.isSale == 0 &&
-                  [TransactionFilter.all, TransactionFilter.buy]
-                      .contains(filter);
-        }).toList();
-      },
-    );
+    loadTransactions();
     emit(
       TransactionsFiltered(filter: filter, transactions: transactions),
     );

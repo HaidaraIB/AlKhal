@@ -20,7 +20,7 @@ class CategoryCubit extends Cubit<CategoryState> {
       );
       emit(CategoriesLoaded(categories: categories));
     } catch (e) {
-      emit(const CategoriesLoaded(categories: []));
+      emit(const LoadingCategoriesFailed(categories: []));
     }
   }
 }

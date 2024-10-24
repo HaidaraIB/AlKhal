@@ -188,7 +188,7 @@ class _AddItemFormState extends State<UpdateItemForm> {
                             BlocProvider.of<ItemHistoryCubit>(context)
                                 .addItemHistory(
                               ItemHistory(
-                                updateDate: DateTime.now().toIso8601String(),
+                                updateDate: DateTime.now().toString(),
                                 itemId: widget.oldItem.id!,
                                 newCategoryId:
                                     int.tryParse(_categoryController.text) ??

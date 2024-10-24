@@ -28,8 +28,13 @@ class _ItemsState extends State<Items> {
     ),
   ];
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     BlocProvider.of<ItemCubit>(context).loadItems();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<ItemCubit, ItemState>(
       builder: (context, state) {
         if (state is LoadingItems) {
@@ -45,22 +50,89 @@ class _ItemsState extends State<Items> {
         } else if (state.items!.isNotEmpty) {
           return ExpandableFAB(
             fabs: addFabs,
-            body: ListView.builder(
-              itemCount: state.items!.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ItemCard(item: state.items![index] as Item);
-              },
+            body: Column(
+              children: [
+                // const SizedBox(height: 10),
+                // const Row(
+                //   children: [
+                //     SizedBox(width: 100),
+                //     ItemsCategoriesDropDown(),
+                //     SizedBox(width: 100),
+                //   ],
+                // ),
+                // const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.items!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ItemCard(item: state.items![index] as Item);
+                    },
+                  ),
+                ),
+              ],
             ),
           );
         } else {
           return ExpandableFAB(
             fabs: addFabs,
-            body: const Center(
-              child: Text('ليس لديك عناصر بعد'),
+            body: const Column(
+              children: [
+                // SizedBox(height: 10),
+                // Row(
+                //   children: [
+                //     SizedBox(width: 100),
+                //     ItemsCategoriesDropDown(),
+                //     SizedBox(width: 100),
+                //   ],
+                // ),
+                // SizedBox(height: 10),
+                Center(
+                  child: Text(
+                    '!ليس لديك عناصر بعد',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ],
             ),
           );
         }
       },
+    );
+  }
+}
+
+class ItemsCategoriesDropDown extends StatelessWidget {
+  const ItemsCategoriesDropDown({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.inversePrimary,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+            hintText: 'Select an item',
+            hintStyle: TextStyle(color: Colors.purple[300]),
+          ),
+          dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+          borderRadius: BorderRadius.circular(10),
+          value: "العناصر",
+          items: const [
+            DropdownMenuItem(
+              value: "العناصر",
+              child: Text("العناصر"),
+            ),
+            DropdownMenuItem(
+              value: "المجموعات",
+              child: Text("المجموعات"),
+            ),
+          ],
+          onChanged: (filter) => {}),
     );
   }
 }

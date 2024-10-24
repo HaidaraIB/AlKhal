@@ -41,7 +41,8 @@ class _TransactionCardState extends State<TransactionCard> {
               height: 10,
             ),
             Text(
-              intl.DateFormat().format(DateTime.parse(widget.transaction.date)),
+              intl.DateFormat()
+                  .format(DateTime.parse(widget.transaction.transactionDate)),
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,

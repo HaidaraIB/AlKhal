@@ -23,8 +23,6 @@ class _AddItemFormState extends State<AddItemForm> {
   final _purchasePriceController = TextEditingController();
   final _sellingPriceController = TextEditingController();
 
-  final FocusNode _nameFocusNode = FocusNode();
-
   late Future<List<Model>> _getCategories;
   @override
   void initState() {
@@ -51,7 +49,6 @@ class _AddItemFormState extends State<AddItemForm> {
                   child: Column(
                     children: [
                       TextFormField(
-                        focusNode: _nameFocusNode,
                         scrollPadding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom,
                         ),

@@ -17,8 +17,13 @@ class ItemHistoryScreen extends StatefulWidget {
 
 class _ItemHistoryScreenState extends State<ItemHistoryScreen> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     BlocProvider.of<ItemHistoryCubit>(context).loadHistory(widget.itemId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<ItemHistoryCubit, ItemHistoryState>(
       builder: (context, state) {
         if (state is LoadingHistory) {
@@ -29,7 +34,10 @@ class _ItemHistoryScreenState extends State<ItemHistoryScreen> {
           );
         } else if (state is LoadingHistoryFailed) {
           return const Center(
-            child: Text("Something went wrong!"),
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(fontSize: 20),
+            ),
           );
         } else if (state.itemHistory.isNotEmpty) {
           return ListView.builder(
