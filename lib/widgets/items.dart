@@ -71,13 +71,11 @@ class _ItemsState extends State<Items> {
             //     ),
             //   ],
             // ),
-            body: Expanded(
-              child: ListView.builder(
-                itemCount: state.items!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ItemCard(item: state.items![index] as Item);
-                },
-              ),
+            body: ListView.builder(
+              itemCount: state.items!.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ItemCard(item: state.items![index] as Item);
+              },
             ),
           );
         } else {
