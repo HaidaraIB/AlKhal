@@ -21,7 +21,7 @@ class DatabaseHelper {
   static Future _initDatabase() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, dbName);
-    await deleteDatabase(path);
+    // await deleteDatabase(path);
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
