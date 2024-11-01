@@ -2,7 +2,7 @@ import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/screens/cash_screen.dart';
 import 'package:alkhal/screens/items_categories_screen.dart';
 import 'package:alkhal/screens/pin_screen.dart';
-// import 'package:alkhal/screens/settings_screen.dart';
+import 'package:alkhal/screens/settings_screen.dart';
 import 'package:alkhal/screens/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,11 +117,11 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
               onPressed: () {
-                // Navigator.of(context).push(MaterialPageRoute(
-                //   builder: (context) {
-                //     return const SettingsScreen();
-                //   },
-                // ));
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) {
+                    return const SettingsScreen();
+                  },
+                ));
               },
               icon: const Icon(Icons.settings))
         ],

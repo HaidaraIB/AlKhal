@@ -1,12 +1,12 @@
-// import 'dart:io';
+import 'dart:io';
 
 import 'package:alkhal/models/model.dart';
 import 'package:path/path.dart';
-// import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static const dbName = 'warehouse.db';
+  static const externalDbPath = "/storage/emulated/0/AlKhal/database";
   static Database? _db;
 
   static Future<Database?> get db async {
@@ -103,37 +103,48 @@ class DatabaseHelper {
     """);
   }
 
-  // static Future<void> backupDatabase(String dbName) async {
-  //   final databasesPath = await getDatabasesPath();
-  //   final dbPath = join(databasesPath, dbName);
-  //   final backupPath =
-  //       join((await getExternalStorageDirectory())!.path, dbName);
+  static Future<void> backupDatabase(String dbName) async {
+    await createDirectory();
+    final databasesPath = await getDatabasesPath();
+    final dbPath = join(databasesPath, dbName);
+    final backupPath = join(externalDbPath, dbName);
 
-  //   final dbFile = File(dbPath);
-  //   final backupFile = File(backupPath);
+    final dbFile = File(dbPath);
+    final backupFile = File(backupPath);
 
-  //   if (await dbFile.exists()) {
-  //     await dbFile.copy(backupFile.path);
-  //   } else {}
-  // }
+    if (await dbFile.exists()) {
+      await dbFile.copy(backupFile.path);
+    } else {}
+  }
 
-  // static Future<void> restoreDatabase(String dbName) async {
-  //   final databasesPath = await getDatabasesPath();
-  //   final dbPath = join(databasesPath, dbName);
-  //   final backupPath =
-  //       join((await getExternalStorageDirectory())!.path, dbName);
+  static Future<void> restoreDatabase(String dbName) async {
+    await createDirectory();
+    final databasesPath = await getDatabasesPath();
+    final dbPath = join(databasesPath, dbName);
+    final backupPath = join(externalDbPath, dbName);
 
-  //   final backupFile = File(backupPath);
-  //   final dbFile = File(dbPath);
+    final backupFile = File(backupPath);
+    final dbFile = File(dbPath);
 
-  //   if (await backupFile.exists()) {
-  //     if (await dbFile.exists()) {
-  //       await dbFile.delete();
-  //     }
-  //     await backupFile.copy(dbFile.path);
-  //   } else {}
-  // }
+    if (await backupFile.exists()) {
+      if (await dbFile.exists()) {
+        await dbFile.delete();
+      }
+      await backupFile.copy(dbFile.path);
+    } else {}
+  }
 
+  static Future<void> createDirectory() async {
+    final Directory storageDir = Directory(externalDbPath);
+
+    if (!await storageDir.exists()) {
+      try {
+        await storageDir.create(recursive: true);
+      } catch (e) {
+        print("Error creating directory: $e");
+      }
+    }
+  }
   // CRUD operations
 
   // Create

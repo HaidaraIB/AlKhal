@@ -76,7 +76,12 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           );
         } else if (state is LoadingItemsFailed) {
           return const Center(
-            child: Text("Something went wrong!"),
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
           );
         } else if (state.items!.isNotEmpty) {
           return _buildView(
@@ -124,7 +129,12 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           );
         } else if (state is LoadingCategoriesFailed) {
           return const Center(
-            child: Text("Something went wrong!"),
+            child: Text(
+              "Something went wrong!",
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
           );
         } else if (state.categories.isNotEmpty) {
           return _buildView(
