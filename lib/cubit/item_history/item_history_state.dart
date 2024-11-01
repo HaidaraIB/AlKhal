@@ -10,6 +10,14 @@ final class ItemHistoryInitial extends ItemHistoryState {
   const ItemHistoryInitial({required super.itemHistory});
 }
 
+final class ItemHistoryOperationFailed extends ItemHistoryState {
+  final String err;
+  const ItemHistoryOperationFailed({
+    required super.itemHistory,
+    required this.err,
+  });
+}
+
 final class AddItemHistorySuccess extends ItemHistoryState {
   const AddItemHistorySuccess({required super.itemHistory});
 }
@@ -22,8 +30,11 @@ final class LoadingHistory extends ItemHistoryState {
   const LoadingHistory({required super.itemHistory});
 }
 
-final class LoadingHistoryFailed extends ItemHistoryState {
-  const LoadingHistoryFailed({required super.itemHistory});
+final class LoadingHistoryFailed extends ItemHistoryOperationFailed {
+  const LoadingHistoryFailed({
+    required super.itemHistory,
+    required super.err,
+  });
 }
 
 final class HistoryLoaded extends ItemHistoryState {

@@ -47,7 +47,9 @@ class InitialScreen extends StatelessWidget {
       future: _checkActivation(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         } else {
           if (snapshot.data == true) {
             Future.microtask(() {

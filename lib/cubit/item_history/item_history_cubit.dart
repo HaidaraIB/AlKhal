@@ -22,7 +22,7 @@ class ItemHistoryCubit extends Cubit<ItemHistoryState> {
           .compareTo((b as ItemHistory).updateDate));
       emit(HistoryLoaded(itemHistory: itemHistory));
     } catch (e) {
-      emit(const LoadingHistoryFailed(itemHistory: []));
+      emit(LoadingHistoryFailed(itemHistory: const [], err: e.toString()));
     }
   }
 

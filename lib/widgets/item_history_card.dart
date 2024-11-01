@@ -2,6 +2,7 @@ import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item_history.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/services/database_helper.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,8 @@ class ItemHistoryCard extends StatefulWidget {
   State<ItemHistoryCard> createState() => _ItemHistoryCardState();
 }
 
-class _ItemHistoryCardState extends State<ItemHistoryCard> {
+class _ItemHistoryCardState extends State<ItemHistoryCard>
+    with AutomaticKeepAliveClientMixin {
   late Future<Map<String, Model?>> _data;
 
   Future<Map<String, Model?>> _getData() async {
@@ -25,14 +27,14 @@ class _ItemHistoryCardState extends State<ItemHistoryCard> {
         Category.tableName, "Category", widget.itemHistory.oldCategoryId);
     Model? newCategory = await DatabaseHelper.getById(
         Category.tableName, "Category", widget.itemHistory.newCategoryId);
-    Model? itemHistory = await DatabaseHelper.getById(
-        ItemHistory.tableName, 'ItemHistory', widget.itemHistory.id!);
     return {
-      "itemHistory": itemHistory,
       "old_category": oldCategory,
       "new_category": newCategory,
     };
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -42,24 +44,23 @@ class _ItemHistoryCardState extends State<ItemHistoryCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
       future: _data,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Category oldCategory = snapshot.data!['old_category'] as Category;
           Category newCategory = snapshot.data!['new_category'] as Category;
-          ItemHistory itemHistory =
-              snapshot.data!['itemHistory'] as ItemHistory;
           return ItemHistoryCardWidget(
             oldCategoryName: oldCategory.name,
             newCategoryName: newCategory.name,
-            oldName: itemHistory.oldName,
-            newName: itemHistory.newName,
-            oldPurchasePrice: itemHistory.oldPurchasePrice,
-            newPurchasePrice: itemHistory.newPurchasePrice,
-            oldSellingPrice: itemHistory.oldSellingPrice,
-            newSellingPrice: itemHistory.newSellingPrice,
-            updateDate: itemHistory.updateDate,
+            oldName: widget.itemHistory.oldName,
+            newName: widget.itemHistory.newName,
+            oldPurchasePrice: widget.itemHistory.oldPurchasePrice,
+            newPurchasePrice: widget.itemHistory.newPurchasePrice,
+            oldSellingPrice: widget.itemHistory.oldSellingPrice,
+            newSellingPrice: widget.itemHistory.newSellingPrice,
+            updateDate: widget.itemHistory.updateDate,
           );
         } else {
           return const Center(

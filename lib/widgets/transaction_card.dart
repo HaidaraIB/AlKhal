@@ -1,6 +1,7 @@
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/screens/transaction_items_screen.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,7 +58,6 @@ class TransactionCard extends StatelessWidget {
                               child: Scaffold(
                                 appBar: AppBar(
                                   title: const Text('تفاصيل فاتورة'),
-                                  centerTitle: true,
                                 ),
                                 body: TransactionItems(
                                   transactionId: transaction.id!,

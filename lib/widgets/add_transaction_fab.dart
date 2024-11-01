@@ -62,7 +62,11 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('!ليس لديك عناصر بعد'),
+                  content: Text(
+                    'ليس لديك عناصر بعد!',
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.rtl,
+                  ),
                 ),
               );
             }

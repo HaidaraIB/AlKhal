@@ -1,4 +1,5 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,12 +40,8 @@ class _CashScreenState extends State<CashScreen>
         if (snapshot.hasData) {
           return BlocBuilder<CashCubit, CashState>(
             builder: (context, state) {
-              if (state is LoadingCash) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.blue,
-                  ),
-                );
+              if (state is CashRefreshingFailed) {
+                return buildErrorWidget(state.err);
               } else if (state is CashRefreshed) {
                 return Scaffold(
                   backgroundColor: Colors.white,
@@ -115,9 +112,8 @@ class _CashScreenState extends State<CashScreen>
                 );
               } else {
                 return const Center(
-                  child: Text(
-                    "Something went wrong!",
-                    style: TextStyle(fontSize: 20),
+                  child: CircularProgressIndicator(
+                    color: Colors.blue,
                   ),
                 );
               }

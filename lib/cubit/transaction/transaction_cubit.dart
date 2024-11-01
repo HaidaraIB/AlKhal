@@ -1,6 +1,7 @@
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/services/database_helper.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/transaction_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,13 +13,13 @@ part 'transaction_state.dart';
 class TransactionCubit extends Cubit<TransactionState> {
   List<Model> transactions = [];
   TransactionFilter filter = TransactionFilter.all;
-  String dateFilter = DateFormat("y-MM-d").format(DateTime.now());
+  String dateFilter = DateFormat(dateFormat).format(DateTime.now());
 
   TransactionCubit()
       : super(TransactionInitial(
           transactions: const [],
           filter: TransactionFilter.all,
-          dateFilter: DateFormat("y-MM-d").format(DateTime.now()),
+          dateFilter: DateFormat(dateFormat).format(DateTime.now()),
         ));
 
   Future<TransactionFilter> getFilter() async {
@@ -33,42 +34,42 @@ class TransactionCubit extends Cubit<TransactionState> {
   Future<String> getDateFilter() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     dateFilter = sharedPreferences.getString('transaction_date_filter') ??
-        DateFormat("y-MM-d").format(DateTime.now());
-    try {
-      DateFormat("EEEE d MMMM y", "ar_SY").format(DateTime.parse(dateFilter));
-    } catch (e) {
-      dateFilter = DateFormat("y-MM-d").format(DateTime.now());
-    }
+        DateFormat(dateFormat).format(DateTime.now());
+
     return dateFilter;
   }
 
-  void loadTransactions() async {
+  Future _loadTransactions() async {
+    await getFilter();
+    await getDateFilter();
+    await DatabaseHelper.getAll(
+      Transaction.tableName,
+      "Transaction",
+      "date(transaction_date) = ?",
+      [DateFormat(dateFormat).format(DateTime.parse(dateFilter))],
+    ).then(
+      (value) {
+        transactions = value.where((t) {
+          t = (t as Transaction);
+          return t.isSale != 0 &&
+                  [TransactionFilter.all, TransactionFilter.sell]
+                      .contains(filter) ||
+              t.isSale == 0 &&
+                  [TransactionFilter.all, TransactionFilter.buy]
+                      .contains(filter);
+        }).toList();
+      },
+    );
+  }
+
+  Future loadTransactions() async {
     emit(LoadingTransactions(
       transactions: const [],
       filter: filter,
       dateFilter: dateFilter,
     ));
     try {
-      await getFilter();
-      await getDateFilter();
-      await DatabaseHelper.getAll(
-        Transaction.tableName,
-        "Transaction",
-        "date(transaction_date) = ?",
-        [DateFormat("y-MM-d").format(DateTime.parse(dateFilter))],
-      ).then(
-        (value) {
-          transactions = value.where((t) {
-            t = (t as Transaction);
-            return t.isSale != 0 &&
-                    [TransactionFilter.all, TransactionFilter.sell]
-                        .contains(filter) ||
-                t.isSale == 0 &&
-                    [TransactionFilter.all, TransactionFilter.buy]
-                        .contains(filter);
-          }).toList();
-        },
-      );
+      await _loadTransactions();
       emit(TransactionsLoaded(
         transactions: transactions,
         filter: filter,
@@ -79,6 +80,7 @@ class TransactionCubit extends Cubit<TransactionState> {
         transactions: const [],
         filter: filter,
         dateFilter: dateFilter,
+        err: e.toString(),
       ));
     }
   }
@@ -88,7 +90,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       await getFilter();
       int? transactionId =
           await DatabaseHelper.insert(Transaction.tableName, transaction);
-      loadTransactions();
+      await _loadTransactions();
       emit(AddTransactionSuccess(
         transactions: transactions,
         filter: filter,
@@ -100,6 +102,7 @@ class TransactionCubit extends Cubit<TransactionState> {
         transactions: const [],
         filter: filter,
         dateFilter: dateFilter,
+        err: e.toString(),
       ));
       return -1;
     }
@@ -109,7 +112,7 @@ class TransactionCubit extends Cubit<TransactionState> {
     filter = f;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('transaction_filter', filter.toString());
-    loadTransactions();
+    await _loadTransactions();
     emit(
       TransactionsFiltered(
         filter: filter,
@@ -123,7 +126,7 @@ class TransactionCubit extends Cubit<TransactionState> {
     dateFilter = d;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setString('transaction_date_filter', dateFilter);
-    loadTransactions();
+    await _loadTransactions();
     emit(
       TransactionsFiltered(
         filter: filter,

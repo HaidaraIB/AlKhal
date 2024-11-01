@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
 import 'package:alkhal/models/item_history.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/item_history_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,12 +34,7 @@ class _ItemHistoryScreenState extends State<ItemHistoryScreen> {
             ),
           );
         } else if (state is LoadingHistoryFailed) {
-          return const Center(
-            child: Text(
-              "Something went wrong!",
-              style: TextStyle(fontSize: 20),
-            ),
-          );
+          return buildErrorWidget(state.err);
         } else if (state.itemHistory.isNotEmpty) {
           return ListView.builder(
             itemCount: state.itemHistory.length,

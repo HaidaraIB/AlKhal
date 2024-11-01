@@ -61,7 +61,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       if (_selectedItems.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("!عليك إضافة عنصر واحد على الأقل"),
+            content: Text(
+              "عليك إضافة عنصر واحد على الأقل!",
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.rtl,
+            ),
           ),
         );
         return;
@@ -152,7 +156,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           : (items.length == 2 ? "عنصرين" : '${items.length} عناصر');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("لديك في المخزون الرئيسي $itemsCountSnackBarMsg فقط"),
+          content: Text(
+            "لديك في المخزون الرئيسي $itemsCountSnackBarMsg فقط",
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.rtl,
+          ),
         ),
       );
       return;
@@ -183,7 +191,6 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('إضافة فاتورة'),
-              centerTitle: true,
             ),
             body: Padding(
               padding: const EdgeInsets.all(16.0),

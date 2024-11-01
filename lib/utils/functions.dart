@@ -1,13 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String formatDouble(double d) {
   final formatter = intl.NumberFormat('#,##0.##');
   return formatter.format(d);
 }
-
-intl.DateFormat arDateTimeFormat =
-    intl.DateFormat('EEEE d MMMM y, h:mm a', 'ar_SA');
 
 Future<void> requestStoragePermission() async {
   var status = await Permission.manageExternalStorage.status;
@@ -16,14 +15,19 @@ Future<void> requestStoragePermission() async {
     var result = await Permission.manageExternalStorage.request();
 
     if (result.isGranted) {
-      print("Storage permission granted.");
+      debugPrint("Storage permission granted.");
     } else if (result.isDenied) {
-      print("Storage permission denied.");
+      debugPrint("Storage permission denied.");
     } else if (result.isPermanentlyDenied) {
-      print(
+      debugPrint(
           "Storage permission permanently denied. Please enable it in settings.");
     }
   } else {
-    print("Storage permission already granted.");
+    debugPrint("Storage permission already granted.");
   }
+}
+
+Future<void> clearSharedPref() async {
+  SharedPreferences instance = await SharedPreferences.getInstance();
+  await instance.clear();
 }

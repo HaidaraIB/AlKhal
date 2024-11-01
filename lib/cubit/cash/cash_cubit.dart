@@ -20,7 +20,8 @@ class CashCubit extends Cubit<CashState> {
       });
       emit(CashRefreshed(cash: cash, profit: profit, bills: bills));
     } catch (e) {
-      emit(CashRefreshingFailed(cash: cash, profit: profit, bills: bills));
+      emit(CashRefreshingFailed(
+          cash: cash, profit: profit, bills: bills, err: e.toString()));
     }
   }
 }

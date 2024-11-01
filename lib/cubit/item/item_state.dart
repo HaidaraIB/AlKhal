@@ -24,6 +24,17 @@ final class ItemInitial extends ItemState {
   });
 }
 
+final class ItemOperationFailed extends ItemState {
+  final String err;
+  const ItemOperationFailed({
+    required super.items,
+    required super.filter,
+    required super.categories,
+    required super.filterName,
+    required this.err,
+  });
+}
+
 final class LoadingItems extends ItemState {
   const LoadingItems({
     required super.items,
@@ -33,12 +44,13 @@ final class LoadingItems extends ItemState {
   });
 }
 
-final class LoadingItemsFailed extends ItemState {
+final class LoadingItemsFailed extends ItemOperationFailed {
   const LoadingItemsFailed({
     required super.items,
     required super.filter,
     required super.categories,
     required super.filterName,
+    required super.err,
   });
 }
 
@@ -60,12 +72,13 @@ final class AddItemSuccess extends ItemState {
   });
 }
 
-final class AddItemFail extends ItemState {
+final class AddItemFail extends ItemOperationFailed {
   const AddItemFail({
     required super.items,
     required super.filter,
     required super.categories,
     required super.filterName,
+    required super.err,
   });
 }
 
@@ -78,12 +91,13 @@ final class UpdateItemSuccess extends ItemState {
   });
 }
 
-final class UpdateItemFail extends ItemState {
+final class UpdateItemFail extends ItemOperationFailed {
   const UpdateItemFail({
     required super.items,
     required super.filter,
     required super.categories,
     required super.filterName,
+    required super.err,
   });
 }
 
@@ -96,12 +110,13 @@ final class DeleteItemSuccess extends ItemState {
   });
 }
 
-final class DeleteItemFail extends ItemState {
+final class DeleteItemFail extends ItemOperationFailed {
   const DeleteItemFail({
     required super.items,
     required super.filter,
     required super.categories,
     required super.filterName,
+    required super.err,
   });
 }
 

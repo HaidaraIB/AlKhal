@@ -55,7 +55,6 @@ class _AddItemFormState extends State<AddItemForm> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('إضافة عنصر'),
-              centerTitle: true,
             ),
             body: SingleChildScrollView(
               child: Padding(

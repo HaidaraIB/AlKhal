@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:alkhal/models/model.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,6 +23,7 @@ class DatabaseHelper {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, dbName);
     // await deleteDatabase(path);
+    // await clearSharedPref();
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
@@ -103,7 +105,7 @@ class DatabaseHelper {
     """);
   }
 
-  static Future<void> backupDatabase(String dbName) async {
+  static Future<bool> backupDatabase() async {
     await createDirectory();
     final databasesPath = await getDatabasesPath();
     final dbPath = join(databasesPath, dbName);
@@ -114,10 +116,12 @@ class DatabaseHelper {
 
     if (await dbFile.exists()) {
       await dbFile.copy(backupFile.path);
-    } else {}
+      return true;
+    }
+    return false;
   }
 
-  static Future<void> restoreDatabase(String dbName) async {
+  static Future<bool> restoreDatabase() async {
     await createDirectory();
     final databasesPath = await getDatabasesPath();
     final dbPath = join(databasesPath, dbName);
@@ -131,7 +135,10 @@ class DatabaseHelper {
         await dbFile.delete();
       }
       await backupFile.copy(dbFile.path);
-    } else {}
+      return true;
+    } else {
+      return false;
+    }
   }
 
   static Future<void> createDirectory() async {
@@ -141,7 +148,7 @@ class DatabaseHelper {
       try {
         await storageDir.create(recursive: true);
       } catch (e) {
-        print("Error creating directory: $e");
+        debugPrint("Error creating directory: $e");
       }
     }
   }

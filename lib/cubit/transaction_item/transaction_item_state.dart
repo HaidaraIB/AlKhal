@@ -10,20 +10,35 @@ final class TransactionItemInitial extends TransactionItemState {
   const TransactionItemInitial({required super.transactionItems});
 }
 
+final class TransactionItemOperationFailed extends TransactionItemState {
+  final String err;
+  const TransactionItemOperationFailed({
+    required super.transactionItems,
+    required this.err,
+  });
+}
+
 final class AddTransactionItemSuccess extends TransactionItemState {
   const AddTransactionItemSuccess({required super.transactionItems});
 }
 
-final class AddTransactionItemFail extends TransactionItemState {
-  const AddTransactionItemFail({required super.transactionItems});
+final class AddTransactionItemFail extends TransactionItemOperationFailed {
+  const AddTransactionItemFail({
+    required super.transactionItems,
+    required super.err,
+  });
 }
 
 final class LoadingTransactionItems extends TransactionItemState {
   const LoadingTransactionItems({required super.transactionItems});
 }
 
-final class LoadingTransactionItemsFailed extends TransactionItemState {
-  const LoadingTransactionItemsFailed({required super.transactionItems});
+final class LoadingTransactionItemsFailed
+    extends TransactionItemOperationFailed {
+  const LoadingTransactionItemsFailed({
+    required super.transactionItems,
+    required super.err,
+  });
 }
 
 final class TransactionItemsLoaded extends TransactionItemState {

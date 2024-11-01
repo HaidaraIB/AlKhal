@@ -17,7 +17,8 @@ class TransactionItemCard extends StatefulWidget {
   State<TransactionItemCard> createState() => _TransactionItemCardState();
 }
 
-class _TransactionItemCardState extends State<TransactionItemCard> {
+class _TransactionItemCardState extends State<TransactionItemCard>
+    with AutomaticKeepAliveClientMixin {
   late Future<Item> _getItem;
   @override
   void initState() {
@@ -26,7 +27,11 @@ class _TransactionItemCardState extends State<TransactionItemCard> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
       future: _getItem,
       builder: (context, snapshot) {
@@ -68,12 +73,10 @@ class _TransactionItemCardState extends State<TransactionItemCard> {
                 : null,
           );
         } else {
-          return TransactoinItemCardWidget(
-            quantity: widget.transactionItem.quantity.toString(),
-            itemName: '-',
-            unit: '-',
-            price: '0',
-            profit: widget.isSale ? '0' : null,
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.blue,
+            ),
           );
         }
       },

@@ -10,9 +10,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  Future<void> performBackup() async {
+  Future<bool> performBackup() async {
     await requestStoragePermission();
-    await DatabaseHelper.backupDatabase(DatabaseHelper.dbName);
+    return await DatabaseHelper.backupDatabase();
   }
 
   Future<void> performRestore() async {
@@ -22,9 +22,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('تأكيد الاستعادة'),
+            title: const Text(
+              'تأكيد الاستعادة',
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+            ),
             content: const Text(
               'هل أنت متأكد أنك تريد استعادة البيانات؟ سيتم استبدال البيانات الحالية.',
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.rtl,
             ),
             actions: [
               TextButton(
@@ -36,7 +42,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  await DatabaseHelper.restoreDatabase(DatabaseHelper.dbName);
+                  bool res = await DatabaseHelper.restoreDatabase();
+                  String msg = "";
+                  if (res) {
+                    msg = "تمت استعادة البيانات بنجاح";
+                  } else {
+                    msg = "لم يتم العثور على نسخة احتياطية";
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                      msg,
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.rtl,
+                    )));
+                  }
                 },
                 child: const Text('استعادة'),
               ),
@@ -60,7 +80,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                onTap: performBackup,
+                onTap: () async {
+                  bool res = await performBackup();
+                  String msg = "";
+                  if (res) {
+                    msg = "تم إنشاء نسخة احتياطية بنجاح";
+                  } else {
+                    msg = "لديك نسخة احتياطية بالفعل.";
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                      msg,
+                      textDirection: TextDirection.rtl,
+                      textAlign: TextAlign.center,
+                    )));
+                  }
+                },
                 title: const Text(
                   "النسخ الاحتياطي",
                   style: TextStyle(fontSize: 20),
@@ -71,20 +107,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                onTap: performRestore,
-                title: const Text(
-                  "استعادة البيانات ",
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.restore,
-                  size: 30,
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(bottom: 8),
+            //   child: ListTile(
+            //     onTap: performRestore,
+            //     title: const Text(
+            //       "استعادة البيانات ",
+            //       style: TextStyle(fontSize: 20),
+            //     ),
+            //     leading: const Icon(
+            //       Icons.restore,
+            //       size: 30,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

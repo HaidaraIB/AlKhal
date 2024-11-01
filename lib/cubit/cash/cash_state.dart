@@ -21,6 +21,16 @@ final class CashInitial extends CashState {
   });
 }
 
+final class CashOperationFailed extends CashState {
+  final String err;
+  const CashOperationFailed({
+    required super.cash,
+    required super.profit,
+    required super.bills,
+    required this.err,
+  });
+}
+
 final class LoadingCash extends CashState {
   const LoadingCash({
     required super.cash,
@@ -37,10 +47,11 @@ final class CashRefreshed extends CashState {
   });
 }
 
-final class CashRefreshingFailed extends CashState {
+final class CashRefreshingFailed extends CashOperationFailed {
   const CashRefreshingFailed({
     required super.cash,
     required super.profit,
     required super.bills,
+    required super.err,
   });
 }

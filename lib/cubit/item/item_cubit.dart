@@ -43,6 +43,7 @@ class ItemCubit extends Cubit<ItemState> {
         filter: filter,
         categories: const [],
         filterName: "عناصر",
+        err: e.toString(),
       ));
     }
   }
@@ -59,10 +60,12 @@ class ItemCubit extends Cubit<ItemState> {
       ));
     } catch (e) {
       emit(AddItemFail(
-          items: const [],
-          filter: filter,
-          categories: const [],
-          filterName: "عناصر"));
+        items: const [],
+        filter: filter,
+        categories: const [],
+        filterName: "عناصر",
+        err: e.toString(),
+      ));
     }
   }
 
@@ -78,10 +81,12 @@ class ItemCubit extends Cubit<ItemState> {
       ));
     } catch (e) {
       emit(UpdateItemFail(
-          items: const [],
-          filter: filter,
-          categories: const [],
-          filterName: "عناصر"));
+        items: const [],
+        filter: filter,
+        categories: const [],
+        filterName: "عناصر",
+        err: e.toString(),
+      ));
     }
   }
 
@@ -97,10 +102,12 @@ class ItemCubit extends Cubit<ItemState> {
       ));
     } catch (e) {
       emit(DeleteItemFail(
-          items: const [],
-          filter: filter,
-          categories: const [],
-          filterName: "عناصر"));
+        items: const [],
+        filter: filter,
+        categories: const [],
+        filterName: "عناصر",
+        err: e.toString(),
+      ));
     }
   }
 

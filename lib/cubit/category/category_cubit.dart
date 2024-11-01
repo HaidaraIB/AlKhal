@@ -26,7 +26,10 @@ class CategoryCubit extends Cubit<CategoryState> {
       await _loadCategories();
       emit(CategoriesLoaded(categories: categories));
     } catch (e) {
-      emit(const LoadingCategoriesFailed(categories: []));
+      emit(LoadingCategoriesFailed(
+        categories: const [],
+        err: e.toString(),
+      ));
     }
   }
 
@@ -36,7 +39,10 @@ class CategoryCubit extends Cubit<CategoryState> {
       await _loadCategories();
       emit(AddCategorySuccess(categories: categories));
     } catch (e) {
-      emit(const AddCategoryFail(categories: []));
+      emit(AddCategoryFail(
+        categories: const [],
+        err: e.toString(),
+      ));
     }
   }
 
@@ -46,7 +52,10 @@ class CategoryCubit extends Cubit<CategoryState> {
       await _loadCategories();
       emit(UpdateCategorySuccess(categories: categories));
     } catch (e) {
-      emit(const UpdateCategoryFail(categories: []));
+      emit(UpdateCategoryFail(
+        categories: const [],
+        err: e.toString(),
+      ));
     }
   }
 
@@ -62,7 +71,10 @@ class CategoryCubit extends Cubit<CategoryState> {
       await _loadCategories();
       emit(DeleteCategorySuccess(categories: categories));
     } catch (e) {
-      emit(DeleteCategoryFail(categories: categories));
+      emit(DeleteCategoryFail(
+        categories: const [],
+        err: e.toString(),
+      ));
     }
   }
 }

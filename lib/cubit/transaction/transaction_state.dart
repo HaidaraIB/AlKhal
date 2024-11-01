@@ -20,6 +20,16 @@ final class TransactionInitial extends TransactionState {
   });
 }
 
+final class TransactionOperationFailed extends TransactionState {
+  final String err;
+  const TransactionOperationFailed({
+    required super.transactions,
+    required super.filter,
+    required super.dateFilter,
+    required this.err,
+  });
+}
+
 final class LoadingTransactions extends TransactionState {
   const LoadingTransactions({
     required super.transactions,
@@ -36,11 +46,12 @@ final class TransactionsLoaded extends TransactionState {
   });
 }
 
-final class TransactionLoadingFailed extends TransactionState {
+final class TransactionLoadingFailed extends TransactionOperationFailed {
   const TransactionLoadingFailed({
     required super.transactions,
     required super.filter,
     required super.dateFilter,
+    required super.err,
   });
 }
 
@@ -52,11 +63,12 @@ final class AddTransactionSuccess extends TransactionState {
   });
 }
 
-final class AddTransactionFail extends TransactionState {
+final class AddTransactionFail extends TransactionOperationFailed {
   const AddTransactionFail({
     required super.transactions,
     required super.filter,
     required super.dateFilter,
+    required super.err,
   });
 }
 

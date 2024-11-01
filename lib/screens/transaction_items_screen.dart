@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction_item.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/transaction_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,12 +37,7 @@ class _ItemsState extends State<TransactionItems> {
             ),
           );
         } else if (state is LoadingTransactionItemsFailed) {
-          return const Center(
-            child: Text(
-              "Something went wrong!",
-              style: TextStyle(fontSize: 20),
-            ),
-          );
+          return buildErrorWidget(state.err);
         } else if (state.transactionItems.isNotEmpty) {
           return ListView.builder(
             itemCount: state.transactionItems.length,

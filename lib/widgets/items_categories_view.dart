@@ -3,6 +3,7 @@ import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/model.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/add_category_fab.dart';
 import 'package:alkhal/widgets/add_item_fab.dart';
 import 'package:alkhal/widgets/category_card.dart';
@@ -75,21 +76,18 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
             ),
           );
         } else if (state is LoadingItemsFailed) {
-          return const Center(
-            child: Text(
-              "Something went wrong!",
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-          );
+          return buildErrorWidget(state.err);
         } else if (state.items!.isNotEmpty) {
           return _buildView(
             fab: AddItemFAB(defaultCategory: state.filter),
             children: ListView.builder(
               itemCount: state.items!.length,
-              itemBuilder: (context, index) =>
-                  ItemCard(item: state.items![index] as Item),
+              itemBuilder: (context, index) => ItemCard(
+                  item: state.items![index] as Item,
+                  category: state.categories.firstWhere((category) {
+                    return (category as Category).id ==
+                        (state.items![index] as Item).categoryId;
+                  }) as Category),
             ),
             itemFilters: ItemsFilterDropDown(
               itemsFilter: state.filter,
@@ -128,14 +126,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
             ),
           );
         } else if (state is LoadingCategoriesFailed) {
-          return const Center(
-            child: Text(
-              "Something went wrong!",
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-          );
+          return buildErrorWidget(state.err);
         } else if (state.categories.isNotEmpty) {
           return _buildView(
             fab: const AddCategoryFAB(),

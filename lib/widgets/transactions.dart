@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/add_transaction_fab.dart';
 import 'package:alkhal/widgets/transaction_card.dart';
 import 'package:alkhal/widgets/transaction_filter.dart';
@@ -35,12 +36,7 @@ class _TransactionsState extends State<Transactions> {
             ),
           );
         } else if (state is TransactionLoadingFailed) {
-          return const Center(
-            child: Text(
-              "Something went wrong!",
-              style: TextStyle(fontSize: 20),
-            ),
-          );
+          return buildErrorWidget(state.err);
         } else if (state.transactions.isNotEmpty) {
           return Scaffold(
             backgroundColor: Colors.white,

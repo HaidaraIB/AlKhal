@@ -24,7 +24,10 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       );
       emit(TransactionItemsLoaded(transactionItems: transactionItems));
     } catch (e) {
-      emit(LoadingTransactionItemsFailed(transactionItems: transactionItems));
+      emit(LoadingTransactionItemsFailed(
+        transactionItems: transactionItems,
+        err: e.toString(),
+      ));
     }
   }
 
@@ -39,7 +42,10 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
           .compareTo((b as TransactionItem).itemId));
       emit(AddTransactionItemSuccess(transactionItems: transactionItems));
     } catch (e) {
-      emit(AddTransactionItemFail(transactionItems: transactionItems));
+      emit(AddTransactionItemFail(
+        transactionItems: transactionItems,
+        err: e.toString(),
+      ));
     }
   }
 }
