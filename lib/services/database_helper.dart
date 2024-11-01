@@ -224,7 +224,7 @@ class DatabaseHelper {
         SUM(total_profit) as profit
       FROM 
         'transaction'
-      WHERE is_sale = 1 AND date(transaction_date) = '${d.year}-${d.month}-${d.day}';
+      WHERE is_sale = 1 AND date(transaction_date) = '${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}';
         ''',
     );
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
