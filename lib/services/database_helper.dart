@@ -114,11 +114,11 @@ class DatabaseHelper {
     final dbFile = File(dbPath);
     final backupFile = File(backupPath);
 
-    if (await dbFile.exists()) {
-      await dbFile.copy(backupFile.path);
-      return true;
+    if (await backupFile.exists()) {
+      await backupFile.delete();
     }
-    return false;
+    await dbFile.copy(backupFile.path);
+    return true;
   }
 
   static Future<bool> restoreDatabase() async {
@@ -132,9 +132,11 @@ class DatabaseHelper {
 
     if (await backupFile.exists()) {
       if (await dbFile.exists()) {
-        await dbFile.delete();
+        await deleteDatabase(dbPath);
       }
       await backupFile.copy(dbFile.path);
+      _db = null;
+      await _initDatabase();
       return true;
     } else {
       return false;

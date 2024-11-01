@@ -10,9 +10,59 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  Future<bool> performBackup() async {
+  Future<void> performBackup() async {
     await requestStoragePermission();
-    return await DatabaseHelper.backupDatabase();
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              'تأكيد النسخ الاحتياطي',
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+            ),
+            content: const Text(
+              'هل أنت متأكد أنك تريد إنشاء نسخة احتياطية للبيانات؟ سيتم حذف النسخة الاحتياطية السابقة إن وجدت.',
+              textAlign: TextAlign.center,
+              textDirection: TextDirection.rtl,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('إلغاء'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  bool res = await DatabaseHelper.backupDatabase();
+                  String msg = "";
+                  if (res) {
+                    msg = "تم إنشاء نسخة احتياطية بنجاح";
+                  } else {
+                    msg = "لديك نسخة احتياطية بالفعل.";
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          msg,
+                          textDirection: TextDirection.rtl,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('نسخ'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Future<void> performRestore() async {
@@ -80,23 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                onTap: () async {
-                  bool res = await performBackup();
-                  String msg = "";
-                  if (res) {
-                    msg = "تم إنشاء نسخة احتياطية بنجاح";
-                  } else {
-                    msg = "لديك نسخة احتياطية بالفعل.";
-                  }
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(
-                      msg,
-                      textDirection: TextDirection.rtl,
-                      textAlign: TextAlign.center,
-                    )));
-                  }
-                },
+                onTap: performBackup,
                 title: const Text(
                   "النسخ الاحتياطي",
                   style: TextStyle(fontSize: 20),
@@ -107,20 +141,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 8),
-            //   child: ListTile(
-            //     onTap: performRestore,
-            //     title: const Text(
-            //       "استعادة البيانات ",
-            //       style: TextStyle(fontSize: 20),
-            //     ),
-            //     leading: const Icon(
-            //       Icons.restore,
-            //       size: 30,
-            //     ),
-            //   ),
-            // ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                onTap: performRestore,
+                title: const Text(
+                  "استعادة البيانات ",
+                  style: TextStyle(fontSize: 20),
+                ),
+                leading: const Icon(
+                  Icons.restore,
+                  size: 30,
+                ),
+              ),
+            ),
           ],
         ),
       ),

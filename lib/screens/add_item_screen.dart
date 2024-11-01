@@ -89,6 +89,7 @@ class _AddItemFormState extends State<AddItemForm> {
                         },
                       ),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _categoryController.text != "all"
                             ? _categoryController.text
                             : null,

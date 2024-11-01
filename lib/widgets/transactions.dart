@@ -144,6 +144,7 @@ class TransactionFilterDropDown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: DropdownButtonFormField<TransactionFilter>(
+        isExpanded: true,
         decoration: InputDecoration(
           filled: true,
           fillColor: Theme.of(context).colorScheme.inversePrimary,

@@ -28,8 +28,8 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       "item": null,
       "item_id": 0,
       "category_id": 0,
-      "quantity": 0,
-      "price": 0,
+      "quantity": 0.0,
+      "price": 0.0,
     }
   ];
   late Future<Map<String, List<Model>>> _data;
@@ -115,8 +115,12 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         Item item = itemsToSave[_selectedItems.indexOf(i)];
         bool isKg = (item.unit == MeasurementUnit.kg);
         double quantity = 0;
-        if (_isSale && isKg && i['price'] != 0) {
-          quantity = (i['price'] / item.sellingPrice) * 1000;
+        if (_isSale && i['price'] != 0) {
+          if (isKg) {
+            quantity = (i['price'] / item.sellingPrice) * 1000;
+          } else {
+            quantity = (i['price'] / item.sellingPrice);
+          }
         } else if (!_isSale && isKg) {
           quantity = i['quantity'] * 1000;
         } else {
@@ -305,6 +309,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   Widget _buildItemDropdown(
       AsyncSnapshot<Map<String, List<Model>>> snapshot, int index) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       decoration: const InputDecoration(labelText: 'العنصر'),
       onChanged: (value) {
         setState(() {
@@ -330,7 +335,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           })
           .map((item) => DropdownMenuItem<String>(
                 value: item.id.toString(),
-                child: Text((item as Item).name),
+                child: Text(
+                  (item as Item).name,
+                ),
               ))
           .toList(),
       validator: (value) {
@@ -352,6 +359,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   Widget _buildCategoryDropdown(
       AsyncSnapshot<Map<String, List<Model>>> snapshot, int index) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       value: _selectedItems[index]['category_id'] != 0
           ? _selectedItems[index]['category_id']
           : null,

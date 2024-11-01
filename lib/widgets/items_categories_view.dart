@@ -193,6 +193,7 @@ class ItemsFilterDropDown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: DropdownButtonFormField<String>(
+        isExpanded: true,
         decoration: InputDecoration(
           filled: true,
           fillColor: Theme.of(context).colorScheme.inversePrimary,
