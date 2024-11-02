@@ -13,8 +13,12 @@ class ItemHistoryCubit extends Cubit<ItemHistoryState> {
   void loadHistory(int itemId) async {
     emit(const LoadingHistory(itemHistory: []));
     try {
-      await DatabaseHelper.getAll(ItemHistory.tableName, "ItemHistory")
-          .then((history) {
+      await DatabaseHelper.getAll(
+        ItemHistory.tableName,
+        "ItemHistory",
+        "item_id = ?",
+        [itemId],
+      ).then((history) {
         itemHistory = history;
       });
       itemHistory.sort((a, b) => (a as ItemHistory)

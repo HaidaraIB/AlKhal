@@ -1,3 +1,5 @@
+import 'package:alkhal/cubit/add_category_fab_visibility/add_category_fab_visibility_cubit.dart';
+import 'package:alkhal/cubit/add_item_fab_visibility/add_item_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/category/category_cubit.dart';
 import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/models/category.dart';
@@ -21,11 +23,13 @@ class ItemsCategoriesView extends StatefulWidget {
 class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _itemsScrollController = ScrollController();
+  final ScrollController _categoriesScrollController = ScrollController();
 
   @override
   void initState() {
-    super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    super.initState();
   }
 
   @override
@@ -66,6 +70,9 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
   }
 
   Widget _buildItemsView(BuildContext context) {
+    context
+        .read<AddItemFabVisibilityCubit>()
+        .listenToScrolling(_itemsScrollController);
     BlocProvider.of<ItemCubit>(context).loadItems();
     return BlocBuilder<ItemCubit, ItemState>(
       builder: (context, state) {
@@ -79,8 +86,19 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           return buildErrorWidget(state.err);
         } else if (state.items!.isNotEmpty) {
           return _buildView(
-            fab: AddItemFAB(defaultCategory: state.filter),
+            fab: BlocBuilder<AddItemFabVisibilityCubit,
+                AddItemFabVisibilityState>(
+              builder: (context, newState) {
+                return Visibility(
+                  visible: newState.isVisible,
+                  child: AddItemFAB(
+                    defaultCategory: state.filter,
+                  ),
+                );
+              },
+            ),
             children: ListView.builder(
+              controller: _itemsScrollController,
               itemCount: state.items!.length,
               itemBuilder: (context, index) => ItemCard(
                 item: state.items![index] as Item,
@@ -117,6 +135,9 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
   }
 
   Widget _buildCategoriesView(BuildContext context) {
+    context
+        .read<AddCategoryFabVisibilityCubit>()
+        .listenToScrolling(_categoriesScrollController);
     BlocProvider.of<CategoryCubit>(context).loadCategories();
     return BlocBuilder<CategoryCubit, CategoryState>(
       builder: (context, state) {
@@ -130,8 +151,17 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           return buildErrorWidget(state.err);
         } else if (state.categories.isNotEmpty) {
           return _buildView(
-            fab: const AddCategoryFAB(),
+            fab: BlocBuilder<AddCategoryFabVisibilityCubit,
+                AddCategoryFabVisibilityState>(
+              builder: (context, newState) {
+                return Visibility(
+                  visible: newState.isVisible,
+                  child: const AddCategoryFAB(),
+                );
+              },
+            ),
             children: ListView.builder(
+              controller: _categoriesScrollController,
               itemCount: state.categories.length,
               itemBuilder: (context, index) =>
                   CategoryCard(category: state.categories[index] as Category),

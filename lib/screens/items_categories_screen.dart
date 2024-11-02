@@ -1,3 +1,5 @@
+import 'package:alkhal/cubit/add_category_fab_visibility/add_category_fab_visibility_cubit.dart';
+import 'package:alkhal/cubit/add_item_fab_visibility/add_item_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/category/category_cubit.dart';
 import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
@@ -19,6 +21,12 @@ class ItemsList extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => ItemHistoryCubit(),
+        ),
+        BlocProvider(
+          create: (context) => AddItemFabVisibilityCubit(),
+        ),
+        BlocProvider(
+          create: (context) => AddCategoryFabVisibilityCubit(),
         ),
       ],
       child: const ItemsCategoriesView(),

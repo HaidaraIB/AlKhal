@@ -31,128 +31,10 @@ class _ItemCardState extends State<ItemCard> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              widget.item.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'المجموعة: ',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      color: Colors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: widget.category.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'سعر الشراء: ',
-                    style: const TextStyle(fontSize: 17, color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: formatDouble(widget.item.purchasePrice),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const TextSpan(
-                        text: ' ل.س',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'سعر المبيع: ',
-                    style: const TextStyle(fontSize: 17, color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: formatDouble(widget.item.sellingPrice),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const TextSpan(
-                        text: ' ل.س',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: 'الكمية: ',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      color: Colors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: formatDouble(widget.item.quantity),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text:
-                            ' ${MeasurementUnit.toArabic(widget.item.unit.value)}',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (newcontext) {
-                          return MultiBlocProvider(
-                            providers: [
-                              BlocProvider<ItemCubit>.value(
-                                value: BlocProvider.of<ItemCubit>(context),
-                              ),
-                              BlocProvider<ItemHistoryCubit>.value(
-                                value:
-                                    BlocProvider.of<ItemHistoryCubit>(context),
-                              ),
-                            ],
-                            child: UpdateItemForm(oldItem: widget.item),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit),
-                ),
                 IconButton(
                   onPressed: () {
                     Navigator.of(context).push(
@@ -175,17 +57,134 @@ class _ItemCardState extends State<ItemCard> {
                   },
                   icon: const Icon(Icons.info),
                 ),
-                // IconButton(
-                // onPressed: () {
-                //   context.read<ItemCubit>().deleteItem(widget.item.id!);
-                // },
-                //   icon: const Icon(Icons.delete),
-                // ),
+                Text(
+                  widget.item.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Color.fromARGB(255, 147, 101, 255),
+                  ),
+                ),
+                const SizedBox(),
               ],
-            )
+            ),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (newcontext) {
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider<ItemCubit>.value(
+                                    value: BlocProvider.of<ItemCubit>(context),
+                                  ),
+                                  BlocProvider<ItemHistoryCubit>.value(
+                                    value: BlocProvider.of<ItemHistoryCubit>(
+                                        context),
+                                  ),
+                                ],
+                                child: UpdateItemForm(oldItem: widget.item),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
+                    // IconButton(
+                    // onPressed: () {
+                    //   context.read<ItemCubit>().deleteItem(widget.item.id!);
+                    // },
+                    //   icon: const Icon(Icons.delete),
+                    // ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _buildItemFieldRow(
+                        text: 'المجموعة: ',
+                        spans: [
+                          TextSpan(
+                            text: widget.category.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      _buildItemFieldRow(
+                        text: 'سعر الشراء: ',
+                        spans: [
+                          TextSpan(
+                            text: formatDouble(widget.item.purchasePrice),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const TextSpan(
+                            text: ' ل.س',
+                          ),
+                        ],
+                      ),
+                      _buildItemFieldRow(
+                        text: 'سعر المبيع: ',
+                        spans: [
+                          TextSpan(
+                            text: formatDouble(widget.item.sellingPrice),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const TextSpan(
+                            text: ' ل.س',
+                          ),
+                        ],
+                      ),
+                      _buildItemFieldRow(
+                        text: "الكمية: ",
+                        spans: [
+                          TextSpan(
+                            text: formatDouble(widget.item.quantity),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text:
+                                ' ${MeasurementUnit.toArabic(widget.item.unit.value)}',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildItemFieldRow({
+    required String text,
+    List<TextSpan> spans = const [],
+  }) {
+    return Row(
+      children: [
+        RichText(
+          text: TextSpan(
+            text: text,
+            style: const TextStyle(
+              fontSize: 17,
+              color: Colors.black,
+            ),
+            children: spans,
+          ),
+        ),
+      ],
     );
   }
 }
