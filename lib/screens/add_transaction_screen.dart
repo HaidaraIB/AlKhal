@@ -1,6 +1,4 @@
-import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
-import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/measurement_unit.dart';
@@ -38,6 +36,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     List<Model> categories =
         await DatabaseHelper.getAll(Category.tableName, "Category");
     List<Model> items = await DatabaseHelper.getAll(Item.tableName, "Item");
+
+    categories
+        .sort((a, b) => (a as Category).name.compareTo((b as Category).name));
+    items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
+
     return {"categories": categories, "items": items};
   }
 
@@ -55,50 +58,51 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
 
   Future<void> _submitForm(List<Model> items) async {
     if (_formKey.currentState!.validate()) {
-      List<Item> itemsToSave = [];
-      double totalPrice = 0;
-      double totalProfit = 0;
-      if (_selectedItems.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "عليك إضافة عنصر واحد على الأقل!",
-              textAlign: TextAlign.center,
-              textDirection: TextDirection.rtl,
-            ),
-          ),
-        );
-        return;
-      }
-      for (var si in _selectedItems) {
-        for (Model i in items) {
-          if ((i as Item).id == si['item_id']) {
-            itemsToSave.add(i);
-            double sellingPrice = 0;
-            double purchasePrice = 0;
-            if (si['quantity'] != 0) {
-              sellingPrice = i.sellingPrice *
-                  ((i.unit == MeasurementUnit.kg && _isSale)
-                      ? si['quantity'] / 1000
-                      : si['quantity']);
-              purchasePrice = i.purchasePrice *
-                  ((i.unit == MeasurementUnit.kg && _isSale)
-                      ? si['quantity'] / 1000
-                      : si['quantity']);
-            } else {
-              sellingPrice = si['price'];
-              purchasePrice = i.purchasePrice * (si['price'] / i.sellingPrice);
-              totalProfit += sellingPrice - purchasePrice;
-            }
-            totalPrice += _isSale ? sellingPrice : purchasePrice;
-            break;
-          }
-        }
-      }
-
       double discount = _discountController.text.isNotEmpty
           ? double.parse(_discountController.text)
           : 0;
+      List<TransactionItem> transactionItems = [];
+      List<Item> itemsToUpdate = [];
+      double totalPrice = 0;
+      double totalProfit = 0;
+
+      for (var si in _selectedItems) {
+        final Item i =
+            items.firstWhere((i) => (i as Item).id == si['item_id']) as Item;
+        itemsToUpdate.add(i);
+        bool isKg = i.unit == MeasurementUnit.kg;
+        double sellingPrice = 0;
+        double purchasePrice = 0;
+        double transactionItemQuantity = 0;
+
+        if (si['quantity'] != 0) {
+          if (isKg) {
+            transactionItemQuantity = si['quantity'] * (_isSale ? 1 : 1000);
+            int quantityMultiplier = _isSale ? 1000 : 1;
+            sellingPrice = i.sellingPrice * si['quantity'] / quantityMultiplier;
+            purchasePrice =
+                i.purchasePrice * si['quantity'] / quantityMultiplier;
+          } else {
+            transactionItemQuantity = si['quantity'];
+            sellingPrice = i.sellingPrice * si['quantity'];
+            purchasePrice = i.purchasePrice * si['quantity'];
+          }
+        } else {
+          int quantityMultiplier = isKg ? 1000 : 1;
+          transactionItemQuantity =
+              (si['price'] / i.sellingPrice) * quantityMultiplier;
+          sellingPrice = si['price'];
+          purchasePrice = i.purchasePrice * (si['price'] / i.sellingPrice);
+        }
+        if (_isSale) {
+          totalProfit += sellingPrice - purchasePrice;
+        }
+        totalPrice += _isSale ? sellingPrice : purchasePrice;
+        transactionItems.add(TransactionItem(
+          itemId: si['item_id'],
+          quantity: transactionItemQuantity,
+        ));
+      }
       Transaction transaction = Transaction(
         transactionDate: DateTime.now().toString(),
         discount: discount,
@@ -106,47 +110,25 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         totalPrice: totalPrice - discount,
         totalProfit: totalProfit - (discount * totalProfit / totalPrice),
       );
-
-      int? transactionId = await BlocProvider.of<TransactionCubit>(context)
-          .addTransaction(transaction);
-      if (transactionId == -1) return;
-
-      for (var i in _selectedItems) {
-        Item item = itemsToSave[_selectedItems.indexOf(i)];
-        bool isKg = (item.unit == MeasurementUnit.kg);
-        double quantity = 0;
-        if (_isSale && i['price'] != 0) {
-          if (isKg) {
-            quantity = (i['price'] / item.sellingPrice) * 1000;
-          } else {
-            quantity = (i['price'] / item.sellingPrice);
-          }
-        } else if (!_isSale && isKg) {
-          quantity = i['quantity'] * 1000;
-        } else {
-          quantity = i['quantity'];
-        }
-        TransactionItem transactionItem = TransactionItem(
-          itemId: i['item_id'],
-          quantity: quantity,
-          transactionId: transactionId!,
-        );
+      bool success =
+          await BlocProvider.of<TransactionCubit>(context).addTransaction(
+        transaction,
+        transactionItems,
+        itemsToUpdate,
+      );
+      if (!success) {
         if (mounted) {
-          BlocProvider.of<TransactionItemCubit>(context)
-              .addTransactionItem(transactionItem);
-          if (_isSale) {
-            if (i['quantity'] != 0) {
-              item.quantity -= isKg ? i['quantity'] / 1000 : i['quantity'];
-            } else {
-              item.quantity -= i['price'] / item.sellingPrice;
-            }
-          } else {
-            item.quantity += i['quantity'];
-          }
-          BlocProvider.of<ItemCubit>(context).updateItem(item);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "حصل خطأ غير معروف، لم يتم احتساب الفاتورة!",
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          );
         }
       }
-
       if (mounted) {
         Navigator.pop(context);
       }
@@ -174,13 +156,25 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         "item": null,
         "item_id": 0,
         "category_id": 0,
-        "quantity": 0,
-        "price": 0,
+        "quantity": 0.0,
+        "price": 0.0,
       });
     });
   }
 
   void _deleteItem(int idx) {
+    if (_selectedItems.length == 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "عليك إضافة عنصر واحد على الأقل!",
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() {
       _selectedItems.removeAt(idx);
     });
@@ -254,10 +248,17 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       decoration: const InputDecoration(labelText: 'الحسم'),
       keyboardType: TextInputType.number,
       validator: (value) {
-        if (value != null &&
-            value.isNotEmpty &&
-            double.tryParse(value) == null) {
-          return 'الرجاء إدخال رقم';
+        if (value != null && value.isNotEmpty) {
+          if (double.tryParse(value) == null) {
+            return 'الرجاء إدخال رقم';
+          }
+          double totalPrice = 0;
+          for (var i in _selectedItems) {
+            totalPrice += i['price'] ?? 0;
+          }
+          if (double.tryParse(value)! > totalPrice) {
+            return 'يجب أن يكون الحسم أقل من السعر الإجمالي';
+          }
         }
         return null;
       },
@@ -309,6 +310,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   Widget _buildItemDropdown(
       AsyncSnapshot<Map<String, List<Model>>> snapshot, int index) {
     return DropdownButtonFormField<String>(
+      value: _selectedItems[index]['item_id'] != 0
+          ? _selectedItems[index]['item_id'].toString()
+          : null,
       isExpanded: true,
       decoration: const InputDecoration(labelText: 'العنصر'),
       onChanged: (value) {
@@ -329,9 +333,8 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
             if (_selectedItems[index]['category_id'] != 0) {
               return (item as Item).categoryId.toString() ==
                   _selectedItems[index]['category_id'];
-            } else {
-              return true;
             }
+            return true;
           })
           .map((item) => DropdownMenuItem<String>(
                 value: item.id.toString(),
@@ -365,7 +368,10 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           : null,
       decoration: const InputDecoration(labelText: 'المجموعة'),
       onChanged: (value) {
-        setState(() => _selectedItems[index]['category_id'] = value!);
+        setState(() {
+          _selectedItems[index]['item_id'] = 0;
+          _selectedItems[index]['category_id'] = value!;
+        });
       },
       items: snapshot.data!['categories']!
           .map((category) => DropdownMenuItem<String>(
@@ -381,7 +387,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _isSale
+        _isSale &&
+                (_selectedItems[index]['item'] == null ||
+                    (_selectedItems[index]['item'] != null &&
+                        (_selectedItems[index]['item'] as Item).unit ==
+                            MeasurementUnit.kg))
             ? Expanded(
                 child: _buildPriceField(snapshot, index),
               )
@@ -429,11 +439,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         return null;
       },
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          setState(() {
-            _selectedItems[index]['price'] = double.tryParse(value);
-          });
-        }
+        setState(() {
+          _selectedItems[index]['price'] = double.tryParse(value);
+        });
       },
     );
   }
@@ -442,10 +450,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       AsyncSnapshot<Map<String, List<Model>>> snapshot, int index) {
     return TextFormField(
       decoration: InputDecoration(
-        label: Text('الكمية ${_isSale ? "غرام أو قطعة" : "كيلو غرام أو قطعة"}',
-            textDirection: TextDirection.rtl),
+        label: Text(_makeUnitHintText(index), textDirection: TextDirection.rtl),
         hintText: _selectedItems[index]['item'] != null
-            ? "لديك ${formatDouble(_selectedItems[index]['item'].quantity)} ${MeasurementUnit.toArabic(_selectedItems[index]['item'].unit.value)}"
+            ? "لديك ${_makeAvailableQuantityText(_selectedItems[index]['item'])}"
             : '',
       ),
       keyboardType: TextInputType.number,
@@ -476,11 +483,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         return null;
       },
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          setState(() {
-            _selectedItems[index]['quantity'] = double.tryParse(value);
-          });
-        }
+        setState(() {
+          _selectedItems[index]['quantity'] = double.tryParse(value);
+        });
       },
     );
   }
@@ -504,5 +509,48 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         ),
       ],
     );
+  }
+
+  String _makeAvailableQuantityText(Item item) {
+    if (item.unit == MeasurementUnit.kg) {
+      return "${formatDouble(item.quantity)} ${MeasurementUnit.toArabic(item.unit.value)}";
+    } else if (item.quantity == 1) {
+      return "قطعة واحدة";
+    } else if (item.quantity == 2) {
+      return "قطعتان";
+    } else if (item.quantity >= 3 && item.quantity <= 10) {
+      return "${formatDouble(item.quantity)} قطع";
+    } else {
+      return "${formatDouble(item.quantity)} قطعة";
+    }
+  }
+
+  String _makeUnitHintText(int index) {
+    String base = "الكمية ";
+    String text = "";
+    if (_isSale) {
+      if (_selectedItems[index]['item'] != null) {
+        if ((_selectedItems[index]['item'] as Item).unit ==
+            MeasurementUnit.kg) {
+          text = "بالغرام";
+        } else {
+          text = "بالقطعة";
+        }
+      } else {
+        text = "بالغرام أو بالقطعة";
+      }
+    } else {
+      if (_selectedItems[index]['item'] != null) {
+        if ((_selectedItems[index]['item'] as Item).unit ==
+            MeasurementUnit.kg) {
+          text = "بالكيلو غرام";
+        } else {
+          text = "بالقطعة";
+        }
+      } else {
+        text = "بالكيلو غرام أو بالقطعة";
+      }
+    }
+    return base + text;
   }
 }

@@ -83,11 +83,12 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
             children: ListView.builder(
               itemCount: state.items!.length,
               itemBuilder: (context, index) => ItemCard(
-                  item: state.items![index] as Item,
-                  category: state.categories.firstWhere((category) {
-                    return (category as Category).id ==
-                        (state.items![index] as Item).categoryId;
-                  }) as Category),
+                item: state.items![index] as Item,
+                category: state.categories.firstWhere((category) {
+                  return (category as Category).id ==
+                      (state.items![index] as Item).categoryId;
+                }) as Category,
+              ),
             ),
             itemFilters: ItemsFilterDropDown(
               itemsFilter: state.filter,

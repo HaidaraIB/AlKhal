@@ -53,13 +53,20 @@ class _TransactionsState extends State<Transactions> {
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: state.transactions.length,
-                    itemBuilder: (context, index) {
-                      return TransactionCard(
-                        transaction: state.transactions[index] as Transaction,
-                      );
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await context
+                          .read<TransactionCubit>()
+                          .refreshTransactionsCash();
                     },
+                    child: ListView.builder(
+                      itemCount: state.transactions.length,
+                      itemBuilder: (context, index) {
+                        return TransactionCard(
+                          transaction: state.transactions[index] as Transaction,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],

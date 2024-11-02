@@ -1,11 +1,15 @@
+import 'package:alkhal/models/item.dart';
+import 'package:alkhal/models/measurement_unit.dart';
 import 'package:alkhal/models/model.dart';
+import 'package:alkhal/models/transaction_item.dart';
+import 'package:alkhal/services/database_helper.dart';
 
 class Transaction extends Model {
   static const String tableName = 'transaction';
 
   final double discount;
-  final double totalPrice;
-  final double totalProfit;
+  double totalPrice;
+  double totalProfit;
   final String transactionDate;
   final int isSale;
 
@@ -39,5 +43,36 @@ class Transaction extends Model {
       totalPrice: map['total_price'],
       totalProfit: map['total_profit'] ?? 0,
     );
+  }
+
+  static Future<void> addTransaction(
+    Transaction transaction,
+    List<TransactionItem> transactionItems,
+    List<Item> itemsToUpdate,
+  ) async {
+    final db = await DatabaseHelper.db;
+    await db!.transaction((txn) async {
+      int? transactionId =
+          await txn.insert(Transaction.tableName, transaction.toMap());
+      for (int i = 0; i < transactionItems.length; i++) {
+        transactionItems[i].transactionId = transactionId;
+        await txn.insert(
+            TransactionItem.tableName, transactionItems[i].toMap());
+        bool isKg = itemsToUpdate[i].unit == MeasurementUnit.kg;
+        if (transaction.isSale == 1) {
+          itemsToUpdate[i].quantity -= isKg
+              ? transactionItems[i].quantity / 1000
+              : transactionItems[i].quantity;
+        } else {
+          itemsToUpdate[i].quantity += transactionItems[i].quantity;
+        }
+        await txn.update(
+          Item.tableName,
+          itemsToUpdate[i].toMap(),
+          where: "id = ?",
+          whereArgs: [itemsToUpdate[i].id],
+        );
+      }
+    });
   }
 }

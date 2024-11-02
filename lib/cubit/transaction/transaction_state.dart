@@ -79,3 +79,20 @@ final class TransactionsFiltered extends TransactionState {
     required super.dateFilter,
   });
 }
+
+final class TransactionCashRefreshed extends TransactionState {
+  const TransactionCashRefreshed({
+    required super.transactions,
+    required super.filter,
+    required super.dateFilter,
+  });
+}
+
+final class TransactionCashRefreshingFailed extends TransactionOperationFailed {
+  const TransactionCashRefreshingFailed({
+    required super.dateFilter,
+    required super.err,
+    required super.filter,
+    required super.transactions,
+  });
+}

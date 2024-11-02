@@ -1,5 +1,7 @@
+import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/models/transaction_item.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/transaction_filter.dart';
@@ -85,18 +87,24 @@ class TransactionCubit extends Cubit<TransactionState> {
     }
   }
 
-  Future<int?> addTransaction(Transaction transaction) async {
+  Future<bool> addTransaction(
+    Transaction transaction,
+    List<TransactionItem> transactionItems,
+    List<Item> itemsToUpdate,
+  ) async {
     try {
-      await getFilter();
-      int? transactionId =
-          await DatabaseHelper.insert(Transaction.tableName, transaction);
+      await Transaction.addTransaction(
+        transaction,
+        transactionItems,
+        itemsToUpdate,
+      );
       await _loadTransactions();
       emit(AddTransactionSuccess(
         transactions: transactions,
         filter: filter,
         dateFilter: dateFilter,
       ));
-      return transactionId;
+      return true;
     } catch (e) {
       emit(AddTransactionFail(
         transactions: const [],
@@ -104,7 +112,7 @@ class TransactionCubit extends Cubit<TransactionState> {
         dateFilter: dateFilter,
         err: e.toString(),
       ));
-      return -1;
+      return false;
     }
   }
 
@@ -134,5 +142,26 @@ class TransactionCubit extends Cubit<TransactionState> {
         dateFilter: dateFilter,
       ),
     );
+  }
+
+  Future refreshTransactionsCash() async {
+    try {
+      for (Model transaction in transactions) {
+        await TransactionItem.computeTransactionCash(
+            transaction as Transaction);
+      }
+      emit(TransactionCashRefreshed(
+        transactions: transactions,
+        filter: filter,
+        dateFilter: dateFilter,
+      ));
+    } catch (e) {
+      emit(TransactionCashRefreshingFailed(
+        dateFilter: dateFilter,
+        err: e.toString(),
+        filter: filter,
+        transactions: transactions,
+      ));
+    }
   }
 }

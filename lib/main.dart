@@ -118,15 +118,20 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) {
-                    return const SettingsScreen();
-                  },
-                ));
-              },
-              icon: const Icon(Icons.settings))
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) {
+                  return const SettingsScreen();
+                },
+              ));
+            },
+            icon: const Icon(Icons.settings),
+          )
         ],
+        leading: IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.search),
+        ),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

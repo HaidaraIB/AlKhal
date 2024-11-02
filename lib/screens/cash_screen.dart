@@ -45,60 +45,73 @@ class _CashScreenState extends State<CashScreen>
               } else if (state is CashRefreshed) {
                 return Scaffold(
                   backgroundColor: Colors.white,
-                  body: SingleChildScrollView(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () => _selectDate(context),
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    Theme.of(context)
-                                        .colorScheme
-                                        .inversePrimary,
+                  body: RefreshIndicator(
+                    onRefresh: () async {
+                      await BlocProvider.of<CashCubit>(context)
+                          .computeCash(selectedDate);
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                  onPressed: () => _selectDate(context),
+                                  style: ButtonStyle(
+                                    backgroundColor: WidgetStatePropertyAll(
+                                      Theme.of(context)
+                                          .colorScheme
+                                          .inversePrimary,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    intl.DateFormat("EEEE d MMMM y", "ar_SA")
+                                        .format(selectedDate),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                                child: Text(
-                                  intl.DateFormat("EEEE d MMMM y", "ar_SA")
-                                      .format(selectedDate),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 30),
+                            AnimatedContainer(
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeInOut,
+                              child: NumberWidget(
+                                label: 'كاش',
+                                value: state.cash,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          AnimatedContainer(
-                            duration: const Duration(seconds: 1),
-                            curve: Curves.easeInOut,
-                            child:
-                                NumberWidget(label: 'كاش', value: state.cash),
-                          ),
-                          const SizedBox(height: 50),
-                          AnimatedContainer(
-                            duration: const Duration(seconds: 1),
-                            curve: Curves.easeInOut,
-                            child:
-                                NumberWidget(label: 'ربح', value: state.profit),
-                          ),
-                          const SizedBox(height: 50),
-                          AnimatedContainer(
-                            duration: const Duration(seconds: 1),
-                            curve: Curves.easeInOut,
-                            child: NumberWidget(
-                                label: 'فواتير', value: state.bills),
-                          ),
-                          const SizedBox(height: 100),
-                        ],
+                            ),
+                            const SizedBox(height: 50),
+                            AnimatedContainer(
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeInOut,
+                              child: NumberWidget(
+                                label: 'ربح',
+                                value: state.profit,
+                              ),
+                            ),
+                            const SizedBox(height: 50),
+                            AnimatedContainer(
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeInOut,
+                              child: NumberWidget(
+                                label: 'فواتير',
+                                value: state.bills,
+                              ),
+                            ),
+                            const SizedBox(height: 100),
+                          ],
+                        ),
                       ),
                     ),
                   ),

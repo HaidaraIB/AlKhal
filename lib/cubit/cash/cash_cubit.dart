@@ -10,7 +10,7 @@ class CashCubit extends Cubit<CashState> {
   double bills = 0;
   CashCubit() : super(const CashInitial(cash: 0, profit: 0, bills: 0));
 
-  void computeCash(DateTime d) async {
+  Future computeCash(DateTime d) async {
     emit(LoadingCash(cash: cash, profit: profit, bills: bills));
     try {
       await DatabaseHelper.computeCash(d).then((res) {
