@@ -242,7 +242,7 @@ class DatabaseHelper {
         SUM(total_price) as bills
       FROM 
         'transaction'
-      WHERE is_sale = 0 AND date(transaction_date) = '${d.year}-${d.month}-${d.day}';
+      WHERE is_sale = 0 AND date(transaction_date) = '${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}';
         ''',
     );
 
