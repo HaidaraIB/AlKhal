@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:alkhal/models/model.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -141,6 +142,12 @@ class DatabaseHelper {
     } else {
       return false;
     }
+  }
+
+  static Future shareDatabase() async {
+    final databasesPath = await getDatabasesPath();
+    final dbPath = join(databasesPath, dbName);
+    Share.shareXFiles([XFile(dbPath)], text: 'AlKhal');
   }
 
   static Future<void> createDirectory() async {

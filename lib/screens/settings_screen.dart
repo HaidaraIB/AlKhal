@@ -117,6 +117,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  void performShare() async {
+    await DatabaseHelper.shareDatabase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,6 +155,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 leading: const Icon(
                   Icons.restore,
+                  size: 30,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                onTap: performShare,
+                title: const Text(
+                  "مشاركة البيانات ",
+                  style: TextStyle(fontSize: 20),
+                ),
+                leading: const Icon(
+                  Icons.share,
                   size: 30,
                 ),
               ),
