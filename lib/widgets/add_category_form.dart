@@ -17,6 +17,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
   final _nameController = TextEditingController();
 
   late Future<List<Model>> _getCategories;
+
   @override
   void initState() {
     super.initState();

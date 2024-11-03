@@ -15,6 +15,7 @@ class UpdateCategoryForm extends StatefulWidget {
 class _UpdateCategoryFormState extends State<UpdateCategoryForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+
   @override
   void dispose() {
     _nameController.dispose();

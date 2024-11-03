@@ -1,3 +1,4 @@
+import 'package:alkhal/cubit/add_transaction_fab_visibility/add_transaction_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
@@ -25,6 +26,9 @@ class _TransactionsListState extends State<TransactionsList> {
         ),
         BlocProvider(
           create: (context) => TransactionItemCubit(),
+        ),
+        BlocProvider(
+          create: (context) => AddTransactionFabVisibilityCubit(),
         ),
       ],
       child: const Transactions(),

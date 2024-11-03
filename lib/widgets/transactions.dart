@@ -1,3 +1,4 @@
+import 'package:alkhal/cubit/add_transaction_fab_visibility/add_transaction_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/utils/constants.dart';
@@ -16,6 +17,7 @@ class Transactions extends StatefulWidget {
 }
 
 class _TransactionsState extends State<Transactions> {
+  final ScrollController _transactionsScrollController = ScrollController();
   late DateTime selectedDate;
 
   @override
@@ -23,6 +25,15 @@ class _TransactionsState extends State<Transactions> {
     super.initState();
     selectedDate = DateTime.now();
     BlocProvider.of<TransactionCubit>(context).loadTransactions();
+    context
+        .read<AddTransactionFabVisibilityCubit>()
+        .listenToScrolling(_transactionsScrollController);
+  }
+
+  @override
+  void dispose() {
+    _transactionsScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -40,7 +51,15 @@ class _TransactionsState extends State<Transactions> {
         } else if (state.transactions.isNotEmpty) {
           return Scaffold(
             backgroundColor: Colors.white,
-            floatingActionButton: const AddTransactionFAB(),
+            floatingActionButton: BlocBuilder<AddTransactionFabVisibilityCubit,
+                AddTransactionFabVisibilityState>(
+              builder: (context, newState) {
+                return Visibility(
+                  visible: newState.isVisible,
+                  child: const AddTransactionFAB(),
+                );
+              },
+            ),
             body: Column(
               children: [
                 const SizedBox(height: 10),
@@ -60,6 +79,7 @@ class _TransactionsState extends State<Transactions> {
                           .refreshTransactionsCash();
                     },
                     child: ListView.builder(
+                      controller: _transactionsScrollController,
                       itemCount: state.transactions.length,
                       itemBuilder: (context, index) {
                         return TransactionCard(

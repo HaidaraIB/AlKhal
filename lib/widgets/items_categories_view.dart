@@ -28,13 +28,15 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
 
   @override
   void initState() {
-    _tabController = TabController(length: 2, vsync: this);
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _categoriesScrollController.dispose();
+    _itemsScrollController.dispose();
     super.dispose();
   }
 
