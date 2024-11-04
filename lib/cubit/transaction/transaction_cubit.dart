@@ -51,6 +51,11 @@ class TransactionCubit extends Cubit<TransactionState> {
                   [TransactionFilter.all, TransactionFilter.buy]
                       .contains(filter);
         }).toList();
+        transactions.sort(
+          (a, b) => (b as Transaction)
+              .transactionDate
+              .compareTo((a as Transaction).transactionDate),
+        );
       },
     );
   }

@@ -1,5 +1,4 @@
 import 'package:alkhal/models/item.dart';
-import 'package:alkhal/models/measurement_unit.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/transaction_item.dart';
 import 'package:alkhal/services/database_helper.dart';
@@ -62,14 +61,12 @@ class Transaction extends Model {
         transactionItems[i].transactionId = transactionId;
         await txn.insert(
             TransactionItem.tableName, transactionItems[i].toMap());
-        bool isKg = itemsToUpdate[i].unit == MeasurementUnit.kg;
         if (transaction.isSale == 1) {
-          itemsToUpdate[i].quantity -= isKg
-              ? transactionItems[i].quantity / 1000
-              : transactionItems[i].quantity;
+          itemsToUpdate[i].quantity -= transactionItems[i].quantity;
         } else {
           itemsToUpdate[i].quantity += transactionItems[i].quantity;
         }
+
         await txn.update(
           Item.tableName,
           itemsToUpdate[i].toMap(),

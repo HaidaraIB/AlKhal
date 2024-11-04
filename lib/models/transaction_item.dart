@@ -1,5 +1,4 @@
 import 'package:alkhal/models/item.dart';
-import 'package:alkhal/models/measurement_unit.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/services/database_helper.dart';
@@ -51,16 +50,11 @@ class TransactionItem extends Model {
         "Item",
         (transactionItem as TransactionItem).itemId,
       );
-      bool isKg = (item as Item).unit == MeasurementUnit.kg;
+      item = item as Item;
       double sellingPrice = 0;
       double purchasePrice = 0;
-      if (isKg) {
-        sellingPrice = item.sellingPrice * transactionItem.quantity / 1000;
-        purchasePrice = item.purchasePrice * transactionItem.quantity / 1000;
-      } else {
-        sellingPrice = item.sellingPrice * transactionItem.quantity;
-        purchasePrice = item.purchasePrice * transactionItem.quantity;
-      }
+      sellingPrice = item.sellingPrice * transactionItem.quantity;
+      purchasePrice = item.purchasePrice * transactionItem.quantity;
       if (transaction.isSale == 1) {
         totalProfit += sellingPrice - purchasePrice;
       }

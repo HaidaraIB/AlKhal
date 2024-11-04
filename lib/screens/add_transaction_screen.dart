@@ -171,7 +171,28 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('إضافة فاتورة'),
+              title: RichText(
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: "الإجمالي: ",
+                  style: const TextStyle(
+                    fontSize: 25,
+                    color: Colors.deepPurple,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: formatDouble(calculateTotalPrice()),
+                      style: const TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              centerTitle: true,
             ),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -280,7 +301,8 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   }
 
   Widget _buildItemListView(AsyncSnapshot<Map<String, List<Model>>> snapshot) {
-    return Expanded(
+    return Flexible(
+      fit: FlexFit.tight,
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: _selectedItems.length,
@@ -478,16 +500,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
             return "الرجاء إدخال عدد موجب";
           }
         }
-        List<Model> items = snapshot.data!["items"]!;
-        var insufficientQuantity = items.where((item) {
-          Item i = item as Item;
-          return (i.id == _selectedItems[index]['item_id'] &&
-              i.quantity <
-                  (_isSale && i.unit == MeasurementUnit.kg
-                      ? _selectedItems[index]['quantity'] / 1000
-                      : _selectedItems[index]['quantity']));
-        });
-        if (_isSale && insufficientQuantity.isNotEmpty) {
+        bool insufficientQuantity = _selectedItems[index]['item'].quantity <
+            (_isSale && _selectedItems[index]['item'].unit == MeasurementUnit.kg
+                ? _selectedItems[index]['quantity'] / 1000
+                : _selectedItems[index]['quantity']);
+        if (_isSale && insufficientQuantity) {
           return "الكمية تجاوزت المخزون";
         } else if (_isSale &&
             _selectedItems[index]['quantity'] != 0 &&
@@ -525,27 +542,41 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     );
   }
 
+  double calculateTotalPrice() {
+    double totalPrice = 0;
+    for (var si in _selectedItems) {
+      Map res = calculateItemValues(si);
+      double sellingPrice = res['sellingPrice'];
+      double purchasePrice = res['purchasePrice'];
+      totalPrice += _isSale ? sellingPrice : purchasePrice;
+    }
+    return totalPrice;
+  }
+
   Map calculateItemValues(Map si) {
+    if (si['item'] == null) {
+      return {
+        "sellingPrice": 0.0,
+        "purchasePrice": 0.0,
+        "transactionItemQuantity": 0.0,
+      };
+    }
     Item i = si['item'];
     bool isKg = i.unit == MeasurementUnit.kg;
     double sellingPrice = 0;
     double purchasePrice = 0;
     double transactionItemQuantity = 0;
-    if (si['quantity'] != 0) {
+    if (si['quantity'] != null && si['quantity'] != 0) {
       if (isKg) {
-        transactionItemQuantity = si['quantity'] * (_isSale ? 1 : 1000);
-        int quantityMultiplier = _isSale ? 1000 : 1;
-        sellingPrice = i.sellingPrice * si['quantity'] / quantityMultiplier;
-        purchasePrice = i.purchasePrice * si['quantity'] / quantityMultiplier;
+        int quantityFactor = _isSale ? 1000 : 1;
+        transactionItemQuantity = si['quantity'] / quantityFactor;
       } else {
         transactionItemQuantity = si['quantity'];
-        sellingPrice = i.sellingPrice * si['quantity'];
-        purchasePrice = i.purchasePrice * si['quantity'];
       }
-    } else {
-      int quantityMultiplier = isKg ? 1000 : 1;
-      transactionItemQuantity =
-          (si['price'] / i.sellingPrice) * quantityMultiplier;
+      sellingPrice = i.sellingPrice * transactionItemQuantity;
+      purchasePrice = i.purchasePrice * transactionItemQuantity;
+    } else if (si['price'] != null) {
+      transactionItemQuantity = si['price'] / i.sellingPrice;
       sellingPrice = si['price'];
       purchasePrice = i.purchasePrice * (si['price'] / i.sellingPrice);
     }

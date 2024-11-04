@@ -83,6 +83,7 @@ class DatabaseHelper {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           transaction_date TIMESTAMP,
           discount REAL,
+          reminder REAL,
           total_price REAL,
           total_profit REAL,
           is_sale INTEGER

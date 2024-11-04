@@ -37,39 +37,24 @@ class _TransactionItemCardState extends State<TransactionItemCard>
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return TransactoinItemCardWidget(
-            quantity: (snapshot.data!.unit.name == "kg" && !widget.isSale)
-                ? formatDouble(widget.transactionItem.quantity / 1000)
+            quantity: (snapshot.data!.unit.name == "kg" && widget.isSale)
+                ? formatDouble(widget.transactionItem.quantity * 1000)
                 : formatDouble(widget.transactionItem.quantity),
             itemName: snapshot.data!.name,
             unit: (snapshot.data!.unit.name == 'kg')
                 ? (widget.isSale ? "غرام" : "كيلو غرام")
                 : "قطعة",
-            price: (snapshot.data!.unit.name == "kg")
-                ? formatDouble(
-                    widget.transactionItem.quantity /
-                        1000 *
-                        (widget.isSale
-                            ? snapshot.data!.sellingPrice
-                            : snapshot.data!.purchasePrice),
-                  )
-                : formatDouble(
-                    widget.transactionItem.quantity *
-                        (widget.isSale
-                            ? snapshot.data!.sellingPrice
-                            : snapshot.data!.purchasePrice),
-                  ),
+            price: formatDouble(
+              widget.transactionItem.quantity *
+                  (widget.isSale
+                      ? snapshot.data!.sellingPrice
+                      : snapshot.data!.purchasePrice),
+            ),
             profit: widget.isSale
-                ? (snapshot.data!.unit.name == "kg")
-                    ? formatDouble(widget.transactionItem.quantity /
-                            1000 *
-                            snapshot.data!.sellingPrice -
-                        widget.transactionItem.quantity /
-                            1000 *
-                            snapshot.data!.purchasePrice)
-                    : formatDouble(widget.transactionItem.quantity *
-                            snapshot.data!.sellingPrice -
-                        widget.transactionItem.quantity *
-                            snapshot.data!.purchasePrice)
+                ? formatDouble(widget.transactionItem.quantity *
+                        snapshot.data!.sellingPrice -
+                    widget.transactionItem.quantity *
+                        snapshot.data!.purchasePrice)
                 : null,
           );
         } else {
