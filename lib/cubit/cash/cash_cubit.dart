@@ -8,20 +8,43 @@ class CashCubit extends Cubit<CashState> {
   double cash = 0;
   double profit = 0;
   double bills = 0;
-  CashCubit() : super(const CashInitial(cash: 0, profit: 0, bills: 0));
+  double reminders = 0;
+  CashCubit()
+      : super(const CashInitial(
+          cash: 0,
+          profit: 0,
+          bills: 0,
+          reminders: 0,
+        ));
 
   Future computeCash(DateTime d) async {
-    emit(LoadingCash(cash: cash, profit: profit, bills: bills));
+    emit(LoadingCash(
+      cash: cash,
+      profit: profit,
+      bills: bills,
+      reminders: reminders,
+    ));
     try {
       await DatabaseHelper.computeCash(d).then((res) {
         cash = res['cash'] ?? 0;
         profit = res['profit'] ?? 0;
         bills = res['bills'] ?? 0;
+        reminders = res['reminders'] ?? 0;
       });
-      emit(CashRefreshed(cash: cash, profit: profit, bills: bills));
+      emit(CashRefreshed(
+        cash: cash,
+        profit: profit,
+        bills: bills,
+        reminders: reminders,
+      ));
     } catch (e) {
       emit(CashRefreshingFailed(
-          cash: cash, profit: profit, bills: bills, err: e.toString()));
+        cash: cash,
+        profit: profit,
+        bills: bills,
+        reminders: reminders,
+        err: e.toString(),
+      ));
     }
   }
 }

@@ -8,6 +8,7 @@ class Transaction extends Model {
   static const String tableName = 'transaction';
 
   final double discount;
+  final double reminder;
   double totalPrice;
   double totalProfit;
   final String transactionDate;
@@ -16,6 +17,7 @@ class Transaction extends Model {
   Transaction({
     super.id,
     required this.discount,
+    required this.reminder,
     required this.transactionDate,
     required this.isSale,
     required this.totalPrice,
@@ -27,6 +29,7 @@ class Transaction extends Model {
     return {
       'id': id,
       'discount': discount,
+      'reminder': reminder,
       'transaction_date': transactionDate,
       'is_sale': isSale,
       'total_price': totalPrice,
@@ -38,6 +41,7 @@ class Transaction extends Model {
     return Transaction(
       id: map['id'],
       discount: map['discount'],
+      reminder: map['reminder'],
       transactionDate: map['transaction_date'],
       isSale: map['is_sale'],
       totalPrice: map['total_price'],

@@ -153,7 +153,7 @@ class _TransactionsState extends State<Transactions> {
       setState(() {
         selectedDate = pickedDate;
         BlocProvider.of<TransactionCubit>(context)
-            .setTransactionDateFilter(selectedDate.toString());
+            .filterTransactions(selectedDate.toString());
       });
     }
   }

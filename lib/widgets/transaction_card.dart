@@ -104,6 +104,12 @@ class TransactionCard extends StatelessWidget {
             text: formatDouble(transaction.discount),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
+          const TextSpan(text: " ل.س\n"),
+          const TextSpan(text: 'الباقي: '),
+          TextSpan(
+            text: formatDouble(transaction.reminder),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const TextSpan(text: " ل.س"),
         ],
       ),

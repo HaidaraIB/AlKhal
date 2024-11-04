@@ -33,17 +33,8 @@ class TransactionCubit extends Cubit<TransactionState> {
     return filter;
   }
 
-  Future<String> getDateFilter() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    dateFilter = sharedPreferences.getString('transaction_date_filter') ??
-        DateFormat(dateFormat).format(DateTime.now());
-
-    return dateFilter;
-  }
-
   Future _loadTransactions() async {
     await getFilter();
-    await getDateFilter();
     await DatabaseHelper.getAll(
       Transaction.tableName,
       "Transaction",
@@ -130,10 +121,8 @@ class TransactionCubit extends Cubit<TransactionState> {
     );
   }
 
-  void setTransactionDateFilter(String d) async {
+  void filterTransactions(String d) async {
     dateFilter = d;
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    sharedPreferences.setString('transaction_date_filter', dateFilter);
     await _loadTransactions();
     emit(
       TransactionsFiltered(

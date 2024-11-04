@@ -101,13 +101,26 @@ class _CashScreenState extends State<CashScreen>
                               ),
                             ),
                             const SizedBox(height: 50),
-                            AnimatedContainer(
-                              duration: const Duration(seconds: 1),
-                              curve: Curves.easeInOut,
-                              child: NumberWidget(
-                                label: 'فواتير',
-                                value: state.bills,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                AnimatedContainer(
+                                  duration: const Duration(seconds: 1),
+                                  curve: Curves.easeInOut,
+                                  child: NumberWidget(
+                                    label: 'فواتير',
+                                    value: state.bills,
+                                  ),
+                                ),
+                                AnimatedContainer(
+                                  duration: const Duration(seconds: 1),
+                                  curve: Curves.easeInOut,
+                                  child: NumberWidget(
+                                    label: 'ديون',
+                                    value: state.reminders,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 100),
                           ],

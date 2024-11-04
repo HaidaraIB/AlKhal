@@ -20,6 +20,7 @@ class AddTransactionForm extends StatefulWidget {
 class _AddTransactionFormState extends State<AddTransactionForm> {
   final _formKey = GlobalKey<FormState>();
   final _discountController = TextEditingController();
+  final _reminderController = TextEditingController();
   bool _isSale = true;
   final List<Map<String, dynamic>> _selectedItems = [
     {
@@ -56,10 +57,13 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     _data = _getData();
   }
 
-  Future<void> _submitForm(List<Model> items) async {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       double discount = _discountController.text.isNotEmpty
           ? double.parse(_discountController.text)
+          : 0;
+      double reminder = _reminderController.text.isNotEmpty
+          ? double.parse(_reminderController.text)
           : 0;
       List<TransactionItem> transactionItems = [];
       List<Item> itemsToUpdate = [];
@@ -67,33 +71,11 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       double totalProfit = 0;
 
       for (var si in _selectedItems) {
-        final Item i =
-            items.firstWhere((i) => (i as Item).id == si['item_id']) as Item;
-        itemsToUpdate.add(i);
-        bool isKg = i.unit == MeasurementUnit.kg;
-        double sellingPrice = 0;
-        double purchasePrice = 0;
-        double transactionItemQuantity = 0;
-
-        if (si['quantity'] != 0) {
-          if (isKg) {
-            transactionItemQuantity = si['quantity'] * (_isSale ? 1 : 1000);
-            int quantityMultiplier = _isSale ? 1000 : 1;
-            sellingPrice = i.sellingPrice * si['quantity'] / quantityMultiplier;
-            purchasePrice =
-                i.purchasePrice * si['quantity'] / quantityMultiplier;
-          } else {
-            transactionItemQuantity = si['quantity'];
-            sellingPrice = i.sellingPrice * si['quantity'];
-            purchasePrice = i.purchasePrice * si['quantity'];
-          }
-        } else {
-          int quantityMultiplier = isKg ? 1000 : 1;
-          transactionItemQuantity =
-              (si['price'] / i.sellingPrice) * quantityMultiplier;
-          sellingPrice = si['price'];
-          purchasePrice = i.purchasePrice * (si['price'] / i.sellingPrice);
-        }
+        itemsToUpdate.add(si['item']);
+        Map res = calculateItemValues(si);
+        double sellingPrice = res['sellingPrice'];
+        double purchasePrice = res['purchasePrice'];
+        double transactionItemQuantity = res['transactionItemQuantity'];
         if (_isSale) {
           totalProfit += sellingPrice - purchasePrice;
         }
@@ -106,6 +88,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       Transaction transaction = Transaction(
         transactionDate: DateTime.now().toString(),
         discount: discount,
+        reminder: reminder,
         isSale: _isSale ? 1 : 0,
         totalPrice: totalPrice - discount,
         totalProfit: totalProfit - (discount * totalProfit / totalPrice),
@@ -212,6 +195,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                       ],
                     ),
                     _buildDiscountField(),
+                    _buildReminderField(),
                     const SizedBox(height: 10),
                     _buildItemListView(snapshot),
                     _buildActionButtons(snapshot),
@@ -253,11 +237,41 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
             return 'الرجاء إدخال رقم';
           }
           double totalPrice = 0;
-          for (var i in _selectedItems) {
-            totalPrice += i['price'] ?? 0;
+          for (var si in _selectedItems) {
+            Map res = calculateItemValues(si);
+            double sellingPrice = res['sellingPrice'];
+            double purchasePrice = res['purchasePrice'];
+            totalPrice += _isSale ? sellingPrice : purchasePrice;
+          }
+
+          if (double.tryParse(value)! > totalPrice * 0.1) {
+            return 'يجب أن يكون الحسم أقل من 10% السعر الإجمالي: ${formatDouble(totalPrice * 0.1)}';
+          }
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildReminderField() {
+    return TextFormField(
+      controller: _reminderController,
+      decoration: const InputDecoration(labelText: 'الباقي'),
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value != null && value.isNotEmpty) {
+          if (double.tryParse(value) == null) {
+            return 'الرجاء إدخال رقم';
+          }
+          double totalPrice = 0;
+          for (var si in _selectedItems) {
+            Map res = calculateItemValues(si);
+            double sellingPrice = res['sellingPrice'];
+            double purchasePrice = res['purchasePrice'];
+            totalPrice += _isSale ? sellingPrice : purchasePrice;
           }
           if (double.tryParse(value)! > totalPrice) {
-            return 'يجب أن يكون الحسم أقل من السعر الإجمالي';
+            return 'يجب أن يكون الباقي أقل من السعر الإجمالي: ${formatDouble(totalPrice)}';
           }
         }
         return null;
@@ -503,12 +517,43 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           height: 50.0,
           width: 150.0,
           child: ElevatedButton(
-            onPressed: () => _submitForm(snapshot.data!['items']!),
+            onPressed: _submitForm,
             child: const Text('حفظ الفاتورة'),
           ),
         ),
       ],
     );
+  }
+
+  Map calculateItemValues(Map si) {
+    Item i = si['item'];
+    bool isKg = i.unit == MeasurementUnit.kg;
+    double sellingPrice = 0;
+    double purchasePrice = 0;
+    double transactionItemQuantity = 0;
+    if (si['quantity'] != 0) {
+      if (isKg) {
+        transactionItemQuantity = si['quantity'] * (_isSale ? 1 : 1000);
+        int quantityMultiplier = _isSale ? 1000 : 1;
+        sellingPrice = i.sellingPrice * si['quantity'] / quantityMultiplier;
+        purchasePrice = i.purchasePrice * si['quantity'] / quantityMultiplier;
+      } else {
+        transactionItemQuantity = si['quantity'];
+        sellingPrice = i.sellingPrice * si['quantity'];
+        purchasePrice = i.purchasePrice * si['quantity'];
+      }
+    } else {
+      int quantityMultiplier = isKg ? 1000 : 1;
+      transactionItemQuantity =
+          (si['price'] / i.sellingPrice) * quantityMultiplier;
+      sellingPrice = si['price'];
+      purchasePrice = i.purchasePrice * (si['price'] / i.sellingPrice);
+    }
+    return {
+      "sellingPrice": sellingPrice,
+      "purchasePrice": purchasePrice,
+      "transactionItemQuantity": transactionItemQuantity,
+    };
   }
 
   String _makeAvailableQuantityText(Item item) {

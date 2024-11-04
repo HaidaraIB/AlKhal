@@ -28,7 +28,7 @@ class DatabaseHelper {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 1,
+      version: 2,
       onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
@@ -39,7 +39,9 @@ class DatabaseHelper {
     await db.execute("PRAGMA foreign_keys = ON;");
   }
 
-  static _onUpgrade(Database db, int oldversion, int newversion) async {}
+  static _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    await db.execute("ALTER TABLE 'transaction' ADD reminder REAL DEFAULT 0;");
+  }
 
   static _onCreate(Database db, int version) async {
     await db.execute("""
@@ -230,7 +232,8 @@ class DatabaseHelper {
       '''
       SELECT 
         SUM(total_price) as cash,
-        SUM(total_profit) as profit
+        SUM(total_profit) as profit,
+        reminder
       FROM 
         'transaction'
       WHERE is_sale = 1 AND date(transaction_date) = '${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}';
@@ -251,12 +254,14 @@ class DatabaseHelper {
         'cash': cashResult.first['cash'] ?? 0.0,
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
+        'reminders': cashResult.first['reminder'] ?? 0.0,
       };
     } else {
       return {
         'cash': 0.0,
         'profit': 0.0,
         'bills': 0.0,
+        'reminders': 0.0,
       };
     }
   }
