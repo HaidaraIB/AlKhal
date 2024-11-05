@@ -17,7 +17,7 @@ class CashCubit extends Cubit<CashState> {
           reminders: 0,
         ));
 
-  Future computeCash(DateTime d) async {
+  Future computeCash(DateTime startDate, DateTime endDate) async {
     emit(LoadingCash(
       cash: cash,
       profit: profit,
@@ -25,7 +25,7 @@ class CashCubit extends Cubit<CashState> {
       reminders: reminders,
     ));
     try {
-      await DatabaseHelper.computeCash(d).then((res) {
+      await DatabaseHelper.computeCash(startDate, endDate).then((res) {
         cash = res['cash'] ?? 0;
         profit = res['profit'] ?? 0;
         bills = res['bills'] ?? 0;

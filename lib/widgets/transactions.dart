@@ -43,7 +43,7 @@ class _TransactionsState extends State<Transactions> {
         if (state is LoadingTransactions) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         } else if (state is TransactionLoadingFailed) {
@@ -65,11 +65,7 @@ class _TransactionsState extends State<Transactions> {
                 const SizedBox(height: 10),
                 _buildDatePickerTextButton(state.dateFilter),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    TransactionFilterDropDown(filter: state.filter),
-                  ],
-                ),
+                _buildFilterRow(state),
                 const SizedBox(height: 10),
                 Expanded(
                   child: RefreshIndicator(
@@ -101,11 +97,7 @@ class _TransactionsState extends State<Transactions> {
                 const SizedBox(height: 10),
                 _buildDatePickerTextButton(state.dateFilter),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    TransactionFilterDropDown(filter: state.filter),
-                  ],
-                ),
+                _buildFilterRow(state),
                 const SizedBox(height: 10),
                 Expanded(
                   child: Center(
@@ -125,11 +117,14 @@ class _TransactionsState extends State<Transactions> {
   }
 
   Widget _buildDatePickerTextButton(String dateFilter) {
-    return TextButton(
+    return ElevatedButton(
       onPressed: () => _selectDate(context, dateFilter),
-      style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll(
-          Theme.of(context).colorScheme.inversePrimary,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        backgroundColor: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
       child: Text(
@@ -137,8 +132,19 @@ class _TransactionsState extends State<Transactions> {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
+          color: Colors.black87,
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterRow(TransactionState state) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Spacer(),
+        TransactionFilterDropDown(filter: state.filter),
+      ],
     );
   }
 
@@ -173,15 +179,14 @@ class TransactionFilterDropDown extends StatelessWidget {
       child: DropdownButtonFormField<TransactionFilter>(
         isExpanded: true,
         decoration: InputDecoration(
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.inversePrimary,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide.none,
-          ),
+          focusedBorder:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        elevation: 3,
+        dropdownColor: Colors.white,
         borderRadius: BorderRadius.circular(10),
         value: filter ?? TransactionFilter.all,
         items: TransactionFilter.values.map((filter) {

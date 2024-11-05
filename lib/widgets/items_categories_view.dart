@@ -55,6 +55,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         ),
       ],
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: TabBar(
           controller: _tabController,
           tabs: const [
@@ -84,7 +85,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         if (state is LoadingItems) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         } else if (state is LoadingItemsFailed) {
@@ -264,7 +265,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         if (state is LoadingCategories) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         } else if (state is LoadingCategoriesFailed) {
@@ -375,15 +376,16 @@ class ItemsFilterDropDown extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         isExpanded: true,
         decoration: InputDecoration(
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.inversePrimary,
+          focusedBorder:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(8),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         ),
-        dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        elevation: 3,
+        dropdownColor: Colors.white,
         borderRadius: BorderRadius.circular(10),
         value: itemsFilter,
         items: categories.map((category) {

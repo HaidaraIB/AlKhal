@@ -43,7 +43,9 @@ class _CategoryFormState extends State<CategoryForm> {
       builder: (context, snapshot) {
         if (widget.categoriesFuture != null && !snapshot.hasData) {
           return const Center(
-            child: CircularProgressIndicator(color: Colors.blue),
+            child: CircularProgressIndicator(
+              color: Colors.purple,
+            ),
           );
         }
 

@@ -33,7 +33,7 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
                 builder: (context) {
                   return const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.blue,
+                      color: Colors.purple,
                     ),
                   );
                 },

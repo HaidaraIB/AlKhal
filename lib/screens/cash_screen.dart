@@ -15,7 +15,8 @@ class CashScreen extends StatefulWidget {
 
 class _CashScreenState extends State<CashScreen>
     with SingleTickerProviderStateMixin {
-  late DateTime selectedDate;
+  late DateTime startDate;
+  late DateTime endDate;
 
   late Future<bool> _initArLocale;
 
@@ -27,8 +28,9 @@ class _CashScreenState extends State<CashScreen>
   @override
   void initState() {
     super.initState();
-    selectedDate = DateTime.now();
-    BlocProvider.of<CashCubit>(context).computeCash(selectedDate);
+    startDate = DateTime.now();
+    endDate = DateTime.now();
+    BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
     _initArLocale = _initLocale();
   }
 
@@ -37,7 +39,7 @@ class _CashScreenState extends State<CashScreen>
     return FutureBuilder(
       future: _initArLocale,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.done) {
           return BlocBuilder<CashCubit, CashState>(
             builder: (context, state) {
               if (state is CashRefreshingFailed) {
@@ -48,81 +50,19 @@ class _CashScreenState extends State<CashScreen>
                   body: RefreshIndicator(
                     onRefresh: () async {
                       await BlocProvider.of<CashCubit>(context)
-                          .computeCash(selectedDate);
+                          .computeCash(startDate, endDate);
                     },
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: () => _selectDate(context),
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStatePropertyAll(
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .inversePrimary,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    intl.DateFormat("EEEE d MMMM y", "ar_SA")
-                                        .format(selectedDate),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 30),
-                            AnimatedContainer(
-                              duration: const Duration(seconds: 1),
-                              curve: Curves.easeInOut,
-                              child: NumberWidget(
-                                label: 'كاش',
-                                value: state.cash,
-                              ),
-                            ),
-                            const SizedBox(height: 50),
-                            AnimatedContainer(
-                              duration: const Duration(seconds: 1),
-                              curve: Curves.easeInOut,
-                              child: NumberWidget(
-                                label: 'ربح',
-                                value: state.profit,
-                              ),
-                            ),
-                            const SizedBox(height: 50),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                AnimatedContainer(
-                                  duration: const Duration(seconds: 1),
-                                  curve: Curves.easeInOut,
-                                  child: NumberWidget(
-                                    label: 'فواتير',
-                                    value: state.bills,
-                                  ),
-                                ),
-                                AnimatedContainer(
-                                  duration: const Duration(seconds: 1),
-                                  curve: Curves.easeInOut,
-                                  child: NumberWidget(
-                                    label: 'ديون',
-                                    value: state.reminders,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 100),
+                            const SizedBox(height: 20),
+                            _buildDateRangeButton(context),
+                            const SizedBox(height: 20),
+                            _buildNumberWidgets(state),
+                            const SizedBox(height: 90),
                           ],
                         ),
                       ),
@@ -131,42 +71,100 @@ class _CashScreenState extends State<CashScreen>
                   floatingActionButton: FloatingActionButton(
                     onPressed: () {
                       BlocProvider.of<CashCubit>(context)
-                          .computeCash(selectedDate);
+                          .computeCash(startDate, endDate);
                     },
                     child: const Icon(Icons.refresh),
                   ),
                 );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.blue,
-                  ),
-                );
               }
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.purple,
+                ),
+              );
             },
           );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.blue,
-            ),
-          );
         }
+        return const Center(
+          child: CircularProgressIndicator(
+            color: Colors.purple,
+          ),
+        );
       },
     );
   }
 
-  void _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
+  Widget _buildDateRangeButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => _selectDateRange(context),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        backgroundColor: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Text(
+        'من: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(startDate)}\nإلى: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(endDate)}',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNumberWidgets(CashState state) {
+    return Column(
+      children: [
+        _buildNumberWidget('كاش', state.cash),
+        const Divider(),
+        _buildNumberWidget('ربح', state.profit),
+        const Divider(),
+        _buildNumberWidget('فواتير', state.bills),
+        const Divider(),
+        _buildNumberWidget('ديون', state.reminders),
+      ],
+    );
+  }
+
+  Widget _buildNumberWidget(String label, double value) {
+    return AnimatedContainer(
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: NumberWidget(label: label, value: value),
+    );
+  }
+
+  void _selectDateRange(BuildContext context) async {
+    final DateTimeRange? pickedRange = await showDateRangePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDateRange: DateTimeRange(start: startDate, end: endDate),
       firstDate: DateTime(2023, 1, 1),
       lastDate: DateTime.now(),
     );
-    if (pickedDate != null && pickedDate != selectedDate) {
+
+    if (pickedRange != null) {
       setState(() {
-        selectedDate = pickedDate;
-        BlocProvider.of<CashCubit>(context).computeCash(selectedDate);
+        startDate = pickedRange.start;
+        endDate = pickedRange.end;
+        BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
       });
     }
   }
@@ -176,7 +174,11 @@ class NumberWidget extends StatelessWidget {
   final String label;
   final double value;
 
-  const NumberWidget({super.key, required this.label, required this.value});
+  const NumberWidget({
+    super.key,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,10 +187,11 @@ class NumberWidget extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
           ),
         ),
+        const SizedBox(height: 4),
         TweenAnimationBuilder(
           tween: Tween<double>(begin: 0, end: value),
           duration: const Duration(milliseconds: 300),
@@ -197,7 +200,8 @@ class NumberWidget extends StatelessWidget {
               '${formatDouble(val)} ل.س',
               textDirection: TextDirection.rtl,
               style: const TextStyle(
-                fontSize: 30,
+                fontSize: 20,
+                color: Colors.purple,
               ),
             );
           },

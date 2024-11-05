@@ -60,7 +60,7 @@ class _TransactionItemCardState extends State<TransactionItemCard>
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         }

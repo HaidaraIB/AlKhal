@@ -52,7 +52,7 @@ class InitialScreen extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Colors.purple),
           );
         } else {
           if (snapshot.data == true) {

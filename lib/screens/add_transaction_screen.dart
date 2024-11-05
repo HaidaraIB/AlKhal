@@ -228,7 +228,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         }

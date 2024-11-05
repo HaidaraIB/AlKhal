@@ -31,3 +31,7 @@ Future<void> clearSharedPref() async {
   SharedPreferences instance = await SharedPreferences.getInstance();
   await instance.clear();
 }
+
+String dateToISO(DateTime d) {
+  return "${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}";
+}

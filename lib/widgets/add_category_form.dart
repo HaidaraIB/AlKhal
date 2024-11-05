@@ -107,7 +107,7 @@ class _AddCategoryFormState extends State<AddCategoryForm> {
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         }

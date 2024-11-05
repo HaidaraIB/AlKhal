@@ -65,7 +65,7 @@ class _ItemHistoryCardState extends State<ItemHistoryCard>
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         }

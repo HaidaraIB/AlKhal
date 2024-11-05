@@ -249,7 +249,7 @@ class _AddItemFormState extends State<AddItemForm> {
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         }

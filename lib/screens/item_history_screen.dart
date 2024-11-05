@@ -30,7 +30,7 @@ class _ItemHistoryScreenState extends State<ItemHistoryScreen> {
         if (state is LoadingHistory) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         } else if (state is LoadingHistoryFailed) {

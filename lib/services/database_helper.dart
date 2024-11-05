@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:alkhal/models/model.dart';
+import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:share_plus/share_plus.dart';
@@ -227,7 +228,8 @@ class DatabaseHelper {
     );
   }
 
-  static Future<Map<String, dynamic>> computeCash(DateTime d) async {
+  static Future<Map<String, dynamic>> computeCash(
+      DateTime startDate, DateTime endDate) async {
     final db = await DatabaseHelper.db;
     final List<Map<String, dynamic>>? cashResult = await db?.rawQuery(
       '''
@@ -237,7 +239,7 @@ class DatabaseHelper {
         reminder
       FROM 
         'transaction'
-      WHERE is_sale = 1 AND date(transaction_date) = '${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}';
+      WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
         ''',
     );
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
@@ -246,7 +248,7 @@ class DatabaseHelper {
         SUM(total_price) as bills
       FROM 
         'transaction'
-      WHERE is_sale = 0 AND date(transaction_date) = '${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}';
+      WHERE is_sale = 0 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
         ''',
     );
 

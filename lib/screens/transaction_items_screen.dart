@@ -33,7 +33,7 @@ class _ItemsState extends State<TransactionItems> {
         if (state is LoadingTransactionItems) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.blue,
+              color: Colors.purple,
             ),
           );
         } else if (state is LoadingTransactionItemsFailed) {
