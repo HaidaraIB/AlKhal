@@ -1,17 +1,19 @@
-import 'package:alkhal/cubit/add_category_fab_visibility/add_category_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/add_item_fab_visibility/add_item_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/category/category_cubit.dart';
-import 'package:alkhal/cubit/item/item_cubit.dart';
-import 'package:alkhal/models/category.dart';
-import 'package:alkhal/models/item.dart';
+import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
+import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
 import 'package:alkhal/models/model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:alkhal/cubit/item/item_cubit.dart';
+import 'package:alkhal/models/item.dart';
+import 'package:alkhal/cubit/add_category_fab_visibility/add_category_fab_visibility_cubit.dart';
+import 'package:alkhal/models/category.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/widgets/add_category_fab.dart';
 import 'package:alkhal/widgets/add_item_fab.dart';
 import 'package:alkhal/widgets/category_card.dart';
 import 'package:alkhal/widgets/item_card.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ItemsCategoriesView extends StatefulWidget {
   const ItemsCategoriesView({super.key});
@@ -76,6 +78,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         .read<AddItemFabVisibilityCubit>()
         .listenToScrolling(_itemsScrollController);
     BlocProvider.of<ItemCubit>(context).loadItems();
+    BlocProvider.of<SearchBarCubit>(context).loadVisibility();
     return BlocBuilder<ItemCubit, ItemState>(
       builder: (context, state) {
         if (state is LoadingItems) {
@@ -114,6 +117,19 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
               itemsFilter: state.filter,
               categories: state.categories,
             ),
+            searchBar: BlocBuilder<SearchBarCubit, SearchBarState>(
+              builder: (context, newState) {
+                if (newState is SearchBarVisibility) {
+                  if (newState.isVisible) {
+                    return _buildAutocomplete(state.items!, state.categories);
+                  } else {
+                    return const SizedBox();
+                  }
+                } else {
+                  return const SizedBox();
+                }
+              },
+            ),
           );
         } else {
           return _buildView(
@@ -130,8 +146,85 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
               itemsFilter: state.filter,
               categories: state.categories,
             ),
+            searchBar: BlocBuilder<SearchBarCubit, SearchBarState>(
+              builder: (context, newState) {
+                if (newState is SearchBarVisibility) {
+                  if (newState.isVisible) {
+                    return _buildAutocomplete(state.items!, state.categories);
+                  } else {
+                    return const SizedBox();
+                  }
+                } else {
+                  return const SizedBox();
+                }
+              },
+            ),
           );
         }
+      },
+    );
+  }
+
+  Widget _buildAutocomplete(List<Model> items, List<Model> categories) {
+    return Autocomplete<Model>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<Model>.empty();
+        }
+        return items.where((Model item) {
+          return (item as Item)
+              .name
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      displayStringForOption: (Model item) => (item as Item).name,
+      onSelected: (Model selectedItem) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (newContext) {
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                    value: BlocProvider.of<ItemCubit>(context),
+                  ),
+                  BlocProvider.value(
+                    value: BlocProvider.of<ItemHistoryCubit>(context),
+                  ),
+                ],
+                child: Scaffold(
+                  appBar: AppBar(
+                    title: const Text("نتيجة بحث عنصر"),
+                  ),
+                  body: ItemCard(
+                    item: selectedItem as Item,
+                    category: categories.firstWhere((category) {
+                      return (category as Category).id ==
+                          selectedItem.categoryId;
+                    }) as Category,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            textDirection: TextDirection.rtl,
+            controller: controller,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              hintText: 'بحث العناصر',
+              hintTextDirection: TextDirection.rtl,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        );
       },
     );
   }
@@ -188,6 +281,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
     required Widget children,
     required Widget fab,
     Widget itemFilters = const SizedBox(),
+    Widget searchBar = const SizedBox(),
   }) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -196,6 +290,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
       body: Column(
         children: [
           const SizedBox(height: 10),
+          searchBar,
           itemFilters is SizedBox
               ? itemFilters
               : Row(

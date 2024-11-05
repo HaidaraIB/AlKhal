@@ -1,4 +1,5 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
 import 'package:alkhal/screens/cash_screen.dart';
 import 'package:alkhal/screens/items_categories_screen.dart';
 import 'package:alkhal/screens/pin_screen.dart';
@@ -26,7 +27,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const InitialScreen(),
-        '/home': (context) => const MyHomePage(),
+        '/home': (context) => BlocProvider(
+              create: (context) => SearchBarCubit(),
+              child: const MyHomePage(),
+            ),
         '/pin': (context) => const PinScreen(),
       },
     );
@@ -128,10 +132,14 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.settings),
           )
         ],
-        leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.search),
-        ),
+        leading: _selectedIndex == 0
+            ? IconButton(
+                onPressed: () {
+                  context.read<SearchBarCubit>().changeVisibility();
+                },
+                icon: const Icon(Icons.search),
+              )
+            : null,
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
