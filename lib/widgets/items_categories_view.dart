@@ -192,17 +192,9 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
                     value: BlocProvider.of<ItemHistoryCubit>(context),
                   ),
                 ],
-                child: Scaffold(
-                  appBar: AppBar(
-                    title: const Text("نتيجة بحث عنصر"),
-                  ),
-                  body: ItemCard(
-                    item: selectedItem as Item,
-                    category: categories.firstWhere((category) {
-                      return (category as Category).id ==
-                          selectedItem.categoryId;
-                    }) as Category,
-                  ),
+                child: ItemSearchResultScreen(
+                  item: selectedItem as Item,
+                  categories: categories,
                 ),
               );
             },
@@ -222,7 +214,40 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
+              prefixIcon: IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: controller.clear,
+              ),
             ),
+            onSubmitted: (value) {
+              try {
+                Model item = items.firstWhere(
+                  (item) => (item as Item).name.trim() == value.trim(),
+                );
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (newContext) {
+                      return MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: BlocProvider.of<ItemCubit>(context),
+                          ),
+                          BlocProvider.value(
+                            value: BlocProvider.of<ItemHistoryCubit>(context),
+                          ),
+                        ],
+                        child: ItemSearchResultScreen(
+                          item: item as Item,
+                          categories: categories,
+                        ),
+                      );
+                    },
+                  ),
+                );
+              } catch (e) {
+                debugPrint(e.toString());
+              }
+            },
           ),
         );
       },
@@ -302,6 +327,33 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           const SizedBox(height: 10),
           Expanded(child: children),
         ],
+      ),
+    );
+  }
+}
+
+class ItemSearchResultScreen extends StatelessWidget {
+  final Item item;
+  final List<Model> categories;
+  const ItemSearchResultScreen({
+    super.key,
+    required this.item,
+    required this.categories,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("نتيجة بحث عنصر"),
+      ),
+      body: ItemCard(
+        item: item,
+        category: categories.firstWhere(
+          (category) {
+            return (category as Category).id == item.categoryId;
+          },
+        ) as Category,
       ),
     );
   }
