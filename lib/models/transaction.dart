@@ -12,6 +12,7 @@ class Transaction extends Model {
   double totalProfit;
   final String transactionDate;
   final int isSale;
+  final String notes;
 
   Transaction({
     super.id,
@@ -21,6 +22,7 @@ class Transaction extends Model {
     required this.isSale,
     required this.totalPrice,
     required this.totalProfit,
+    required this.notes,
   });
 
   @override
@@ -32,7 +34,8 @@ class Transaction extends Model {
       'transaction_date': transactionDate,
       'is_sale': isSale,
       'total_price': totalPrice,
-      'total_profit': totalProfit
+      'total_profit': totalProfit,
+      'notes': notes,
     };
   }
 
@@ -45,6 +48,7 @@ class Transaction extends Model {
       isSale: map['is_sale'],
       totalPrice: map['total_price'],
       totalProfit: map['total_profit'] ?? 0,
+      notes: map['notes'],
     );
   }
 

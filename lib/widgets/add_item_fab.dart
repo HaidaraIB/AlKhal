@@ -17,11 +17,12 @@ class AddItemFAB extends StatelessWidget {
       heroTag: "AddItemFAB",
       child: const Icon(Icons.add),
       onPressed: () {
+        final itemCubit = BlocProvider.of<ItemCubit>(context);
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (newcontext) {
+            builder: (newContext) {
               return BlocProvider<ItemCubit>.value(
-                value: BlocProvider.of(context),
+                value: itemCubit,
                 child: AddItemForm(defaultCategory: defaultCategory),
               );
             },

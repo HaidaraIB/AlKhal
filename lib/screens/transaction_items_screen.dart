@@ -23,7 +23,7 @@ class _ItemsState extends State<TransactionItems> {
   void initState() {
     super.initState();
     BlocProvider.of<TransactionItemCubit>(context)
-        .loadItems(widget.transactionId);
+        .loadItems(transactionId: widget.transactionId);
   }
 
   @override
@@ -52,7 +52,8 @@ class _ItemsState extends State<TransactionItems> {
         } else {
           return const Center(
             child: Text(
-              '!ليس لديك عناصر بعد',
+              'ليس لديك عناصر بعد!',
+              textDirection: TextDirection.rtl,
               style: TextStyle(fontSize: 20),
             ),
           );

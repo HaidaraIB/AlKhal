@@ -39,20 +39,21 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
                 },
               );
             } else if (state.items!.isNotEmpty) {
+              final transactionCubit =
+                  BlocProvider.of<TransactionCubit>(context);
+              final itemCubit = BlocProvider.of<ItemCubit>(context);
+              final transactionItemCubit =
+                  BlocProvider.of<TransactionItemCubit>(context);
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (newContext) {
                     return MultiBlocProvider(
                       providers: [
                         BlocProvider<TransactionCubit>.value(
-                          value: BlocProvider.of<TransactionCubit>(context),
-                        ),
-                        BlocProvider<ItemCubit>.value(
-                          value: BlocProvider.of<ItemCubit>(context),
-                        ),
+                            value: transactionCubit),
+                        BlocProvider<ItemCubit>.value(value: itemCubit),
                         BlocProvider<TransactionItemCubit>.value(
-                          value: BlocProvider.of<TransactionItemCubit>(context),
-                        )
+                            value: transactionItemCubit)
                       ],
                       child: const AddTransactionForm(),
                     );

@@ -1,10 +1,10 @@
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/screens/transaction_items_screen.dart';
+import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
@@ -31,14 +31,16 @@ class TransactionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Center(
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
                 child: Text(
-                  intl.DateFormat("EEE d MMMM y", "ar_SA").format(
+                  arDateTimeFormat.format(
                     DateTime.parse(transaction.transactionDate),
                   ),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
+                    color: Colors.deepPurple,
                   ),
                   textDirection: TextDirection.rtl,
                 ),
@@ -49,12 +51,13 @@ class TransactionCard extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {
+                      final transactionItemCubit =
+                          BlocProvider.of<TransactionItemCubit>(context);
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (newContext) {
-                            return BlocProvider.value(
-                              value: BlocProvider.of<TransactionItemCubit>(
-                                  context),
+                            return BlocProvider<TransactionItemCubit>.value(
+                              value: transactionItemCubit,
                               child: Scaffold(
                                 appBar: AppBar(
                                   title: const Text('تفاصيل فاتورة'),
@@ -73,6 +76,15 @@ class TransactionCard extends StatelessWidget {
                   ),
                   _buildTransactionDetails(),
                 ],
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Text(
+                  'ملاحظات: ${transaction.notes}',
+                  textDirection: TextDirection.rtl,
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                ),
               ),
             ],
           ),

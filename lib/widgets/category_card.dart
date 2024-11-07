@@ -41,10 +41,11 @@ class _CategoryCardState extends State<CategoryCard> {
             // ),
             IconButton(
               onPressed: () {
+                final categoryCubit = BlocProvider.of<CategoryCubit>(context);
                 showModalBottomSheet(
                   context: context,
                   builder: (newContext) => BlocProvider<CategoryCubit>.value(
-                    value: BlocProvider.of<CategoryCubit>(context),
+                    value: categoryCubit,
                     child: CategoryForm(
                       category: widget.category,
                     ),

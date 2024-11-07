@@ -14,10 +14,11 @@ class AddCategoryFAB extends StatelessWidget {
       heroTag: "AddCategoryFAB",
       child: const Icon(Icons.add),
       onPressed: () {
+        final categoryCubit = BlocProvider.of<CategoryCubit>(context);
         showModalBottomSheet(
           context: context,
           builder: (newContext) => BlocProvider<CategoryCubit>.value(
-            value: BlocProvider.of<CategoryCubit>(context),
+            value: categoryCubit,
             child: CategoryForm(
               categoriesFuture:
                   DatabaseHelper.getAll(Category.tableName, "Category"),

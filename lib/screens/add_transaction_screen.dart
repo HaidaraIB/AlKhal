@@ -21,6 +21,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   final _formKey = GlobalKey<FormState>();
   final _discountController = TextEditingController();
   final _reminderController = TextEditingController();
+  final _notesController = TextEditingController();
   bool _isSale = true;
   final List<Map<String, dynamic>> _selectedItems = [
     {
@@ -57,6 +58,67 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     _data = _getData();
   }
 
+  Future<void> _confirmAddTransaction() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'تأكيد إضافة فاتورة',
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  'أضف ملاحظات إضافية عن هذه الفاتورة',
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,
+                ),
+              ),
+              TextField(
+                controller: _notesController,
+                textAlign: TextAlign.right,
+                textDirection: TextDirection.rtl,
+                maxLines: null, // Allows the TextField to expand vertically
+                decoration: InputDecoration(
+                  hintText: 'أدخل ملاحظاتك هنا',
+                  hintTextDirection: TextDirection.rtl,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+              )
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('إلغاء'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _submitForm();
+              },
+              child: const Text('حفظ'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       double discount = _discountController.text.isNotEmpty
@@ -71,7 +133,8 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       double totalProfit = 0;
 
       for (var si in _selectedItems) {
-        itemsToUpdate.add(si['item']);
+        Item i = si['item'];
+        itemsToUpdate.add(i);
         Map res = calculateItemValues(si);
         double sellingPrice = res['sellingPrice'];
         double purchasePrice = res['purchasePrice'];
@@ -83,6 +146,8 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         transactionItems.add(TransactionItem(
           itemId: si['item_id'],
           quantity: transactionItemQuantity,
+          sellingPrice: i.sellingPrice,
+          purchasePrice: i.purchasePrice,
         ));
       }
       Transaction transaction = Transaction(
@@ -92,6 +157,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
         isSale: _isSale ? 1 : 0,
         totalPrice: totalPrice - discount,
         totalProfit: totalProfit - (discount * totalProfit / totalPrice),
+        notes: _notesController.text,
       );
       bool success =
           await BlocProvider.of<TransactionCubit>(context).addTransaction(
@@ -534,7 +600,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           height: 50.0,
           width: 150.0,
           child: ElevatedButton(
-            onPressed: _submitForm,
+            onPressed: _confirmAddTransaction,
             child: const Text('حفظ الفاتورة'),
           ),
         ),

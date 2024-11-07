@@ -1,9 +1,11 @@
 import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
+import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/measurement_unit.dart';
 import 'package:alkhal/screens/item_history_screen.dart';
+import 'package:alkhal/screens/item_sales_screen.dart';
 import 'package:alkhal/screens/update_item_screen.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +39,13 @@ class _ItemCardState extends State<ItemCard> {
               children: [
                 IconButton(
                   onPressed: () {
+                    final itemHistoryCubit =
+                        BlocProvider.of<ItemHistoryCubit>(context);
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (newcontext) {
-                          return BlocProvider.value(
-                            value: BlocProvider.of<ItemHistoryCubit>(context),
+                        builder: (newContext) {
+                          return BlocProvider<ItemHistoryCubit>.value(
+                            value: itemHistoryCubit,
                             child: Scaffold(
                               appBar: AppBar(
                                 title: const Text('سجل تعديل عنصر'),
@@ -71,24 +75,48 @@ class _ItemCardState extends State<ItemCard> {
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
                       onPressed: () {
+                        final itemCubit = BlocProvider.of<ItemCubit>(context);
+                        final transactionItemCubit =
+                            BlocProvider.of<TransactionItemCubit>(context);
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (newcontext) {
+                            builder: (newContext) {
                               return MultiBlocProvider(
                                 providers: [
                                   BlocProvider<ItemCubit>.value(
-                                    value: BlocProvider.of<ItemCubit>(context),
-                                  ),
+                                      value: itemCubit),
+                                  BlocProvider<TransactionItemCubit>.value(
+                                      value: transactionItemCubit),
+                                ],
+                                child: ItemSalesScreen(item: widget.item),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.list),
+                    ),
+                    const SizedBox(),
+                    IconButton(
+                      onPressed: () {
+                        final itemCubit = BlocProvider.of<ItemCubit>(context);
+                        final itemHistoryCubit =
+                            BlocProvider.of<ItemHistoryCubit>(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (newContext) {
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider<ItemCubit>.value(
+                                      value: itemCubit),
                                   BlocProvider<ItemHistoryCubit>.value(
-                                    value: BlocProvider.of<ItemHistoryCubit>(
-                                        context),
-                                  ),
+                                      value: itemHistoryCubit),
                                 ],
                                 child: UpdateItemForm(oldItem: widget.item),
                               );

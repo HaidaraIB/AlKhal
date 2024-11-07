@@ -11,14 +11,14 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
   TransactionItemCubit()
       : super(const TransactionItemInitial(transactionItems: []));
 
-  void loadItems(int transactionId) async {
+  Future loadItems({int? transactionId, int? itemId}) async {
     emit(LoadingTransactionItems(transactionItems: transactionItems));
     try {
       await DatabaseHelper.getAll(
         TransactionItem.tableName,
         "TransactionItem",
-        "transaction_id = ?",
-        [transactionId],
+        transactionId != null ? "transaction_id = ?" : "item_id = ?",
+        [transactionId ?? itemId],
       ).then(
         (value) => transactionItems = value,
       );

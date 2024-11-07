@@ -139,7 +139,8 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
             ),
             children: Center(
               child: Text(
-                '!ليس لديك ${state.filterName} بعد',
+                'ليس لديك ${state.filterName} بعد',
+                textDirection: TextDirection.rtl,
                 style: const TextStyle(fontSize: 20),
               ),
             ),
@@ -181,17 +182,15 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
       },
       displayStringForOption: (Model item) => (item as Item).name,
       onSelected: (Model selectedItem) {
+        final itemCubit = BlocProvider.of<ItemCubit>(context);
+        final itemHistoryCubit = BlocProvider.of<ItemHistoryCubit>(context);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (newContext) {
               return MultiBlocProvider(
                 providers: [
-                  BlocProvider.value(
-                    value: BlocProvider.of<ItemCubit>(context),
-                  ),
-                  BlocProvider.value(
-                    value: BlocProvider.of<ItemHistoryCubit>(context),
-                  ),
+                  BlocProvider<ItemCubit>.value(value: itemCubit),
+                  BlocProvider<ItemHistoryCubit>.value(value: itemHistoryCubit),
                 ],
                 child: ItemSearchResultScreen(
                   item: selectedItem as Item,
@@ -228,14 +227,14 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (newContext) {
+                      final itemCubit = BlocProvider.of<ItemCubit>(context);
+                      final itemHistoryCubit =
+                          BlocProvider.of<ItemHistoryCubit>(context);
                       return MultiBlocProvider(
                         providers: [
-                          BlocProvider.value(
-                            value: BlocProvider.of<ItemCubit>(context),
-                          ),
-                          BlocProvider.value(
-                            value: BlocProvider.of<ItemHistoryCubit>(context),
-                          ),
+                          BlocProvider<ItemCubit>.value(value: itemCubit),
+                          BlocProvider<ItemHistoryCubit>.value(
+                              value: itemHistoryCubit),
                         ],
                         child: ItemSearchResultScreen(
                           item: item as Item,
@@ -293,7 +292,8 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
             fab: const AddCategoryFAB(),
             children: const Center(
               child: Text(
-                '!ليس لديك مجموعات بعد',
+                'ليس لديك مجموعات بعد!',
+                textDirection: TextDirection.rtl,
                 style: TextStyle(fontSize: 20),
               ),
             ),

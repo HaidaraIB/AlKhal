@@ -8,11 +8,15 @@ class TransactionItem extends Model {
   int? transactionId;
   final int itemId;
   final double quantity;
+  final double purchasePrice;
+  final double sellingPrice;
   TransactionItem({
     super.id,
     required this.itemId,
     this.transactionId,
     required this.quantity,
+    required this.sellingPrice,
+    required this.purchasePrice,
   });
   @override
   Map<String, dynamic> toMap() {
@@ -21,6 +25,8 @@ class TransactionItem extends Model {
       'transaction_id': transactionId,
       'item_id': itemId,
       'quantity': quantity,
+      'selling_price': sellingPrice,
+      'purchase_price': purchasePrice,
     };
   }
 
@@ -30,6 +36,8 @@ class TransactionItem extends Model {
       transactionId: map['transaction_id'],
       itemId: map['item_id'],
       quantity: map['quantity'],
+      sellingPrice: map['selling_price'],
+      purchasePrice: map['purchase_price'],
     );
   }
 

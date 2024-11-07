@@ -29,7 +29,7 @@ class DatabaseHelper {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 2,
+      version: 4,
       onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
@@ -41,7 +41,26 @@ class DatabaseHelper {
   }
 
   static _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    await db.execute("ALTER TABLE 'transaction' ADD reminder REAL DEFAULT 0;");
+    if (newVersion == 4) {
+      await db.execute("ALTER TABLE 'transaction' ADD notes TEXT DEFAULT '';");
+      await db.execute("ALTER TABLE transaction_item ADD purchase_price REAL;");
+      await db.execute("ALTER TABLE transaction_item ADD selling_price REAL;");
+      await db.execute(
+        """
+        UPDATE transaction_item
+        SET purchase_price = (
+          SELECT purchase_price
+          FROM item
+          WHERE item.id = transaction_item.item_id
+        ),
+        selling_price = (
+          SELECT selling_price
+          FROM item
+          WHERE item.id = transaction_item.item_id
+        );
+      """,
+      );
+    }
   }
 
   static _onCreate(Database db, int version) async {
@@ -96,6 +115,8 @@ class DatabaseHelper {
           transaction_id INTEGER,
           item_id INTEGER,
           quantity REAL,
+          purchase_price REAL,
+          selling_price REAL,
           FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE,
           FOREIGN KEY (transaction_id) REFERENCES 'transaction' (id) ON DELETE CASCADE
         );
@@ -236,7 +257,7 @@ class DatabaseHelper {
       SELECT 
         SUM(total_price) as cash,
         SUM(total_profit) as profit,
-        reminder
+        SUM(reminder) as reminders
       FROM 
         'transaction'
       WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
@@ -245,7 +266,7 @@ class DatabaseHelper {
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
       '''
       SELECT 
-        SUM(total_price) as bills
+        SUM(total_price) as bills 
       FROM 
         'transaction'
       WHERE is_sale = 0 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
@@ -257,7 +278,7 @@ class DatabaseHelper {
         'cash': cashResult.first['cash'] ?? 0.0,
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
-        'reminders': cashResult.first['reminder'] ?? 0.0,
+        'reminders': cashResult.first['reminders'] ?? 0.0,
       };
     } else {
       return {

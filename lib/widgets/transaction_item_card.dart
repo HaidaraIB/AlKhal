@@ -47,14 +47,14 @@ class _TransactionItemCardState extends State<TransactionItemCard>
             price: formatDouble(
               widget.transactionItem.quantity *
                   (widget.isSale
-                      ? snapshot.data!.sellingPrice
-                      : snapshot.data!.purchasePrice),
+                      ? widget.transactionItem.sellingPrice
+                      : widget.transactionItem.purchasePrice),
             ),
             profit: widget.isSale
                 ? formatDouble(widget.transactionItem.quantity *
-                        snapshot.data!.sellingPrice -
+                        widget.transactionItem.sellingPrice -
                     widget.transactionItem.quantity *
-                        snapshot.data!.purchasePrice)
+                        widget.transactionItem.purchasePrice)
                 : null,
           );
         } else {
