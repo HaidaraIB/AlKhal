@@ -25,7 +25,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   final _discountController = TextEditingController();
   final _reminderController = TextEditingController();
   final _notesController = TextEditingController();
+
   bool _isSale = true;
+
   late Future<Map<String, List<Model>>> _data;
 
   Future<Map<String, List<Model>>> _getData() async {
@@ -246,34 +248,29 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
               padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
-                child: BlocBuilder<TransactionItemInCartCubit,
-                    TransactionItemInCartState>(
-                  builder: (context, state) {
-                    return Column(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildSwitchLabel("فاتورة محل", !_isSale),
-                            Switch(
-                              value: _isSale,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isSale = value;
-                                });
-                              },
-                            ),
-                            _buildSwitchLabel("فاتورة زبون", _isSale),
-                          ],
+                        _buildSwitchLabel("فاتورة محل", !_isSale),
+                        Switch(
+                          value: _isSale,
+                          onChanged: (value) {
+                            setState(() {
+                              _isSale = value;
+                            });
+                          },
                         ),
-                        _buildDiscountField(),
-                        _buildReminderField(),
-                        const SizedBox(height: 10),
-                        _buildItemListView(snapshot),
-                        _buildActionButtons(snapshot),
+                        _buildSwitchLabel("فاتورة زبون", _isSale),
                       ],
-                    );
-                  },
+                    ),
+                    _buildDiscountField(),
+                    _buildReminderField(),
+                    const SizedBox(height: 10),
+                    _buildItemListView(snapshot),
+                    _buildActionButtons(snapshot),
+                  ],
                 ),
               ),
             ),

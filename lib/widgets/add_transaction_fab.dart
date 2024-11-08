@@ -55,19 +55,15 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
                             value: transactionCubit),
                         BlocProvider<ItemCubit>.value(value: itemCubit),
                         BlocProvider<TransactionItemCubit>.value(
-                            value: transactionItemCubit)
+                            value: transactionItemCubit),
+                        BlocProvider(
+                          create: (context) => TransactionCashCubit(),
+                        ),
+                        BlocProvider(
+                          create: (context) => TransactionItemInCartCubit(),
+                        ),
                       ],
-                      child: MultiBlocProvider(
-                        providers: [
-                          BlocProvider(
-                            create: (context) => TransactionCashCubit(),
-                          ),
-                          BlocProvider(
-                            create: (context) => TransactionItemInCartCubit(),
-                          ),
-                        ],
-                        child: const AddTransactionForm(),
-                      ),
+                      child: const AddTransactionForm(),
                     );
                   },
                 ),

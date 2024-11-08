@@ -104,25 +104,22 @@ class _ItemSaleCardState extends State<ItemSaleCard>
                                   return BlocProvider<
                                       TransactionItemCubit>.value(
                                     value: transactionItemCubit,
-                                    child: Scaffold(
-                                      appBar: AppBar(
-                                        title:
-                                            Text("فاتورة ${widget.item.name}"),
-                                        leading: IconButton(
-                                          icon: const Icon(Icons.arrow_back,
-                                              color: Colors.black),
-                                          onPressed: () async {
-                                            await transactionItemCubit
-                                                .loadItems(
-                                                    itemId: widget.item.id);
-                                            if (newContext.mounted) {
-                                              Navigator.of(newContext).pop();
-                                            }
-                                          },
+                                    child: PopScope(
+                                      canPop: true,
+                                      onPopInvokedWithResult:
+                                          (didPop, result) async {
+                                        await transactionItemCubit.loadItems(
+                                            itemId: widget.item.id);
+                                      },
+                                      child: Scaffold(
+                                        appBar: AppBar(
+                                          title: Text(
+                                            "فاتورة ${widget.item.name.trim()}",
+                                          ),
                                         ),
-                                      ),
-                                      body: TransactionCard(
-                                        transaction: transaction,
+                                        body: TransactionCard(
+                                          transaction: transaction,
+                                        ),
                                       ),
                                     ),
                                   );

@@ -27,7 +27,7 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('سجل مبيع ${widget.item.name}'),
+        title: Text('سجل مبيع ${widget.item.name.trim()}'),
       ),
       body: BlocBuilder<TransactionItemCubit, TransactionItemState>(
         builder: (context, state) {
@@ -39,7 +39,7 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
             );
           } else if (state is LoadingTransactionItemsFailed) {
             return buildErrorWidget(state.err);
-          } else if (state is TransactionItemsLoaded) {
+          } else if (state.transactionItems.isNotEmpty) {
             return ListView.builder(
               itemCount: state.transactionItems.length,
               itemBuilder: (BuildContext context, int index) {

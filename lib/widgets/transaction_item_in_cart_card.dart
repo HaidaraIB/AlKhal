@@ -28,8 +28,7 @@ class TransactionItemInCartCard extends StatefulWidget {
       _TransactionItemInCartCardState();
 }
 
-class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
-    with AutomaticKeepAliveClientMixin {
+class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
   void _deleteItem() {
     if (BlocProvider.of<TransactionItemInCartCubit>(context)
             .transactionItemMaps
@@ -49,15 +48,11 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
     context
         .read<TransactionItemInCartCubit>()
         .removeTransactionItemFromCart(widget.transactionItem);
-    context
-        .read<TransactionItemInCartCubit>()
-        .removeTransactionItemFromCart(widget.transactionItem);
     context.read<TransactionCashCubit>().updateCash(calculateTotalPrice());
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Card(
       color: Colors.deepPurple[50],
       child: Padding(
@@ -75,7 +70,7 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
 
   Widget _buildItemPriceRow() {
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.only(right: 16.0, top: 3.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
@@ -93,6 +88,10 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
                       ),
                     )
                   ],
+                ),
+                style: const TextStyle(
+                  color: Colors.deepPurple,
+                  fontSize: 18,
                 ),
               );
             },
@@ -220,10 +219,14 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
 
   Widget _buildPriceField() {
     return TextFormField(
+      initialValue: widget.transactionItem['price'] != null &&
+              widget.transactionItem['price'] != 0
+          ? widget.transactionItem['price'].toString()
+          : null,
       decoration: InputDecoration(
         label: const Text('السعر', textDirection: TextDirection.rtl),
         hintText: widget.transactionItem['item'] != null
-            ? "الإجمالي ${formatDouble(widget.transactionItem['item'].quantity * widget.transactionItem['item'].sellingPrice)} ل.س"
+            ? "الإجمالي ${formatDouble((widget.transactionItem['item'] as Item).quantity * (widget.transactionItem['item'] as Item).sellingPrice)} ل.س"
             : '',
         hintStyle: const TextStyle(fontSize: 15),
       ),
@@ -232,7 +235,7 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
         if (widget.isSale && widget.transactionItem['quantity'] == 0) {
           if (value == null || value.isEmpty) {
             return "الرجاء إدخال كمية أو سعر";
-          } else if (int.tryParse(value)! <= 0) {
+          } else if ((double.tryParse(value) ?? 0) <= 0) {
             return "الرجاء إدخال عدد موجب";
           }
         }
@@ -259,6 +262,10 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
 
   Widget _buildQuantityField() {
     return TextFormField(
+      initialValue: widget.transactionItem['quantity'] != null &&
+              widget.transactionItem['quantity'] != 0
+          ? widget.transactionItem['quantity'].toString()
+          : null,
       decoration: InputDecoration(
         label: Text(_makeUnitHintText(), textDirection: TextDirection.rtl),
         hintText: widget.transactionItem['item'] != null
@@ -270,18 +277,22 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
         if (widget.isSale && widget.transactionItem['price'] == 0) {
           if (value == null || value.isEmpty) {
             return "الرجاء إدخال كمية أو سعر";
-          } else if (int.tryParse(value)! <= 0) {
+          } else if ((double.tryParse(value) ?? 0) <= 0) {
             return "الرجاء إدخال عدد موجب";
           }
         }
-        bool insufficientQuantity = widget.transactionItem['item'].quantity <
-            (widget.isSale &&
-                    widget.transactionItem['item'].unit == MeasurementUnit.kg
-                ? widget.transactionItem['quantity'] / 1000
-                : widget.transactionItem['quantity']);
-        if (widget.isSale && insufficientQuantity) {
-          return "الكمية تجاوزت المخزون";
-        } else if (widget.isSale &&
+        if (widget.transactionItem['item'] != null) {
+          bool insufficientQuantity = (widget.transactionItem['item'] as Item)
+                  .quantity <
+              (widget.isSale &&
+                      widget.transactionItem['item'].unit == MeasurementUnit.kg
+                  ? widget.transactionItem['quantity'] / 1000
+                  : widget.transactionItem['quantity']);
+          if (widget.isSale && insufficientQuantity) {
+            return "الكمية تجاوزت المخزون";
+          }
+        }
+        if (widget.isSale &&
             widget.transactionItem['quantity'] != 0 &&
             widget.transactionItem['price'] != 0) {
           return "لا يمكنك إدخال\nكمية وسعر معاً";
@@ -353,7 +364,4 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard>
     double purchasePrice = res['purchasePrice'];
     return widget.isSale ? sellingPrice : purchasePrice;
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

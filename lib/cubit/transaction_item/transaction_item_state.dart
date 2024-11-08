@@ -18,17 +18,6 @@ final class TransactionItemOperationFailed extends TransactionItemState {
   });
 }
 
-final class StoreTransactionItemSuccess extends TransactionItemState {
-  const StoreTransactionItemSuccess({required super.transactionItems});
-}
-
-final class StoreTransactionItemFail extends TransactionItemOperationFailed {
-  const StoreTransactionItemFail({
-    required super.transactionItems,
-    required super.err,
-  });
-}
-
 final class LoadingTransactionItems extends TransactionItemState {
   const LoadingTransactionItems({required super.transactionItems});
 }

@@ -31,22 +31,4 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       ));
     }
   }
-
-  void storeTransactionItem(TransactionItem transactionItem) async {
-    try {
-      int? transactionItemId = await DatabaseHelper.insert(
-          TransactionItem.tableName, transactionItem);
-      transactionItem.id = transactionItemId;
-      transactionItems.add(transactionItem);
-      transactionItems.sort((a, b) => (a as TransactionItem)
-          .itemId
-          .compareTo((b as TransactionItem).itemId));
-      emit(StoreTransactionItemSuccess(transactionItems: transactionItems));
-    } catch (e) {
-      emit(StoreTransactionItemFail(
-        transactionItems: transactionItems,
-        err: e.toString(),
-      ));
-    }
-  }
 }
