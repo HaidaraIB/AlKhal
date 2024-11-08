@@ -1,9 +1,12 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
+import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/cash_screen.dart';
 import 'package:alkhal/screens/items_categories_screen.dart';
+import 'package:alkhal/screens/log_in_screen.dart';
 import 'package:alkhal/screens/pin_screen.dart';
 import 'package:alkhal/screens/settings_screen.dart';
+import 'package:alkhal/screens/sign_up_screen.dart';
 import 'package:alkhal/screens/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,6 +35,8 @@ class MyApp extends StatelessWidget {
               child: const MyHomePage(),
             ),
         '/pin': (context) => const PinScreen(),
+        '/sign_up': (context) => const SignupPage(),
+        '/login': (context) => const LoginPage(),
       },
     );
   }
@@ -45,20 +50,36 @@ class InitialScreen extends StatelessWidget {
     return prefs.getBool('isActivated') ?? false;
   }
 
+  Future<Map<String, bool>> _runChecks() async {
+    await User.clearInfo();
+    final bool isActivated = await _checkActivation();
+    final bool isSigned = await User.checkSigned();
+    return {
+      "signed": isSigned,
+      "activated": isActivated,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _checkActivation(),
+    return FutureBuilder<Map<String, bool>>(
+      future: _runChecks(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(color: Colors.purple),
+            child: CircularProgressIndicator(
+              color: Colors.purple,
+            ),
           );
         } else {
-          if (snapshot.data == true) {
+          if (snapshot.data!['activated'] as bool) {
             Future.microtask(() {
               if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/home');
+                if (snapshot.data!['signed'] as bool) {
+                  Navigator.pushReplacementNamed(context, '/home');
+                  return;
+                }
+                Navigator.pushReplacementNamed(context, '/sign_up');
               }
             });
           } else {

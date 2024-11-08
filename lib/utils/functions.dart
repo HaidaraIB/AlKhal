@@ -35,3 +35,41 @@ Future<void> clearSharedPref() async {
 String dateToISO(DateTime d) {
   return "${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}";
 }
+
+String? validateUsername(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'الرجاء إدخال اسم مستخدم';
+  }
+  return null;
+}
+
+String? validateEmail(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'الرجاء إدخال إيميل';
+  }
+  final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+  if (!emailRegex.hasMatch(value)) {
+    return 'الرجاء إدخال إيميل صالح';
+  }
+  return null;
+}
+
+String? validatePassword(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'الرجاء إدخال كلمة مرور';
+  }
+  if (value.length < 8) {
+    return 'يجب أن تحتوي كلمة المرور 8 محارف على الأقل';
+  }
+  return null;
+}
+
+String? validateConfirmPassword(String? confirmPassword, String? password) {
+  if (confirmPassword == null || confirmPassword.isEmpty) {
+    return 'الرجاء تأكيد كلمة المرور';
+  }
+  if (confirmPassword != password) {
+    return "كلمة المرور غير متطابقة";
+  }
+  return null;
+}
