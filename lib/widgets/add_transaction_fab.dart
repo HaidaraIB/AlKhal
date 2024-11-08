@@ -1,6 +1,8 @@
 import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
+import 'package:alkhal/cubit/transaction_cash/transaction_cash_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
+import 'package:alkhal/cubit/transaction_item_in_cart.dart/transaction_item_in_cart_cubit.dart';
 import 'package:alkhal/screens/add_transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +57,17 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
                         BlocProvider<TransactionItemCubit>.value(
                             value: transactionItemCubit)
                       ],
-                      child: const AddTransactionForm(),
+                      child: MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create: (context) => TransactionCashCubit(),
+                          ),
+                          BlocProvider(
+                            create: (context) => TransactionItemInCartCubit(),
+                          ),
+                        ],
+                        child: const AddTransactionForm(),
+                      ),
                     );
                   },
                 ),

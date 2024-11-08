@@ -39,7 +39,7 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
             );
           } else if (state is LoadingTransactionItemsFailed) {
             return buildErrorWidget(state.err);
-          } else if (state.transactionItems.isNotEmpty) {
+          } else if (state is TransactionItemsLoaded) {
             return ListView.builder(
               itemCount: state.transactionItems.length,
               itemBuilder: (BuildContext context, int index) {

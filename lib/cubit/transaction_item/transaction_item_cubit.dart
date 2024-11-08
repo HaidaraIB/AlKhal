@@ -8,6 +8,7 @@ part 'transaction_item_state.dart';
 
 class TransactionItemCubit extends Cubit<TransactionItemState> {
   List<Model> transactionItems = [];
+
   TransactionItemCubit()
       : super(const TransactionItemInitial(transactionItems: []));
 
@@ -31,7 +32,7 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
     }
   }
 
-  void addTransactionItem(TransactionItem transactionItem) async {
+  void storeTransactionItem(TransactionItem transactionItem) async {
     try {
       int? transactionItemId = await DatabaseHelper.insert(
           TransactionItem.tableName, transactionItem);
@@ -40,9 +41,9 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       transactionItems.sort((a, b) => (a as TransactionItem)
           .itemId
           .compareTo((b as TransactionItem).itemId));
-      emit(AddTransactionItemSuccess(transactionItems: transactionItems));
+      emit(StoreTransactionItemSuccess(transactionItems: transactionItems));
     } catch (e) {
-      emit(AddTransactionItemFail(
+      emit(StoreTransactionItemFail(
         transactionItems: transactionItems,
         err: e.toString(),
       ));
