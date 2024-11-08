@@ -121,76 +121,90 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
   }
 
   Widget _buildItemDropdown() {
-    return DropdownButtonFormField<String>(
-      value: widget.transactionItem['item_id'] != 0
-          ? widget.transactionItem['item_id'].toString()
-          : null,
-      isExpanded: true,
-      decoration: const InputDecoration(labelText: 'العنصر'),
-      onChanged: (value) {
-        setState(() {
-          List<Model> items = widget.items;
-          int itemId = int.parse(value!);
-          widget.transactionItem['item_id'] = itemId;
-          for (Model i in items) {
-            if ((i as Item).id == itemId) {
-              widget.transactionItem['item'] = i;
-              widget.transactionItem['category_id'] = i.categoryId.toString();
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: DropdownButtonFormField<String>(
+        value: widget.transactionItem['item_id'] != 0
+            ? widget.transactionItem['item_id'].toString()
+            : null,
+        isExpanded: true,
+        decoration: const InputDecoration(
+          labelText: 'العنصر',
+          errorStyle: TextStyle(
+            color: Colors.red,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          errorMaxLines: 3,
+        ),
+        onChanged: (value) {
+          setState(() {
+            List<Model> items = widget.items;
+            int itemId = int.parse(value!);
+            widget.transactionItem['item_id'] = itemId;
+            for (Model i in items) {
+              if ((i as Item).id == itemId) {
+                widget.transactionItem['item'] = i;
+                widget.transactionItem['category_id'] = i.categoryId.toString();
+              }
             }
+          });
+        },
+        items: widget.items
+            .where((item) {
+              if (widget.transactionItem['category_id'] != 0) {
+                return (item as Item).categoryId.toString() ==
+                    widget.transactionItem['category_id'];
+              }
+              return true;
+            })
+            .map((item) => DropdownMenuItem<String>(
+                  value: item.id.toString(),
+                  child: Text(
+                    (item as Item).name,
+                  ),
+                ))
+            .toList(),
+        validator: (value) {
+          if (value == null) {
+            return "الرجاء اختيار عنصر";
           }
-        });
-      },
-      items: widget.items
-          .where((item) {
-            if (widget.transactionItem['category_id'] != 0) {
-              return (item as Item).categoryId.toString() ==
-                  widget.transactionItem['category_id'];
+          List<int> distinctItems = [];
+          for (var i in BlocProvider.of<TransactionItemInCartCubit>(context)
+              .transactionItemMaps) {
+            if (distinctItems.contains(i['item_id'])) {
+              return "عليك جمع العناصر المتكررة في سجل واحد";
             }
-            return true;
-          })
-          .map((item) => DropdownMenuItem<String>(
-                value: item.id.toString(),
-                child: Text(
-                  (item as Item).name,
-                ),
-              ))
-          .toList(),
-      validator: (value) {
-        if (value == null) {
-          return "الرجاء اختيار عنصر";
-        }
-        List<int> distinctItems = [];
-        for (var i in BlocProvider.of<TransactionItemInCartCubit>(context)
-            .transactionItemMaps) {
-          if (distinctItems.contains(i['item_id'])) {
-            return "عليك جمع العناصر المتكررة\nفي سجل واحد";
+            distinctItems.add(i['item_id']);
           }
-          distinctItems.add(i['item_id']);
-        }
-        return null;
-      },
+          return null;
+        },
+      ),
     );
   }
 
   Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      value: widget.transactionItem['category_id'] != 0
-          ? widget.transactionItem['category_id']
-          : null,
-      decoration: const InputDecoration(labelText: 'المجموعة'),
-      onChanged: (value) {
-        setState(() {
-          widget.transactionItem['item_id'] = 0;
-          widget.transactionItem['category_id'] = value!;
-        });
-      },
-      items: widget.categories
-          .map((category) => DropdownMenuItem<String>(
-                value: category.id.toString(),
-                child: Text((category as Category).name),
-              ))
-          .toList(),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: DropdownButtonFormField<String>(
+        isExpanded: true,
+        value: widget.transactionItem['category_id'] != 0
+            ? widget.transactionItem['category_id']
+            : null,
+        decoration: const InputDecoration(labelText: 'المجموعة'),
+        onChanged: (value) {
+          setState(() {
+            widget.transactionItem['item_id'] = 0;
+            widget.transactionItem['category_id'] = value!;
+          });
+        },
+        items: widget.categories
+            .map((category) => DropdownMenuItem<String>(
+                  value: category.id.toString(),
+                  child: Text((category as Category).name),
+                ))
+            .toList(),
+      ),
     );
   }
 
@@ -229,6 +243,12 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
             ? "الإجمالي ${formatDouble((widget.transactionItem['item'] as Item).quantity * (widget.transactionItem['item'] as Item).sellingPrice)} ل.س"
             : '',
         hintStyle: const TextStyle(fontSize: 15),
+        errorStyle: const TextStyle(
+          color: Colors.red,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        errorMaxLines: 3,
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -271,6 +291,12 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
         hintText: widget.transactionItem['item'] != null
             ? "لديك ${_makeAvailableQuantityText(widget.transactionItem['item'])}"
             : '',
+        errorStyle: const TextStyle(
+          color: Colors.red,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        errorMaxLines: 3,
       ),
       keyboardType: TextInputType.number,
       validator: (value) {
