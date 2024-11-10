@@ -62,7 +62,8 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 _header(context),
                 _inputField(context, state),
-                _signup(context),
+                _logInButton(state),
+                _signUp(context),
               ],
             ),
           ),
@@ -157,41 +158,44 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(height: 10),
-        state is Loading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.deepPurple,
-                ),
-              )
-            : ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    await context.read<UserCubit>().login(
-                          _usernameController.text,
-                          _passwordController.text,
-                        );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.purple,
-                ),
-                child: const Text(
-                  "تسجيل الدخول",
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              )
       ],
     );
   }
 
-  Widget _signup(context) {
+  Widget _logInButton(state) {
+    return state is Loading
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: Colors.deepPurple,
+            ),
+          )
+        : ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                await context.read<UserCubit>().login(
+                      _usernameController.text,
+                      _passwordController.text,
+                    );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: Colors.purple,
+            ),
+            child: const Text(
+              "تسجيل الدخول",
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          );
+  }
+
+  Widget _signUp(context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

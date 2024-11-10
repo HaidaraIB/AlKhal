@@ -54,6 +54,8 @@ class UserCubit extends Cubit<UserState> {
       } on SocketException {
         emit(NoInternet());
       }
+    } else {
+      emit(NoInternet());
     }
   }
 }
