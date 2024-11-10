@@ -104,125 +104,113 @@ class _SignupPageState extends State<SignupPage> {
       key: _formKey,
       child: Column(
         children: <Widget>[
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: TextFormField(
-              validator: validateUsername,
-              controller: _usernameController,
-              decoration: InputDecoration(
-                hintText: "اسم المستخدم",
-                hintTextDirection: TextDirection.rtl,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.purple.withOpacity(0.1),
-                filled: true,
-                prefixIcon: const Icon(Icons.person),
-                errorStyle: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                errorMaxLines: 3,
+          TextFormField(
+            validator: validateUsername,
+            controller: _usernameController,
+            decoration: InputDecoration(
+              hintText: "اسم المستخدم",
+              hintTextDirection: TextDirection.rtl,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
               ),
+              fillColor: Colors.purple.withOpacity(0.1),
+              filled: true,
+              prefixIcon: const Icon(Icons.person),
+              errorStyle: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              errorMaxLines: 3,
             ),
           ),
           const SizedBox(height: 20),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: TextFormField(
-              validator: validateEmail,
-              controller: _emailController,
-              decoration: InputDecoration(
-                hintText: "الإيميل",
-                hintTextDirection: TextDirection.rtl,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.purple.withOpacity(0.1),
-                filled: true,
-                prefixIcon: const Icon(Icons.email),
-                errorStyle: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                errorMaxLines: 3,
+          TextFormField(
+            validator: validateEmail,
+            controller: _emailController,
+            decoration: InputDecoration(
+              hintText: "الإيميل",
+              hintTextDirection: TextDirection.rtl,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
               ),
+              fillColor: Colors.purple.withOpacity(0.1),
+              filled: true,
+              prefixIcon: const Icon(Icons.email),
+              errorStyle: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              errorMaxLines: 3,
             ),
           ),
           const SizedBox(height: 20),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: TextFormField(
-              validator: validatePassword,
-              controller: _passwordController,
-              decoration: InputDecoration(
-                hintText: "كلمة المرور",
-                hintTextDirection: TextDirection.rtl,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.purple.withOpacity(0.1),
-                filled: true,
-                prefixIcon: IconButton(
-                  icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () => setState(() {
-                    _passwordVisible = !_passwordVisible;
-                  }),
-                ),
-                errorStyle: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                errorMaxLines: 3,
+          TextFormField(
+            validator: validatePassword,
+            controller: _passwordController,
+            decoration: InputDecoration(
+              hintText: "كلمة المرور",
+              hintTextDirection: TextDirection.rtl,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
               ),
-              obscureText: !_passwordVisible,
+              fillColor: Colors.purple.withOpacity(0.1),
+              filled: true,
+              prefixIcon: IconButton(
+                icon: Icon(
+                  _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () => setState(() {
+                  _passwordVisible = !_passwordVisible;
+                }),
+              ),
+              errorStyle: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              errorMaxLines: 3,
             ),
+            obscureText: !_passwordVisible,
           ),
           const SizedBox(height: 20),
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: TextFormField(
-              validator: (value) {
-                return validateConfirmPassword(
-                  value,
-                  _passwordController.text,
-                );
-              },
-              controller: _confirmPasswordController,
-              decoration: InputDecoration(
-                hintText: "تأكيد كلمة المرور",
-                hintTextDirection: TextDirection.rtl,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.purple.withOpacity(0.1),
-                filled: true,
-                prefixIcon: IconButton(
-                  icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () => setState(() {
-                    _passwordVisible = !_passwordVisible;
-                  }),
-                ),
-                errorStyle: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                errorMaxLines: 3,
+          TextFormField(
+            validator: (value) {
+              return validateConfirmPassword(
+                value,
+                _passwordController.text,
+              );
+            },
+            controller: _confirmPasswordController,
+            decoration: InputDecoration(
+              hintText: "تأكيد كلمة المرور",
+              hintTextDirection: TextDirection.rtl,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
               ),
-              obscureText: !_passwordVisible,
+              fillColor: Colors.purple.withOpacity(0.1),
+              filled: true,
+              prefixIcon: IconButton(
+                icon: Icon(
+                  _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () => setState(() {
+                  _passwordVisible = !_passwordVisible;
+                }),
+              ),
+              errorStyle: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              errorMaxLines: 3,
             ),
+            obscureText: !_passwordVisible,
           ),
         ],
       ),

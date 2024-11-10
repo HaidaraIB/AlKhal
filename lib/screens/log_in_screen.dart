@@ -95,64 +95,58 @@ class _LoginPageState extends State<LoginPage> {
           key: _formKey,
           child: Column(
             children: [
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextFormField(
-                  validator: validateUsername,
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    hintText: "اسم المستخدم",
-                    hintTextDirection: TextDirection.rtl,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: Colors.purple.withOpacity(0.1),
-                    filled: true,
-                    prefixIcon: const Icon(Icons.person),
-                    errorStyle: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    errorMaxLines: 3,
+              TextFormField(
+                validator: validateUsername,
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  hintText: "اسم المستخدم",
+                  hintTextDirection: TextDirection.rtl,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
+                  fillColor: Colors.purple.withOpacity(0.1),
+                  filled: true,
+                  prefixIcon: const Icon(Icons.person),
+                  errorStyle: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  errorMaxLines: 3,
                 ),
               ),
               const SizedBox(height: 10),
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextFormField(
-                  validator: validatePassword,
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    hintText: "كلمة المرور",
-                    hintTextDirection: TextDirection.rtl,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: Colors.purple.withOpacity(0.1),
-                    filled: true,
-                    prefixIcon: IconButton(
-                      icon: Icon(
-                        _passwordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () => setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      }),
-                    ),
-                    errorStyle: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    errorMaxLines: 3,
+              TextFormField(
+                validator: validatePassword,
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  hintText: "كلمة المرور",
+                  hintTextDirection: TextDirection.rtl,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
-                  obscureText: !_passwordVisible,
+                  fillColor: Colors.purple.withOpacity(0.1),
+                  filled: true,
+                  prefixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () => setState(() {
+                      _passwordVisible = !_passwordVisible;
+                    }),
+                  ),
+                  errorStyle: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  errorMaxLines: 3,
                 ),
+                obscureText: !_passwordVisible,
               ),
             ],
           ),

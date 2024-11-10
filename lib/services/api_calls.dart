@@ -39,4 +39,23 @@ class ApiCalls {
     );
     return r;
   }
+
+  static Future<http.Response> updateUserInfo(
+      {required int id,
+      required String userName,
+      required String email,
+      required String password}) async {
+    var url = Uri.parse("$baseUrl/updateUserInfo/");
+    var r = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'id': id,
+          "email": email,
+          'password': password,
+          'username': userName
+        }));
+    return r;
+  }
 }

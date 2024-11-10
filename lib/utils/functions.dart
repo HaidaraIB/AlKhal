@@ -73,3 +73,23 @@ String? validateConfirmPassword(String? confirmPassword, String? password) {
   }
   return null;
 }
+
+String? validateOldPassword(String? value, String? oldPassword) {
+  if (value == null || value.isEmpty) {
+    return null;
+  }
+  if (value != oldPassword) {
+    return "كلمة المرور غير متطابقة";
+  }
+  return null;
+}
+
+String? validateNewPassword(String? value) {
+  if (value == null || value.isEmpty) {
+    return null;
+  }
+  if (value.length < 8) {
+    return 'يجب أن تحتوي كلمة المرور 8 محارف على الأقل';
+  }
+  return null;
+}

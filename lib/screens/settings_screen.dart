@@ -1,3 +1,4 @@
+import 'package:alkhal/screens/user_info_screen.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -169,6 +170,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 leading: const Icon(
                   Icons.share,
+                  size: 30,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const UserInfoScreen(),
+                )),
+                title: const Text(
+                  "معلومات الحساب",
+                  style: TextStyle(fontSize: 20),
+                ),
+                leading: const Icon(
+                  Icons.account_circle_outlined,
                   size: 30,
                 ),
               ),

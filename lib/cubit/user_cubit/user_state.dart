@@ -16,3 +16,20 @@ final class SignUpSuccess extends UserState {}
 final class SignUpFailed extends UserState {}
 
 final class NoInternet extends UserState {}
+
+final class UserInfoUpdated extends UserState {
+  final int id;
+  final String email;
+
+  final String password;
+  final String username;
+
+  UserInfoUpdated({
+    required this.id,
+    required this.email,
+    required this.password,
+    required this.username,
+  });
+}
+
+final class UpdateUserInfoFailed extends UserState {}

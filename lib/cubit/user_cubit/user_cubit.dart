@@ -58,4 +58,42 @@ class UserCubit extends Cubit<UserState> {
       emit(NoInternet());
     }
   }
+
+  Future<void> updateUserInfo({
+    required int id,
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    var result = await Connectivity().checkConnectivity();
+    if (result.contains(ConnectivityResult.wifi) ||
+        result.contains(ConnectivityResult.mobile)) {
+      emit(Loading());
+      try {
+        var r = await ApiCalls.updateUserInfo(
+          id: id,
+          password: password,
+          email: email,
+          userName: username,
+        );
+        if (r.statusCode == 200) {
+          Map bodyMap = jsonDecode(r.body);
+          bodyMap['me']['password'] = password;
+          await User.cacheInfo(User.fromMap(bodyMap['me']));
+          emit(UserInfoUpdated(
+            id: id,
+            email: email,
+            password: password,
+            username: username,
+          ));
+        } else {
+          emit(UpdateUserInfoFailed());
+        }
+      } on SocketException {
+        emit(NoInternet());
+      }
+    } else {
+      emit(NoInternet());
+    }
+  }
 }
