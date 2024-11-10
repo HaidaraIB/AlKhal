@@ -1,6 +1,7 @@
-import 'package:alkhal/models/user.dart';
+import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,18 +18,56 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _header(context),
-            _inputField(context),
-            _signup(context),
-          ],
-        ),
-      ),
+    return BlocConsumer<UserCubit, UserState>(
+      listener: (context, state) {
+        if (state is LoginSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'تم تسجيل الدخول بنجاح',
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          );
+          Navigator.of(context).pushReplacementNamed("/home");
+        } else if (state is LoginFailed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'حصل خطأ أثناء تسجيل الدخول يرجى إعادة المحاولة',
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          );
+        } else if (state is NoInternet) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'تحقق من اتصالك بالإنترنت',
+                textAlign: TextAlign.center,
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: Container(
+            margin: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _header(context),
+                _inputField(context, state),
+                _signup(context),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -47,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _inputField(context) {
+  Widget _inputField(BuildContext context, state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -118,33 +157,36 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              User user = User(
-                email: '',
-                password: _passwordController.text,
-                username: _usernameController.text,
-              );
-              User.cacheInfo(user);
-              Navigator.pushReplacementNamed(context, "/home");
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.purple,
-          ),
-          child: const Text(
-            "تسجيل الدخول",
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        )
+        state is Loading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.deepPurple,
+                ),
+              )
+            : ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await context.read<UserCubit>().login(
+                          _usernameController.text,
+                          _passwordController.text,
+                        );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.purple,
+                ),
+                child: const Text(
+                  "تسجيل الدخول",
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              )
       ],
     );
   }

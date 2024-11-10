@@ -30,7 +30,7 @@ class _PinScreenState extends State<PinScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isActivated', true);
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/sign_up');
       }
     }
   }

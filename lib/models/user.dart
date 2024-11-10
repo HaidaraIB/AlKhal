@@ -16,6 +16,11 @@ class User extends Model {
     required this.username,
   });
 
+  @override
+  String toString() {
+    return "User($id, $email, $username)";
+  }
+
   static Future<Map<String, dynamic>> userInfo() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String? info = preferences.getString('user');
@@ -55,6 +60,7 @@ class User extends Model {
   @override
   Map<String, dynamic> toMap() {
     return {
+      "id": id,
       "email": email,
       "username": username,
       "password": password,

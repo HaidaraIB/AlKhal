@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
+import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/cash_screen.dart';
 import 'package:alkhal/screens/items_categories_screen.dart';
@@ -22,22 +23,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'الخال',
-      theme: ThemeData(
-        useMaterial3: true,
+    return BlocProvider(
+      create: (context) => UserCubit(),
+      child: MaterialApp(
+        title: 'الخال',
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const InitialScreen(),
+          '/home': (context) => BlocProvider(
+                create: (context) => SearchBarCubit(),
+                child: const MyHomePage(),
+              ),
+          '/pin': (context) => const PinScreen(),
+          '/sign_up': (context) => const SignupPage(),
+          '/login': (context) => const LoginPage(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const InitialScreen(),
-        '/home': (context) => BlocProvider(
-              create: (context) => SearchBarCubit(),
-              child: const MyHomePage(),
-            ),
-        '/pin': (context) => const PinScreen(),
-        '/sign_up': (context) => const SignupPage(),
-        '/login': (context) => const LoginPage(),
-      },
     );
   }
 }
@@ -51,7 +55,6 @@ class InitialScreen extends StatelessWidget {
   }
 
   Future<Map<String, bool>> _runChecks() async {
-    await User.clearInfo();
     final bool isActivated = await _checkActivation();
     final bool isSigned = await User.checkSigned();
     return {
