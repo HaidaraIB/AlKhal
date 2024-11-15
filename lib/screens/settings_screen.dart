@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/user_info_screen.dart';
+import 'package:alkhal/services/api_calls.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -71,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) {
       showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext newContext) {
           return AlertDialog(
             title: const Text(
               'تأكيد الاستعادة',
@@ -92,7 +97,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(newContext).pop();
+                  showLoadingDialog(context, 'جاري الاستعادة...');
                   bool res = await DatabaseHelper.restoreLocalDatabase();
                   String msg = "";
                   if (res) {
@@ -100,19 +106,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   } else {
                     msg = "لم يتم العثور على نسخة احتياطية";
                   }
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          msg,
-                          textAlign: TextAlign.center,
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ),
-                    );
+                  if (mounted) {
+                    showResultSnackBar(context, msg);
+                    Navigator.of(context).pop();
                   }
                 },
-                child: const Text('استعادة'),
+                child: const Text('استعادة محلية'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(newContext).pop();
+                  showLoadingDialog(context, 'جاري الاستعادة...');
+                  var res = await ApiCalls.getRemoteDb(
+                      (await User.userInfo())['username']);
+                  String msg = "";
+                  if (res.statusCode == 200) {
+                    await DatabaseHelper.restoreRemoteDatabase(
+                      base64Decode(
+                        jsonDecode(res.body)['db'],
+                      ),
+                    );
+                    msg = "تمت استعادة البيانات بنجاح";
+                  } else {
+                    msg = "لم يتم العثور على نسخة احتياطية";
+                  }
+                  if (mounted) {
+                    showResultSnackBar(context, msg);
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('استعادة عبر الانترنت'),
               ),
             ],
           );
@@ -125,75 +148,138 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await DatabaseHelper.shareDatabase();
   }
 
+  bool? isDbSyncOn = false;
+
+  EdgeInsets optionsPadding = const EdgeInsets.only(bottom: 10);
+  TextStyle optionsTextStyle = const TextStyle(fontSize: 22);
+  Color backgroundColor = const Color.fromARGB(255, 239, 239, 239);
+
+  Future<bool?> initSyncDbState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isDbSyncOn = prefs.getBool("isDbSyncOn");
+    if (isDbSyncOn == null) {
+      prefs.setBool("isDbSyncOn", false);
+      isDbSyncOn = false;
+    }
+    return isDbSyncOn;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initSyncDbState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("الإعدادات"),
+        backgroundColor: backgroundColor,
+        title: const Text(
+          "الإعدادات",
+          style: TextStyle(fontSize: 26),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                onTap: performBackup,
-                title: const Text(
-                  "النسخ الاحتياطي",
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.backup,
-                  size: 30,
-                ),
+      backgroundColor: backgroundColor,
+      body: FutureBuilder<bool?>(
+        future: initSyncDbState(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 15.0, top: 15, right: 18),
+              child: ListView(
+                children: [
+                  _buildOptionTile(
+                    title: "مزامنة البيانات",
+                    trailing: const Icon(
+                      Icons.sync,
+                      size: 30,
+                    ),
+                    leading: Transform.scale(
+                      scale: 0.8,
+                      child: Switch(
+                        value: isDbSyncOn ?? false,
+                        onChanged: (value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool("isDbSyncOn", value);
+                          isDbSyncOn = value;
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ),
+                  _buildOptionTile(
+                    onTap: performBackup,
+                    title: "النسخ الاحتياطي",
+                    trailing: const Icon(
+                      Icons.backup,
+                      size: 30,
+                    ),
+                  ),
+                  _buildOptionTile(
+                    onTap: performRestore,
+                    title: "استعادة البيانات ",
+                    trailing: const Icon(
+                      Icons.restore,
+                      size: 30,
+                    ),
+                  ),
+                  _buildOptionTile(
+                    onTap: performShare,
+                    title: "مشاركة البيانات ",
+                    trailing: const Icon(
+                      Icons.share,
+                      size: 30,
+                    ),
+                  ),
+                  _buildOptionTile(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const UserInfoScreen(),
+                    )),
+                    title: "معلومات الحساب",
+                    trailing: const Icon(
+                      Icons.account_circle_outlined,
+                      size: 30,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                onTap: performRestore,
-                title: const Text(
-                  "استعادة البيانات ",
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.restore,
-                  size: 30,
-                ),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.purple,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                onTap: performShare,
-                title: const Text(
-                  "مشاركة البيانات ",
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.share,
-                  size: 30,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const UserInfoScreen(),
-                )),
-                title: const Text(
-                  "معلومات الحساب",
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.account_circle_outlined,
-                  size: 30,
-                ),
-              ),
-            ),
-          ],
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildOptionTile({
+    required String title,
+    Widget? leading,
+    required Widget trailing,
+    void Function()? onTap,
+  }) {
+    return Padding(
+      padding: optionsPadding,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+        ),
+        child: ListTile(
+          onTap: onTap,
+          title: Text(
+            title,
+            style: optionsTextStyle,
+            textDirection: TextDirection.rtl,
+          ),
+          trailing: trailing,
+          leading: leading,
         ),
       ),
     );

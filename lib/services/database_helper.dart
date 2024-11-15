@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/services/api_calls.dart';
@@ -14,6 +13,7 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   static const externalDbPath = "/storage/emulated/0/AlKhal/database";
   static const String dbHashKey = 'db_hash_key';
+  // static const String dbSizeKey = 'db_size_key';
   static Database? _db;
 
   static Future<Database?> get db async {
@@ -167,14 +167,28 @@ class DatabaseHelper {
     }
     final newDbHash = await calculateFileHash(dbFile);
     final prefs = await SharedPreferences.getInstance();
+    // final newDbSize = await calculateFileSize(dbFile);
+    // int? lastDbSize = prefs.getInt(dbSizeKey);
+    // if (lastDbSize == null) {
+    //   var res = await ApiCalls.getRemoteDb((await User.userInfo())['username']);
+    //   if (res.statusCode == 200) {
+    //     lastDbSize = jsonDecode(res.body)['size'];
+    //     await prefs.setInt(dbSizeKey, newDbSize);
+    //   }
+    // }
+    // if (lastDbSize != null && lastDbSize <= newDbSize) {
     final lastDbHash = prefs.getString(dbHashKey) ?? '';
     if (newDbHash != lastDbHash) {
       var r = await ApiCalls.remoteBackupDatabase(dbFile);
       await prefs.setString(dbHashKey, newDbHash);
+      // await prefs.setInt(dbSizeKey, newDbSize);
       return r.statusCode == 201;
     } else {
       return false;
     }
+    // } else {
+    //   return false;
+    // }
   }
 
   static Future<bool> restoreLocalDatabase() async {

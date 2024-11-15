@@ -100,3 +100,44 @@ Future<String> calculateFileHash(File file) async {
   final bytes = await file.readAsBytes();
   return bytes.hashCode.toString();
 }
+
+Future<int> calculateFileSize(File file) async {
+  return await file.length();
+}
+
+void showLoadingDialog(BuildContext context, String text) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 16),
+              Text(
+                text,
+                textDirection: TextDirection.rtl,
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void showResultSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.rtl,
+      ),
+    ),
+  );
+}

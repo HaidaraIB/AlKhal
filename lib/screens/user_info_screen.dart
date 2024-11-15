@@ -66,6 +66,17 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             child: Scaffold(
               appBar: AppBar(
                 title: const Text("معلومات الحساب"),
+                actions: [
+                  IconButton(
+                    onPressed: () async {
+                      await User.clearInfo();
+                      if (context.mounted) {
+                        Navigator.of(context).pushReplacementNamed("/sign_up");
+                      }
+                    },
+                    icon: const Icon(Icons.logout),
+                  )
+                ],
               ),
               body: SingleChildScrollView(
                 child: Padding(

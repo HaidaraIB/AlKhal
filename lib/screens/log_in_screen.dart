@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/services/database_helper.dart';
-import 'package:alkhal/services/db_uploader.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +24,6 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
         if (state is LoginSuccess || state is ConfirmRestoreDb) {
-          Navigator.of(context).pushReplacementNamed("/home");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -53,8 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
-                        DbUploader();
+                        Navigator.of(context).pushReplacementNamed("/home");
                       },
                       child: const Text('إلغاء'),
                     ),
@@ -83,7 +80,6 @@ class _LoginPageState extends State<LoginPage> {
                         if (context.mounted) {
                           Navigator.of(context).pushReplacementNamed("/home");
                         }
-                        DbUploader();
                       },
                       child: const Text('استعادة'),
                     ),
@@ -91,6 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                 );
               },
             );
+          } else {
+            Navigator.of(context).pushReplacementNamed("/home");
           }
         } else if (state is LoginFailed) {
           ScaffoldMessenger.of(context).showSnackBar(

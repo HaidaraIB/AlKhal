@@ -1,6 +1,5 @@
 import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
-import 'package:alkhal/services/db_uploader.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +36,6 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           );
-          DbUploader();
         } else if (state is SignUpFailed) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

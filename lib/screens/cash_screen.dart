@@ -1,6 +1,7 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
+import 'package:alkhal/services/db_uploader.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/transactions.dart';
@@ -26,6 +27,7 @@ class _CashScreenState extends State<CashScreen>
     startDate = DateTime.now();
     endDate = DateTime.now();
     BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
+    DbUploader();
   }
 
   @override

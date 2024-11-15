@@ -72,4 +72,10 @@ class ApiCalls {
     final response = await request.send();
     return response;
   }
+
+  static Future<http.Response> getRemoteDb(String username) async {
+    var url = Uri.parse("$baseUrl/getDb/$username/");
+    var r = await http.get(url);
+    return r;
+  }
 }
