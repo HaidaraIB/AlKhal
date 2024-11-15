@@ -30,6 +30,7 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
         title: Text('سجل مبيع ${widget.item.name.trim()}'),
       ),
       body: BlocBuilder<TransactionItemCubit, TransactionItemState>(
+        bloc: BlocProvider.of<TransactionItemCubit>(context),
         builder: (context, state) {
           if (state is LoadingTransactionItems) {
             return const Center(

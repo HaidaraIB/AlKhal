@@ -1,5 +1,6 @@
-import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
+import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
+import 'package:alkhal/services/db_uploader.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +27,7 @@ class _SignupPageState extends State<SignupPage> {
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
         if (state is SignUpSuccess) {
+          Navigator.of(context).pushReplacementNamed("/home");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -35,7 +37,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ),
           );
-          Navigator.of(context).pushReplacementNamed("/home");
+          DbUploader();
         } else if (state is SignUpFailed) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

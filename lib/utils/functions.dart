@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:permission_handler/permission_handler.dart';
@@ -92,4 +94,9 @@ String? validateNewPassword(String? value) {
     return 'يجب أن تحتوي كلمة المرور 8 محارف على الأقل';
   }
   return null;
+}
+
+Future<String> calculateFileHash(File file) async {
+  final bytes = await file.readAsBytes();
+  return bytes.hashCode.toString();
 }

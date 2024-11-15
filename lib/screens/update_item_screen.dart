@@ -3,7 +3,6 @@ import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/item_history.dart';
-import 'package:alkhal/models/model.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +26,6 @@ class _AddItemFormState extends State<UpdateItemForm> {
   final _sellingPriceController = TextEditingController();
   final _purchasePriceController = TextEditingController();
 
-  late Future<List<Model>> _getCategories;
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -41,13 +38,12 @@ class _AddItemFormState extends State<UpdateItemForm> {
   @override
   void initState() {
     super.initState();
-    _getCategories = DatabaseHelper.getAll(Category.tableName, "Category");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _getCategories,
+      future: DatabaseHelper.getAll(Category.tableName, "Category"),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Scaffold(

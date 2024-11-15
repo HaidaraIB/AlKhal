@@ -8,8 +8,8 @@ import 'package:alkhal/widgets/items_categories_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ItemsList extends StatelessWidget {
-  const ItemsList({super.key});
+class ItemsScreen extends StatelessWidget {
+  const ItemsScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(

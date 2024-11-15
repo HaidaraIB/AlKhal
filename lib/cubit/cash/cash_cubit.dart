@@ -8,43 +8,36 @@ class CashCubit extends Cubit<CashState> {
   double cash = 0;
   double profit = 0;
   double bills = 0;
-  double reminders = 0;
+  double remainders = 0;
   CashCubit()
       : super(const CashInitial(
           cash: 0,
           profit: 0,
           bills: 0,
-          reminders: 0,
+          remainders: 0,
         ));
 
   Future computeCash(DateTime startDate, DateTime endDate) async {
-    emit(LoadingCash(
-      cash: cash,
-      profit: profit,
-      bills: bills,
-      reminders: reminders,
-    ));
+    emit(LoadingCash());
     try {
       await DatabaseHelper.computeCash(startDate, endDate).then((res) {
         cash = res['cash'] ?? 0;
         profit = res['profit'] ?? 0;
         bills = res['bills'] ?? 0;
-        reminders = res['reminders'] ?? 0;
+        remainders = res['remainders'] ?? 0;
       });
       emit(CashRefreshed(
         cash: cash,
         profit: profit,
         bills: bills,
-        reminders: reminders,
+        remainders: remainders,
       ));
     } catch (e) {
-      emit(CashRefreshingFailed(
-        cash: cash,
-        profit: profit,
-        bills: bills,
-        reminders: reminders,
-        err: e.toString(),
-      ));
+      emit(CashRefreshingFailed(err: e.toString()));
     }
+  }
+
+  void popSettingsScreen() async {
+    emit(SettingsScreenPopped());
   }
 }

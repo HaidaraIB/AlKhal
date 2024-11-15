@@ -1,4 +1,8 @@
-import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
+import 'dart:convert';
+
+import 'package:alkhal/cubit/user/user_cubit.dart';
+import 'package:alkhal/services/database_helper.dart';
+import 'package:alkhal/services/db_uploader.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +24,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
-        if (state is LoginSuccess) {
+        if (state is LoginSuccess || state is ConfirmRestoreDb) {
+          Navigator.of(context).pushReplacementNamed("/home");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -30,7 +35,63 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           );
-          Navigator.of(context).pushReplacementNamed("/home");
+          if (state is ConfirmRestoreDb) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text(
+                    'تأكيد الاستعادة',
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.center,
+                  ),
+                  content: const Text(
+                    'تم العثور على نسخة احتياطية، هل تريد استعادتها؟\nسيؤدي الإلغاء إلى خسارة النسخة الاحتياطية.',
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.rtl,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        DbUploader();
+                      },
+                      child: const Text('إلغاء'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        bool res = await DatabaseHelper.restoreRemoteDatabase(
+                          base64Decode(state.dbAsBytes),
+                        );
+                        String msg = "";
+                        if (res) {
+                          msg = "تمت استعادة البيانات بنجاح";
+                        } else {
+                          msg = "لم يتم العثور على نسخة احتياطية";
+                        }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                msg,
+                                textAlign: TextAlign.center,
+                                textDirection: TextDirection.rtl,
+                              ),
+                            ),
+                          );
+                        }
+                        if (context.mounted) {
+                          Navigator.of(context).pushReplacementNamed("/home");
+                        }
+                        DbUploader();
+                      },
+                      child: const Text('استعادة'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         } else if (state is LoginFailed) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -59,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
             margin: const EdgeInsets.all(24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _header(context),
                 _inputField(context, state),
@@ -89,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _inputField(BuildContext context, state) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Form(
           key: _formKey,

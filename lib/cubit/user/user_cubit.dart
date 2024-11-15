@@ -47,6 +47,10 @@ class UserCubit extends Cubit<UserState> {
           Map bodyMap = jsonDecode(r.body);
           bodyMap['me']['password'] = password;
           await User.cacheInfo(User.fromMap(bodyMap['me']));
+          if (bodyMap['db'] != null) {
+            emit(ConfirmRestoreDb(dbAsBytes: bodyMap['db']));
+            return;
+          }
           emit(LoginSuccess());
         } else {
           emit(LoginFailed());

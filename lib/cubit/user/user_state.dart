@@ -17,6 +17,14 @@ final class SignUpFailed extends UserState {}
 
 final class NoInternet extends UserState {}
 
+final class ConfirmRestoreDb extends UserState {
+  final String dbAsBytes;
+
+  ConfirmRestoreDb({
+    required this.dbAsBytes,
+  });
+}
+
 final class UserInfoUpdated extends UserState {
   final int id;
   final String email;

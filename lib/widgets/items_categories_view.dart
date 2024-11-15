@@ -81,6 +81,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
     BlocProvider.of<ItemCubit>(context).loadItems();
     BlocProvider.of<SearchBarCubit>(context).loadVisibility();
     return BlocBuilder<ItemCubit, ItemState>(
+      bloc: BlocProvider.of<ItemCubit>(context),
       builder: (context, state) {
         if (state is LoadingItems) {
           return const Center(
@@ -94,6 +95,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           return _buildView(
             fab: BlocBuilder<AddItemFabVisibilityCubit,
                 AddItemFabVisibilityState>(
+              bloc: BlocProvider.of<AddItemFabVisibilityCubit>(context),
               builder: (context, newState) {
                 return Visibility(
                   visible: newState.isVisible,
@@ -119,6 +121,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
               categories: state.categories,
             ),
             searchBar: BlocBuilder<SearchBarCubit, SearchBarState>(
+              bloc: BlocProvider.of<SearchBarCubit>(context),
               builder: (context, newState) {
                 if (newState is SearchBarVisibility) {
                   if (newState.isVisible) {
@@ -149,6 +152,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
               categories: state.categories,
             ),
             searchBar: BlocBuilder<SearchBarCubit, SearchBarState>(
+              bloc: BlocProvider.of<SearchBarCubit>(context),
               builder: (context, newState) {
                 if (newState is SearchBarVisibility) {
                   if (newState.isVisible) {
@@ -260,6 +264,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         .listenToScrolling(_categoriesScrollController);
     BlocProvider.of<CategoryCubit>(context).loadCategories();
     return BlocBuilder<CategoryCubit, CategoryState>(
+      bloc: BlocProvider.of<CategoryCubit>(context),
       builder: (context, state) {
         if (state is LoadingCategories) {
           return const Center(
@@ -273,6 +278,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
           return _buildView(
             fab: BlocBuilder<AddCategoryFabVisibilityCubit,
                 AddCategoryFabVisibilityState>(
+              bloc: BlocProvider.of<AddCategoryFabVisibilityCubit>(context),
               builder: (context, newState) {
                 return Visibility(
                   visible: newState.isVisible,

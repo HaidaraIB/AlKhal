@@ -23,7 +23,7 @@ class AddTransactionForm extends StatefulWidget {
 class _AddTransactionFormState extends State<AddTransactionForm> {
   final _formKey = GlobalKey<FormState>();
   final _discountController = TextEditingController();
-  final _reminderController = TextEditingController();
+  final _remainderController = TextEditingController();
   final _notesController = TextEditingController();
 
   bool _isSale = true;
@@ -45,7 +45,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   @override
   void dispose() {
     _discountController.dispose();
-    _reminderController.dispose();
+    _remainderController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -120,7 +120,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       double discount = double.tryParse(_discountController.text) ?? 0;
-      double reminder = double.tryParse(_reminderController.text) ?? 0;
+      double remainder = double.tryParse(_remainderController.text) ?? 0;
       List<TransactionItem> transactionItems = [];
       List<Item> itemsToUpdate = [];
       double totalPrice = 0;
@@ -129,7 +129,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           .transactionItemMaps) {
         Item i = si['item'];
         itemsToUpdate.add(i);
-        Map res = calculateItemValues(si);
+        Map res = _calculateItemValues(si);
         double sellingPrice = res['sellingPrice'];
         double purchasePrice = res['purchasePrice'];
         double transactionItemQuantity = res['transactionItemQuantity'];
@@ -147,7 +147,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       Transaction transaction = Transaction(
         transactionDate: DateTime.now().toString(),
         discount: discount,
-        reminder: reminder,
+        remainder: remainder,
         isSale: _isSale ? 1 : 0,
         totalPrice: totalPrice - discount,
         totalProfit: totalProfit - (discount * totalProfit / totalPrice),
@@ -218,6 +218,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           return Scaffold(
             appBar: AppBar(
               title: BlocBuilder<TransactionCashCubit, TransactionCashState>(
+                bloc: BlocProvider.of<TransactionCashCubit>(context),
                 builder: (context, state) {
                   return RichText(
                     textDirection: TextDirection.rtl,
@@ -266,7 +267,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                       ],
                     ),
                     _buildDiscountField(),
-                    _buildReminderField(),
+                    _buildRemainderField(),
                     const SizedBox(height: 10),
                     _buildItemListView(snapshot),
                     _buildActionButtons(snapshot),
@@ -310,7 +311,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           double totalPrice = 0;
           for (var si in BlocProvider.of<TransactionItemInCartCubit>(context)
               .transactionItemMaps) {
-            Map res = calculateItemValues(si);
+            Map res = _calculateItemValues(si);
             double sellingPrice = res['sellingPrice'];
             double purchasePrice = res['purchasePrice'];
             totalPrice += _isSale ? sellingPrice : purchasePrice;
@@ -325,9 +326,9 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     );
   }
 
-  Widget _buildReminderField() {
+  Widget _buildRemainderField() {
     return TextFormField(
-      controller: _reminderController,
+      controller: _remainderController,
       decoration: const InputDecoration(labelText: 'الباقي'),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -338,7 +339,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           double totalPrice = 0;
           for (var si in BlocProvider.of<TransactionItemInCartCubit>(context)
               .transactionItemMaps) {
-            Map res = calculateItemValues(si);
+            Map res = _calculateItemValues(si);
             double sellingPrice = res['sellingPrice'];
             double purchasePrice = res['purchasePrice'];
             totalPrice += _isSale ? sellingPrice : purchasePrice;
@@ -362,6 +363,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       fit: FlexFit.tight,
       child:
           BlocBuilder<TransactionItemInCartCubit, TransactionItemInCartState>(
+        bloc: BlocProvider.of<TransactionItemInCartCubit>(context),
         builder: (context, state) {
           return ListView.builder(
             shrinkWrap: true,
@@ -372,7 +374,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                 isSale: _isSale,
                 items: snapshot.data!['items']!,
                 transactionItem: transactionItemMaps[index],
-                calculateItemValues: calculateItemValues,
+                calculateItemValues: _calculateItemValues,
               );
             },
           );
@@ -402,7 +404,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
     );
   }
 
-  Map calculateItemValues(Map si) {
+  Map _calculateItemValues(Map si) {
     if (si['item'] == null) {
       return {
         "sellingPrice": 0.0,

@@ -1,4 +1,4 @@
-import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
+import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +76,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                     children: [
                       _userInfoForm(snapshot),
                       BlocBuilder<UserCubit, UserState>(
+                        bloc: BlocProvider.of<UserCubit>(context),
                         builder: (context, state) {
                           return _editInfoButton(state, snapshot);
                         },

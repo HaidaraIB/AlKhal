@@ -26,6 +26,7 @@ class _ItemHistoryScreenState extends State<ItemHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ItemHistoryCubit, ItemHistoryState>(
+      bloc: BlocProvider.of<ItemHistoryCubit>(context),
       builder: (context, state) {
         if (state is LoadingHistory) {
           return const Center(

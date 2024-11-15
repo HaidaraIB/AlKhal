@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:alkhal/models/user.dart';
 
@@ -40,22 +41,35 @@ class ApiCalls {
     return r;
   }
 
-  static Future<http.Response> updateUserInfo(
-      {required int id,
-      required String userName,
-      required String email,
-      required String password}) async {
+  static Future<http.Response> updateUserInfo({
+    required int id,
+    required String userName,
+    required String email,
+    required String password,
+  }) async {
     var url = Uri.parse("$baseUrl/updateUserInfo/");
-    var r = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
+    var r = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        {
           'id': id,
           "email": email,
           'password': password,
-          'username': userName
-        }));
+          'username': userName,
+        },
+      ),
+    );
     return r;
+  }
+
+  static Future<http.StreamedResponse> remoteBackupDatabase(File db) async {
+    final uri = Uri.parse('$baseUrl/uploadDb/');
+    final request = http.MultipartRequest('POST', uri);
+    request.files.add(await http.MultipartFile.fromPath('file', db.path));
+    final response = await request.send();
+    return response;
   }
 }

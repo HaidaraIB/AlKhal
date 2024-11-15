@@ -1,6 +1,9 @@
+import 'package:alkhal/cubit/add_transaction_fab_visibility/add_transaction_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
-import 'package:alkhal/cubit/user_cubit/user_cubit.dart';
+import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
+import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
+import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/cash_screen.dart';
 import 'package:alkhal/screens/items_categories_screen.dart';
@@ -11,6 +14,7 @@ import 'package:alkhal/screens/sign_up_screen.dart';
 import 'package:alkhal/screens/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -33,8 +37,15 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => const InitialScreen(),
-          '/home': (context) => BlocProvider(
-                create: (context) => SearchBarCubit(),
+          '/home': (context) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (context) => SearchBarCubit(),
+                  ),
+                  BlocProvider(
+                    create: (context) => CashCubit(),
+                  ),
+                ],
                 child: const MyHomePage(),
               ),
           '/pin': (context) => const PinScreen(),
@@ -120,13 +131,31 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _widgetOptions = <Widget>[
-      const ItemsList(),
-      BlocProvider(
-        create: (context) => CashCubit(),
+      const ItemsScreen(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => TransactionCubit(),
+          ),
+          BlocProvider(
+            create: (context) => TransactionItemCubit(),
+          ),
+        ],
         child: const CashScreen(),
       ),
-      const TransactionsList(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => TransactionCubit(),
+          ),
+          BlocProvider(
+            create: (context) => AddTransactionFabVisibilityCubit(),
+          ),
+        ],
+        child: const TransactionsScreen(),
+      ),
     ];
+    initializeDateFormatting("ar_SA", null);
   }
 
   @override
@@ -145,16 +174,25 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) {
-                  return const SettingsScreen();
-                },
-              ));
-            },
-            icon: const Icon(Icons.settings),
-          )
+          _selectedIndex == 1
+              ? IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (newContext) {
+                          return PopScope(
+                            child: const SettingsScreen(),
+                            onPopInvokedWithResult: (didPop, result) =>
+                                BlocProvider.of<CashCubit>(context)
+                                    .popSettingsScreen(),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.settings),
+                )
+              : const SizedBox()
         ],
         leading: _selectedIndex == 0
             ? IconButton(

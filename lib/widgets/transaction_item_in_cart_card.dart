@@ -75,6 +75,7 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           BlocBuilder<TransactionCashCubit, TransactionCashState>(
+            bloc: BlocProvider.of<TransactionCashCubit>(context),
             builder: (context, state) {
               return Text.rich(
                 TextSpan(

@@ -96,3 +96,20 @@ final class TransactionCashRefreshingFailed extends TransactionOperationFailed {
     required super.transactions,
   });
 }
+
+final class UpdateTransactionSuccess extends TransactionState {
+  const UpdateTransactionSuccess({
+    required super.transactions,
+    required super.dateFilter,
+    required super.filter,
+  });
+}
+
+final class UpdateTransactionsFailed extends TransactionOperationFailed {
+  const UpdateTransactionsFailed({
+    required super.dateFilter,
+    required super.err,
+    required super.filter,
+    required super.transactions,
+  });
+}

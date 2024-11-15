@@ -7,7 +7,7 @@ class Transaction extends Model {
   static const String tableName = 'transaction';
 
   final double discount;
-  final double reminder;
+  final double remainder;
   double totalPrice;
   double totalProfit;
   final String transactionDate;
@@ -17,7 +17,7 @@ class Transaction extends Model {
   Transaction({
     super.id,
     required this.discount,
-    required this.reminder,
+    required this.remainder,
     required this.transactionDate,
     required this.isSale,
     required this.totalPrice,
@@ -30,7 +30,7 @@ class Transaction extends Model {
     return {
       'id': id,
       'discount': discount,
-      'reminder': reminder,
+      'remainder': remainder,
       'transaction_date': transactionDate,
       'is_sale': isSale,
       'total_price': totalPrice,
@@ -43,7 +43,7 @@ class Transaction extends Model {
     return Transaction(
       id: map['id'],
       discount: map['discount'],
-      reminder: map['reminder'],
+      remainder: map['remainder'],
       transactionDate: map['transaction_date'],
       isSale: map['is_sale'],
       totalPrice: map['total_price'],
@@ -58,26 +58,28 @@ class Transaction extends Model {
     List<Item> itemsToUpdate,
   ) async {
     final db = await DatabaseHelper.db;
-    await db!.transaction((txn) async {
-      int? transactionId =
-          await txn.insert(Transaction.tableName, transaction.toMap());
-      for (int i = 0; i < transactionItems.length; i++) {
-        transactionItems[i].transactionId = transactionId;
-        await txn.insert(
-            TransactionItem.tableName, transactionItems[i].toMap());
-        if (transaction.isSale == 1) {
-          itemsToUpdate[i].quantity -= transactionItems[i].quantity;
-        } else {
-          itemsToUpdate[i].quantity += transactionItems[i].quantity;
-        }
+    await db!.transaction(
+      (txn) async {
+        int? transactionId =
+            await txn.insert(Transaction.tableName, transaction.toMap());
+        for (int i = 0; i < transactionItems.length; i++) {
+          transactionItems[i].transactionId = transactionId;
+          await txn.insert(
+              TransactionItem.tableName, transactionItems[i].toMap());
+          if (transaction.isSale == 1) {
+            itemsToUpdate[i].quantity -= transactionItems[i].quantity;
+          } else {
+            itemsToUpdate[i].quantity += transactionItems[i].quantity;
+          }
 
-        await txn.update(
-          Item.tableName,
-          itemsToUpdate[i].toMap(),
-          where: "id = ?",
-          whereArgs: [itemsToUpdate[i].id],
-        );
-      }
-    });
+          await txn.update(
+            Item.tableName,
+            itemsToUpdate[i].toMap(),
+            where: "id = ?",
+            whereArgs: [itemsToUpdate[i].id],
+          );
+        }
+      },
+    );
   }
 }

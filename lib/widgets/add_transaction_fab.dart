@@ -24,6 +24,7 @@ class _AddTransactionFABState extends State<AddTransactionFAB> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ItemCubit, ItemState>(
+      bloc: BlocProvider.of<ItemCubit>(context),
       builder: (context, state) {
         return FloatingActionButton(
           heroTag: "AddTransactionFAB",

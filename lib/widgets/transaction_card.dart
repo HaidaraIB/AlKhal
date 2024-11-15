@@ -1,6 +1,8 @@
+import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/screens/transaction_items_screen.dart';
+import 'package:alkhal/screens/update_transaction_screen.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -49,30 +51,62 @@ class TransactionCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      final transactionItemCubit =
-                          BlocProvider.of<TransactionItemCubit>(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (newContext) {
-                            return BlocProvider<TransactionItemCubit>.value(
-                              value: transactionItemCubit,
-                              child: Scaffold(
-                                appBar: AppBar(
-                                  title: const Text('تفاصيل فاتورة'),
-                                ),
-                                body: TransactionItems(
-                                  transactionId: transaction.id!,
-                                  isSale: transaction.isSale == 1,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.info),
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          final transactionItemCubit =
+                              BlocProvider.of<TransactionItemCubit>(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (newContext) {
+                                return BlocProvider<TransactionItemCubit>.value(
+                                  value: transactionItemCubit,
+                                  child: Scaffold(
+                                    appBar: AppBar(
+                                      title: const Text('تفاصيل فاتورة'),
+                                    ),
+                                    body: TransactionItems(
+                                      transactionId: transaction.id!,
+                                      isSale: transaction.isSale == 1,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.info),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          final transactionCubit =
+                              BlocProvider.of<TransactionCubit>(context);
+                          final transactionItemCubit =
+                              BlocProvider.of<TransactionItemCubit>(context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (newContext) {
+                                return MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider<TransactionCubit>.value(
+                                      value: transactionCubit,
+                                    ),
+                                    BlocProvider<TransactionItemCubit>.value(
+                                      value: transactionItemCubit,
+                                    ),
+                                  ],
+                                  child: UpdateTransactionScreen(
+                                    transaction: transaction,
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                      )
+                    ],
                   ),
                   _buildTransactionDetails(),
                 ],
@@ -119,7 +153,7 @@ class TransactionCard extends StatelessWidget {
           const TextSpan(text: " ل.س\n"),
           const TextSpan(text: 'الباقي: '),
           TextSpan(
-            text: formatDouble(transaction.reminder),
+            text: formatDouble(transaction.remainder),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const TextSpan(text: " ل.س"),

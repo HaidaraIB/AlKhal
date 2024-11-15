@@ -52,22 +52,39 @@ class TransactionCubit extends Cubit<TransactionState> {
                       .contains(filter);
         }).toList();
         transactions.sort(
-          (a, b) => (b as Transaction)
-              .transactionDate
-              .compareTo((a as Transaction).transactionDate),
+          (a, b) => (b as Transaction).transactionDate.compareTo(
+                (a as Transaction).transactionDate,
+              ),
         );
       },
     );
   }
 
-  Future loadTransactions() async {
+  Future loadTransactions([String? cond]) async {
     emit(LoadingTransactions(
       transactions: const [],
       filter: filter,
       dateFilter: dateFilter,
     ));
     try {
-      await _loadTransactions();
+      if (cond == null) {
+        await _loadTransactions();
+      } else {
+        await DatabaseHelper.getAll(
+          Transaction.tableName,
+          "Transaction",
+          cond,
+        ).then(
+          (value) {
+            transactions = value;
+            transactions.sort(
+              (a, b) => (b as Transaction).transactionDate.compareTo(
+                    (a as Transaction).transactionDate,
+                  ),
+            );
+          },
+        );
+      }
       emit(TransactionsLoaded(
         transactions: transactions,
         filter: filter,
@@ -155,6 +172,30 @@ class TransactionCubit extends Cubit<TransactionState> {
         err: e.toString(),
         filter: filter,
         transactions: transactions,
+      ));
+    }
+  }
+
+  Future updateTransaction(Transaction newTransaction) async {
+    try {
+      await DatabaseHelper.update(
+        Transaction.tableName,
+        newTransaction,
+      );
+      transactions[transactions.indexOf(transactions.firstWhere(
+        (t) => t.id == newTransaction.id,
+      ))] = newTransaction;
+      emit(UpdateTransactionSuccess(
+        transactions: transactions,
+        filter: filter,
+        dateFilter: dateFilter,
+      ));
+    } catch (e) {
+      emit(UpdateTransactionsFailed(
+        transactions: const [],
+        filter: filter,
+        dateFilter: dateFilter,
+        err: e.toString(),
       ));
     }
   }

@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  bool res = await DatabaseHelper.backupDatabase();
+                  bool res = await DatabaseHelper.localBackupDatabase();
                   String msg = "";
                   if (res) {
                     msg = "تم إنشاء نسخة احتياطية بنجاح";
@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  bool res = await DatabaseHelper.restoreDatabase();
+                  bool res = await DatabaseHelper.restoreLocalDatabase();
                   String msg = "";
                   if (res) {
                     msg = "تمت استعادة البيانات بنجاح";
@@ -101,12 +101,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     msg = "لم يتم العثور على نسخة احتياطية";
                   }
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
                         content: Text(
-                      msg,
-                      textAlign: TextAlign.center,
-                      textDirection: TextDirection.rtl,
-                    )));
+                          msg,
+                          textAlign: TextAlign.center,
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                    );
                   }
                 },
                 child: const Text('استعادة'),

@@ -1,15 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:alkhal/models/model.dart';
+import 'package:alkhal/models/user.dart';
+import 'package:alkhal/services/api_calls.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
-  static const dbName = 'warehouse.db';
   static const externalDbPath = "/storage/emulated/0/AlKhal/database";
+  static const String dbHashKey = 'db_hash_key';
   static Database? _db;
 
   static Future<Database?> get db async {
@@ -22,6 +26,7 @@ class DatabaseHelper {
   }
 
   static Future _initDatabase() async {
+    String dbName = "${(await User.userInfo())['username']}.db";
     String databasepath = await getDatabasesPath();
     String path = join(databasepath, dbName);
     // await deleteDatabase(path);
@@ -29,7 +34,7 @@ class DatabaseHelper {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 4,
+      version: 5,
       onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
@@ -59,6 +64,10 @@ class DatabaseHelper {
           WHERE item.id = transaction_item.item_id
         );
       """,
+      );
+    } else if (newVersion == 5) {
+      await db.execute(
+        "ALTER TABLE 'transaction' RENAME COLUMN reminder TO remainder;",
       );
     }
   }
@@ -103,7 +112,7 @@ class DatabaseHelper {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           transaction_date TIMESTAMP,
           discount REAL,
-          reminder REAL,
+          remainder REAL,
           total_price REAL,
           total_profit REAL,
           is_sale INTEGER
@@ -131,8 +140,9 @@ class DatabaseHelper {
     """);
   }
 
-  static Future<bool> backupDatabase() async {
+  static Future<bool> localBackupDatabase() async {
     await createDirectory();
+    String dbName = "${(await User.userInfo())['username']}.db";
     final databasesPath = await getDatabasesPath();
     final dbPath = join(databasesPath, dbName);
     final backupPath = join(externalDbPath, dbName);
@@ -147,8 +157,29 @@ class DatabaseHelper {
     return true;
   }
 
-  static Future<bool> restoreDatabase() async {
+  static Future<bool> remoteBackupDatabase() async {
+    String dbName = "${(await User.userInfo())['username']}.db";
+    final databasesPath = await getDatabasesPath();
+    final dbPath = join(databasesPath, dbName);
+    final dbFile = File(dbPath);
+    if (!(await dbFile.exists())) {
+      return false;
+    }
+    final newDbHash = await calculateFileHash(dbFile);
+    final prefs = await SharedPreferences.getInstance();
+    final lastDbHash = prefs.getString(dbHashKey) ?? '';
+    if (newDbHash != lastDbHash) {
+      var r = await ApiCalls.remoteBackupDatabase(dbFile);
+      await prefs.setString(dbHashKey, newDbHash);
+      return r.statusCode == 201;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> restoreLocalDatabase() async {
     await createDirectory();
+    String dbName = "${(await User.userInfo())['username']}.db";
     final databasesPath = await getDatabasesPath();
     final dbPath = join(databasesPath, dbName);
     final backupPath = join(externalDbPath, dbName);
@@ -169,7 +200,25 @@ class DatabaseHelper {
     }
   }
 
+  static Future restoreRemoteDatabase(Uint8List bytes) async {
+    await createDirectory();
+    String dbName = "${(await User.userInfo())['username']}.db";
+    final databasesPath = await getDatabasesPath();
+    final dbPath = join(databasesPath, dbName);
+
+    final dbFile = File(dbPath);
+
+    if (await dbFile.exists()) {
+      await deleteDatabase(dbPath);
+    }
+    await dbFile.writeAsBytes(bytes);
+    _db = null;
+    await _initDatabase();
+    return true;
+  }
+
   static Future shareDatabase() async {
+    String dbName = "${(await User.userInfo())['username']}.db";
     final databasesPath = await getDatabasesPath();
     final dbPath = join(databasesPath, dbName);
     Share.shareXFiles([XFile(dbPath)], text: 'AlKhal');
@@ -256,12 +305,11 @@ class DatabaseHelper {
       '''
       SELECT 
         SUM(total_price) as cash,
-        SUM(total_profit) as profit,
-        SUM(reminder) as reminders
+        SUM(total_profit) as profit
       FROM 
         'transaction'
       WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
-        ''',
+      ''',
     );
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
       '''
@@ -270,7 +318,15 @@ class DatabaseHelper {
       FROM 
         'transaction'
       WHERE is_sale = 0 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
-        ''',
+      ''',
+    );
+    final List<Map<String, dynamic>>? remaindersResult = await db?.rawQuery(
+      '''
+      SELECT 
+        SUM(remainder) as remainders
+      FROM 
+        'transaction';
+      ''',
     );
 
     if (cashResult!.isNotEmpty) {
@@ -278,14 +334,14 @@ class DatabaseHelper {
         'cash': cashResult.first['cash'] ?? 0.0,
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
-        'reminders': cashResult.first['reminders'] ?? 0.0,
+        'remainders': remaindersResult!.first['remainders'] ?? 0.0,
       };
     } else {
       return {
         'cash': 0.0,
         'profit': 0.0,
         'bills': 0.0,
-        'reminders': 0.0,
+        'remainders': 0.0,
       };
     }
   }

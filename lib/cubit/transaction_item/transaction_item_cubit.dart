@@ -13,7 +13,7 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       : super(const TransactionItemInitial(transactionItems: []));
 
   Future loadItems({int? transactionId, int? itemId}) async {
-    emit(LoadingTransactionItems(transactionItems: transactionItems));
+    emit(const LoadingTransactionItems(transactionItems: []));
     try {
       await DatabaseHelper.getAll(
         TransactionItem.tableName,
@@ -26,7 +26,7 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       emit(TransactionItemsLoaded(transactionItems: transactionItems));
     } catch (e) {
       emit(LoadingTransactionItemsFailed(
-        transactionItems: transactionItems,
+        transactionItems: const [],
         err: e.toString(),
       ));
     }

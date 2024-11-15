@@ -29,6 +29,7 @@ class _ItemsState extends State<TransactionItems> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TransactionItemCubit, TransactionItemState>(
+      bloc: BlocProvider.of<TransactionItemCubit>(context),
       builder: (context, state) {
         if (state is LoadingTransactionItems) {
           return const Center(
@@ -38,7 +39,7 @@ class _ItemsState extends State<TransactionItems> {
           );
         } else if (state is LoadingTransactionItemsFailed) {
           return buildErrorWidget(state.err);
-        } else if (state is TransactionItemsLoaded) {
+        } else if (state.transactionItems.isNotEmpty) {
           return ListView.builder(
             itemCount: state.transactionItems.length,
             itemBuilder: (BuildContext context, int index) {

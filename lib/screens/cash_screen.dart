@@ -1,9 +1,11 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
+import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
+import 'package:alkhal/widgets/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart' as intl;
 
 class CashScreen extends StatefulWidget {
@@ -18,71 +20,57 @@ class _CashScreenState extends State<CashScreen>
   late DateTime startDate;
   late DateTime endDate;
 
-  late Future<bool> _initArLocale;
-
-  Future<bool> _initLocale() async {
-    await initializeDateFormatting("ar_SA", null);
-    return true;
-  }
-
   @override
   void initState() {
     super.initState();
     startDate = DateTime.now();
     endDate = DateTime.now();
     BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
-    _initArLocale = _initLocale();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initArLocale,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return BlocBuilder<CashCubit, CashState>(
-            builder: (context, state) {
-              if (state is CashRefreshingFailed) {
-                return buildErrorWidget(state.err);
-              } else if (state is CashRefreshed) {
-                return Scaffold(
-                  backgroundColor: Colors.white,
-                  body: RefreshIndicator(
-                    onRefresh: () async {
-                      await BlocProvider.of<CashCubit>(context)
-                          .computeCash(startDate, endDate);
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
-                            _buildDateRangeButton(context),
-                            const SizedBox(height: 20),
-                            _buildNumberWidgets(state),
-                            const SizedBox(height: 90),
-                          ],
-                        ),
-                      ),
-                    ),
+    return BlocConsumer<CashCubit, CashState>(
+      bloc: BlocProvider.of<CashCubit>(context),
+      listener: (context, state) {
+        if (state is SettingsScreenPopped) {
+          context.read<CashCubit>().computeCash(startDate, endDate);
+        }
+      },
+      builder: (context, state) {
+        if (state is CashRefreshingFailed) {
+          return buildErrorWidget(state.err);
+        } else if (state is CashRefreshed) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: RefreshIndicator(
+              onRefresh: () async {
+                await BlocProvider.of<CashCubit>(context)
+                    .computeCash(startDate, endDate);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildDateRangeButton(context),
+                      const SizedBox(height: 20),
+                      _buildNumberWidgets(state),
+                      const SizedBox(height: 90),
+                    ],
                   ),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      BlocProvider.of<CashCubit>(context)
-                          .computeCash(startDate, endDate);
-                    },
-                    child: const Icon(Icons.refresh),
-                  ),
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.purple,
                 ),
-              );
-            },
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                BlocProvider.of<CashCubit>(context)
+                    .computeCash(startDate, endDate);
+              },
+              child: const Icon(Icons.refresh),
+            ),
           );
         }
         return const Center(
@@ -117,7 +105,7 @@ class _CashScreenState extends State<CashScreen>
     );
   }
 
-  Widget _buildNumberWidgets(CashState state) {
+  Widget _buildNumberWidgets(CashRefreshed state) {
     return Column(
       children: [
         _buildNumberWidget('كاش', state.cash),
@@ -126,7 +114,71 @@ class _CashScreenState extends State<CashScreen>
         const Divider(),
         _buildNumberWidget('فواتير', state.bills),
         const Divider(),
-        _buildNumberWidget('ديون', state.reminders),
+        GestureDetector(
+          child: _buildNumberWidget('ديون', state.remainders),
+          onTap: () async {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (navContext) {
+                  context
+                      .read<TransactionCubit>()
+                      .loadTransactions("remainder != 0");
+                  final transactionCubit =
+                      BlocProvider.of<TransactionCubit>(context);
+                  final transactionItemCubit =
+                      BlocProvider.of<TransactionItemCubit>(context);
+                  return PopScope(
+                    onPopInvokedWithResult: (didPop, result) =>
+                        BlocProvider.of<CashCubit>(context)
+                            .computeCash(startDate, endDate),
+                    child: Scaffold(
+                      appBar: AppBar(
+                        title: const Text("فواتير الديون"),
+                      ),
+                      body: BlocBuilder<TransactionCubit, TransactionState>(
+                        bloc: transactionCubit,
+                        builder: (blocContext, state) {
+                          if (state is LoadingTransactions) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.purple,
+                              ),
+                            );
+                          } else if (state is TransactionLoadingFailed) {
+                            return buildErrorWidget(state.err);
+                          } else if (state.transactions.isNotEmpty) {
+                            return MultiBlocProvider(
+                              providers: [
+                                BlocProvider<TransactionCubit>.value(
+                                  value: transactionCubit,
+                                ),
+                                BlocProvider<TransactionItemCubit>.value(
+                                  value: transactionItemCubit,
+                                ),
+                              ],
+                              child: Transactions(
+                                transactions: state.transactions,
+                              ),
+                            );
+                          } else {
+                            return const Center(
+                              child: Text(
+                                "لا فواتير بديون بعد!",
+                                style: TextStyle(fontSize: 20),
+                                textAlign: TextAlign.center,
+                                textDirection: TextDirection.rtl,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ],
     );
   }
