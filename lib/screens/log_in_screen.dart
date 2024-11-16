@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
                     textAlign: TextAlign.center,
                   ),
                   content: const Text(
-                    'تم العثور على نسخة احتياطية، هل تريد استعادتها؟\nسيؤدي الإلغاء إلى خسارة النسخة الاحتياطية.',
+                    'تم العثور على نسخة احتياطية هل تريد استعادتها؟\nسيؤدي الإلغاء إلى خسارة النسخة الاحتياطية',
                     textAlign: TextAlign.center,
                     textDirection: TextDirection.rtl,
                   ),

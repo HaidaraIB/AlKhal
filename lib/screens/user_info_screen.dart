@@ -45,7 +45,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text(
-                      "تحقق من اتصالك بالانترنت",
+                      "تحقق من اتصالك بالإنترنت",
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.rtl,
                     ),
@@ -115,7 +115,15 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
       child: Column(
         children: <Widget>[
           TextFormField(
-            validator: validateUsername,
+            validator: (value) {
+              if (_newPasswordController.text.isEmpty &&
+                  _oldPasswordController.text.isEmpty &&
+                  _usernameController.text == snapshot.data!['username'] &&
+                  _emailController.text == snapshot.data!['email']) {
+                return "الرجاء تعديل أحد الحقول";
+              }
+              return validateUsername(value);
+            },
             controller: _usernameController,
             decoration: InputDecoration(
               hintText: "اسم المستخدم",
@@ -137,7 +145,15 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           ),
           const SizedBox(height: 20),
           TextFormField(
-            validator: validateEmail,
+            validator: (value) {
+              if (_newPasswordController.text.isEmpty &&
+                  _oldPasswordController.text.isEmpty &&
+                  _usernameController.text == snapshot.data!['username'] &&
+                  _emailController.text == snapshot.data!['email']) {
+                return "الرجاء تعديل أحد الحقول";
+              }
+              return validateEmail(value);
+            },
             controller: _emailController,
             decoration: InputDecoration(
               hintText: "الإيميل",
@@ -159,8 +175,15 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           ),
           const SizedBox(height: 20),
           TextFormField(
-            validator: (value) =>
-                validateOldPassword(value, snapshot.data!['password']),
+            validator: (value) {
+              if (_newPasswordController.text.isEmpty &&
+                  _oldPasswordController.text.isEmpty &&
+                  _usernameController.text == snapshot.data!['username'] &&
+                  _emailController.text == snapshot.data!['email']) {
+                return "الرجاء تعديل أحد الحقول";
+              }
+              return validateOldPassword(value, snapshot.data!['password']);
+            },
             controller: _oldPasswordController,
             decoration: InputDecoration(
               hintText: "كلمة المرور القديمة",
@@ -190,7 +213,15 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           ),
           const SizedBox(height: 20),
           TextFormField(
-            validator: validateNewPassword,
+            validator: (value) {
+              if (_newPasswordController.text.isEmpty &&
+                  _oldPasswordController.text.isEmpty &&
+                  _usernameController.text == snapshot.data!['username'] &&
+                  _emailController.text == snapshot.data!['email']) {
+                return "الرجاء تعديل أحد الحقول";
+              }
+              return validateNewPassword(value);
+            },
             controller: _newPasswordController,
             decoration: InputDecoration(
               hintText: "كلمة المرور الجديدة",
@@ -236,21 +267,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           : ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  if (_newPasswordController.text.isEmpty &&
-                      _oldPasswordController.text.isEmpty &&
-                      _usernameController.text == snapshot.data!['username'] &&
-                      _emailController.text == snapshot.data!['email']) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "الرجاء تعديل أحد الحقول",
-                          textAlign: TextAlign.center,
-                          textDirection: TextDirection.rtl,
-                        ),
-                      ),
-                    );
-                    return;
-                  }
                   await context.read<UserCubit>().updateUserInfo(
                         id: snapshot.data!['id'],
                         username: _usernameController.text,

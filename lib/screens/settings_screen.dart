@@ -127,6 +127,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     );
                     msg = "تمت استعادة البيانات بنجاح";
+                  } else if (res.statusCode == 503) {
+                    msg = "تحقق من اتصالك بالإنترنت";
                   } else {
                     msg = "لم يتم العثور على نسخة احتياطية";
                   }

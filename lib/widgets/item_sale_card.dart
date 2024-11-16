@@ -1,3 +1,4 @@
+import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/measurement_unit.dart';
@@ -27,8 +28,6 @@ class ItemSaleCard extends StatefulWidget {
 
 class _ItemSaleCardState extends State<ItemSaleCard>
     with AutomaticKeepAliveClientMixin {
-  late Future<Model?> _transaction;
-
   Future<Model?> _getTransaction() async {
     return await DatabaseHelper.getById(
       Transaction.tableName,
@@ -41,16 +40,10 @@ class _ItemSaleCardState extends State<ItemSaleCard>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-    _transaction = _getTransaction();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder<Model?>(
-      future: _transaction,
+      future: _getTransaction(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -101,20 +94,28 @@ class _ItemSaleCardState extends State<ItemSaleCard>
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (newContext) {
-                                  return BlocProvider<
-                                      TransactionItemCubit>.value(
-                                    value: transactionItemCubit,
+                                  return MultiBlocProvider(
+                                    providers: [
+                                      BlocProvider.value(
+                                        value: transactionItemCubit,
+                                      ),
+                                      BlocProvider(
+                                        create: (newContext) =>
+                                            TransactionCubit(),
+                                      ),
+                                    ],
                                     child: PopScope(
                                       canPop: true,
                                       onPopInvokedWithResult:
                                           (didPop, result) async {
                                         await transactionItemCubit.loadItems(
-                                            itemId: widget.item.id);
+                                          itemId: widget.item.id,
+                                        );
                                       },
                                       child: Scaffold(
                                         appBar: AppBar(
                                           title: Text(
-                                            "فاتورة ${widget.item.name.trim()}",
+                                            "فاتورة //${widget.item.name.trim()}",
                                           ),
                                         ),
                                         body: TransactionCard(

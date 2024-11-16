@@ -50,7 +50,7 @@ class _SignupPageState extends State<SignupPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'تحقق من اتصالك بالأنترنت',
+                'تحقق من اتصالك بالإنترنت',
                 textAlign: TextAlign.center,
                 textDirection: TextDirection.rtl,
               ),

@@ -74,8 +74,12 @@ class ApiCalls {
   }
 
   static Future<http.Response> getRemoteDb(String username) async {
-    var url = Uri.parse("$baseUrl/getDb/$username/");
-    var r = await http.get(url);
-    return r;
+    try {
+      var url = Uri.parse("$baseUrl/getDb/$username/");
+      var r = await http.get(url);
+      return r;
+    } on SocketException {
+      return http.Response("No Internet", 503);
+    }
   }
 }
