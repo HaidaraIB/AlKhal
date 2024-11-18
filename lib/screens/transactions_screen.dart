@@ -60,7 +60,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             );
           } else if (state is TransactionLoadingFailed) {
             return buildErrorWidget(state.err);
-          } else if (state.transactions.isNotEmpty) {
+          } else if (state is TransactionList &&
+              state.transactions.isNotEmpty) {
             return Scaffold(
               backgroundColor: Colors.white,
               floatingActionButton: BlocBuilder<
@@ -99,7 +100,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 ],
               ),
             );
-          } else {
+          } else if (state is TransactionList && state.transactions.isEmpty) {
             return Scaffold(
               backgroundColor: Colors.white,
               floatingActionButton: const AddTransactionFAB(),
@@ -124,6 +125,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               ),
             );
           }
+          return const Scaffold();
         },
       ),
     );

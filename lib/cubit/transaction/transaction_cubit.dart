@@ -61,11 +61,9 @@ class TransactionCubit extends Cubit<TransactionState> {
   }
 
   Future loadTransactions([String? cond]) async {
-    emit(LoadingTransactions(
-      transactions: const [],
-      filter: filter,
-      dateFilter: dateFilter,
-    ));
+    emit(
+      const LoadingTransactions(),
+    );
     try {
       if (cond == null) {
         await _loadTransactions();
@@ -92,9 +90,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       ));
     } catch (e) {
       emit(TransactionLoadingFailed(
-        transactions: const [],
-        filter: filter,
-        dateFilter: dateFilter,
         err: e.toString(),
       ));
     }
@@ -120,9 +115,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       return true;
     } catch (e) {
       emit(AddTransactionFail(
-        transactions: const [],
-        filter: filter,
-        dateFilter: dateFilter,
         err: e.toString(),
       ));
       return false;
@@ -168,10 +160,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       ));
     } catch (e) {
       emit(TransactionCashRefreshingFailed(
-        dateFilter: dateFilter,
         err: e.toString(),
-        filter: filter,
-        transactions: transactions,
       ));
     }
   }
@@ -182,19 +171,21 @@ class TransactionCubit extends Cubit<TransactionState> {
         Transaction.tableName,
         newTransaction,
       );
-      transactions[transactions.indexOf(transactions.firstWhere(
-        (t) => t.id == newTransaction.id,
-      ))] = newTransaction;
+      try {
+        transactions[transactions.indexOf(transactions.firstWhere(
+          (t) => t.id == newTransaction.id,
+        ))] = newTransaction;
+      } catch (e) {
+        // Updating a transaction out of transacions list
+      }
       emit(UpdateTransactionSuccess(
+        updatedTransaction: newTransaction,
         transactions: transactions,
-        filter: filter,
         dateFilter: dateFilter,
+        filter: filter,
       ));
     } catch (e) {
       emit(UpdateTransactionsFailed(
-        transactions: const [],
-        filter: filter,
-        dateFilter: dateFilter,
         err: e.toString(),
       ));
     }

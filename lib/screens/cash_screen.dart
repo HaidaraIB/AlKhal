@@ -148,7 +148,7 @@ class _CashScreenState extends State<CashScreen>
                             );
                           } else if (state is TransactionLoadingFailed) {
                             return buildErrorWidget(state.err);
-                          } else if (state.transactions.isNotEmpty) {
+                          } else if (state is TransactionList) {
                             return MultiBlocProvider(
                               providers: [
                                 BlocProvider<TransactionCubit>.value(

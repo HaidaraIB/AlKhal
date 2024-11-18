@@ -79,9 +79,7 @@ class _UpdateTransactionScreenState extends State<UpdateTransactionScreen> {
                                   double.tryParse(_discountController.text) ??
                                       widget.transaction.discount,
                               isSale: widget.transaction.isSale,
-                              notes: _notesController.text.isNotEmpty
-                                  ? _notesController.text
-                                  : widget.transaction.notes,
+                              notes: _notesController.text,
                               remainder:
                                   double.tryParse(_remainderController.text) ??
                                       widget.transaction.remainder,

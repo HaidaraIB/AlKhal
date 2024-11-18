@@ -115,11 +115,23 @@ class _ItemSaleCardState extends State<ItemSaleCard>
                                       child: Scaffold(
                                         appBar: AppBar(
                                           title: Text(
-                                            "فاتورة //${widget.item.name.trim()}",
+                                            "فاتورة ${widget.item.name.trim()}",
                                           ),
                                         ),
-                                        body: TransactionCard(
-                                          transaction: transaction,
+                                        body: BlocBuilder<TransactionCubit,
+                                            TransactionState>(
+                                          builder: (context, state) {
+                                            if (state
+                                                is UpdateTransactionSuccess) {
+                                              return TransactionCard(
+                                                transaction:
+                                                    state.updatedTransaction,
+                                              );
+                                            }
+                                            return TransactionCard(
+                                              transaction: transaction,
+                                            );
+                                          },
                                         ),
                                       ),
                                     ),
