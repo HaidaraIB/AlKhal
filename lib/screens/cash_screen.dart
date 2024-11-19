@@ -66,13 +66,6 @@ class _CashScreenState extends State<CashScreen>
                 ),
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                BlocProvider.of<CashCubit>(context)
-                    .computeCash(startDate, endDate);
-              },
-              child: const Icon(Icons.refresh),
-            ),
           );
         }
         return const Center(

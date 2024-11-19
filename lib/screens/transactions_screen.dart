@@ -84,17 +84,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   _buildFilterRow(state.filter),
                   const SizedBox(height: 10),
                   Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        await context
-                            .read<TransactionCubit>()
-                            .refreshTransactionsCash();
-                      },
-                      child: Transactions(
-                        transactions: state.transactions,
-                        transactionsScrollController:
-                            _transactionsScrollController,
-                      ),
+                    child: Transactions(
+                      transactions: state.transactions,
+                      transactionsScrollController:
+                          _transactionsScrollController,
                     ),
                   ),
                 ],
