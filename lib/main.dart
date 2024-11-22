@@ -163,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        scrolledUnderElevation: 0.0,
         title: const Text(
           "الخال",
           style: TextStyle(

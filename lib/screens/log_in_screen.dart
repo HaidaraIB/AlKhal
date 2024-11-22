@@ -51,7 +51,8 @@ class _LoginPageState extends State<LoginPage> {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacementNamed("/home");
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            "/home", ModalRoute.withName("login"));
                       },
                       child: const Text('إلغاء'),
                     ),
@@ -78,7 +79,8 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         }
                         if (context.mounted) {
-                          Navigator.of(context).pushReplacementNamed("/home");
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              "/home", ModalRoute.withName("login"));
                         }
                       },
                       child: const Text('استعادة'),

@@ -28,7 +28,10 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('سجل مبيع ${widget.item.name.trim()}'),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0.0,
       ),
+      backgroundColor: Colors.white,
       body: BlocBuilder<TransactionItemCubit, TransactionItemState>(
         bloc: BlocProvider.of<TransactionItemCubit>(context),
         builder: (context, state) {

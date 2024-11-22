@@ -71,6 +71,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                     onPressed: () async {
                       await User.clearInfo();
                       if (context.mounted) {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
                         Navigator.of(context).pushReplacementNamed("/sign_up");
                       }
                     },

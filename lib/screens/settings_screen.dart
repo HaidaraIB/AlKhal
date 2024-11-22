@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:alkhal/models/user.dart';
+import 'package:alkhal/screens/sync_db_screen.dart';
 import 'package:alkhal/screens/user_info_screen.dart';
 import 'package:alkhal/services/api_calls.dart';
 import 'package:alkhal/services/database_helper.dart';
@@ -150,20 +151,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await DatabaseHelper.shareDatabase();
   }
 
-  bool? isDbSyncOn = false;
-
-  EdgeInsets optionsPadding = const EdgeInsets.only(bottom: 10);
   TextStyle optionsTextStyle = const TextStyle(fontSize: 22);
-  Color backgroundColor = const Color.fromARGB(255, 239, 239, 239);
 
-  Future<bool?> initSyncDbState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    isDbSyncOn = prefs.getBool("isDbSyncOn");
-    if (isDbSyncOn == null) {
-      prefs.setBool("isDbSyncOn", false);
-      isDbSyncOn = false;
+  void switchSyncDbValue(bool value) async {
+    {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("isDbSyncOn", value);
     }
-    return isDbSyncOn;
   }
 
   @override
@@ -176,13 +170,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backgroundColor,
-        title: const Text(
-          "الإعدادات",
-          style: TextStyle(fontSize: 26),
-        ),
+        backgroundColor: Colors.white,
+        title: const Text("الإعدادات"),
       ),
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
       body: FutureBuilder<bool?>(
         future: initSyncDbState(),
         builder: (context, snapshot) {
@@ -193,6 +184,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   _buildOptionTile(
                     title: "مزامنة البيانات",
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (newContext) {
+                          return PopScope(
+                            onPopInvokedWithResult: (didPop, result) =>
+                                setState(() {}),
+                            child: SyncDbScreen(
+                              isDbSyncOn: snapshot.data!,
+                              switchSyncDbValue: switchSyncDbValue,
+                              buildOptionTile: _buildOptionTile,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                     trailing: const Icon(
                       Icons.sync,
                       size: 30,
@@ -200,13 +206,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     leading: Transform.scale(
                       scale: 0.8,
                       child: Switch(
-                        value: isDbSyncOn ?? false,
-                        onChanged: (value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setBool("isDbSyncOn", value);
-                          isDbSyncOn = value;
-                          setState(() {});
+                        value: snapshot.data ?? false,
+                        onChanged: (value) {
+                          setState(() {
+                            switchSyncDbValue(value);
+                          });
                         },
                       ),
                     ),
@@ -267,12 +271,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     void Function()? onTap,
   }) {
     return Padding(
-      padding: optionsPadding,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Colors.white,
-        ),
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Card(
         child: ListTile(
           onTap: onTap,
           title: Text(

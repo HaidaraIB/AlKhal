@@ -1,6 +1,7 @@
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
+import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/services/db_syncer.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
@@ -26,7 +27,7 @@ class _CashScreenState extends State<CashScreen>
     super.initState();
     startDate = DateTime.now();
     endDate = DateTime.now();
-    BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
+    context.read<CashCubit>().computeCash(startDate, endDate);
     DbSyncer();
   }
 
@@ -129,19 +130,23 @@ class _CashScreenState extends State<CashScreen>
                     child: Scaffold(
                       appBar: AppBar(
                         title: const Text("فواتير الديون"),
+                        backgroundColor: Colors.white,
+                        scrolledUnderElevation: 0.0,
                       ),
+                      backgroundColor: Colors.white,
                       body: BlocBuilder<TransactionCubit, TransactionState>(
                         bloc: transactionCubit,
-                        builder: (blocContext, state) {
-                          if (state is LoadingTransactions) {
+                        builder: (transactionContext, transactionState) {
+                          if (transactionState is LoadingTransactions) {
                             return const Center(
                               child: CircularProgressIndicator(
                                 color: Colors.purple,
                               ),
                             );
-                          } else if (state is TransactionLoadingFailed) {
-                            return buildErrorWidget(state.err);
-                          } else if (state is TransactionList) {
+                          } else if (transactionState
+                              is TransactionLoadingFailed) {
+                            return buildErrorWidget(transactionState.err);
+                          } else if (transactionState is TransactionList) {
                             return MultiBlocProvider(
                               providers: [
                                 BlocProvider<TransactionCubit>.value(
@@ -151,8 +156,22 @@ class _CashScreenState extends State<CashScreen>
                                   value: transactionItemCubit,
                                 ),
                               ],
-                              child: Transactions(
-                                transactions: state.transactions,
+                              child: Column(
+                                children: [
+                                  _buildNumberWidget(
+                                    'الإجمالي',
+                                    transactionState.transactions.fold(
+                                        0,
+                                        (sum, t) =>
+                                            sum + (t as Transaction).remainder),
+                                  ),
+                                  Expanded(
+                                    child: Transactions(
+                                      transactions:
+                                          transactionState.transactions,
+                                    ),
+                                  ),
+                                ],
                               ),
                             );
                           } else {

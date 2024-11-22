@@ -16,23 +16,23 @@ class DbSyncer {
           await prefs.setBool("isDbSyncOn", false);
           isDbSyncOn = false;
         }
+        bool? isDbSyncing = prefs.getBool("isDbSyncing");
+        if (isDbSyncing == null) {
+          await prefs.setBool("isDbSyncing", false);
+          isDbSyncing = false;
+        }
         if ((result.contains(ConnectivityResult.wifi) ||
                 result.contains(ConnectivityResult.mobile)) &&
-            isDbSyncOn) {
-          // var userInfo = await User.userInfo();
-          // var res = await ApiCalls.getRemoteDb(userInfo['username']);
-          // if (res.statusCode == 200) {
-          //   await DatabaseHelper.restoreRemoteDatabase(
-          //     base64Decode(
-          //       jsonDecode(res.body)['db'],
-          //     ),
-          //   );
-          // }
+            isDbSyncOn &&
+            !isDbSyncing) {
+          await prefs.setBool("isDbSyncing", true);
+
           try {
             await DatabaseHelper.remoteBackupDatabase();
           } catch (e) {
             debugPrint(e.toString());
           }
+          await prefs.setBool("isDbSyncing", false);
         }
       },
     );

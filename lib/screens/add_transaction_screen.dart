@@ -244,7 +244,10 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                 },
               ),
               centerTitle: true,
+              backgroundColor: Colors.white,
+              scrolledUnderElevation: 0.0,
             ),
+            backgroundColor: Colors.white,
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(

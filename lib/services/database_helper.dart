@@ -167,28 +167,14 @@ class DatabaseHelper {
     }
     final newDbHash = await calculateFileHash(dbFile);
     final prefs = await SharedPreferences.getInstance();
-    // final newDbSize = await calculateFileSize(dbFile);
-    // int? lastDbSize = prefs.getInt(dbSizeKey);
-    // if (lastDbSize == null) {
-    //   var res = await ApiCalls.getRemoteDb((await User.userInfo())['username']);
-    //   if (res.statusCode == 200) {
-    //     lastDbSize = jsonDecode(res.body)['size'];
-    //     await prefs.setInt(dbSizeKey, newDbSize);
-    //   }
-    // }
-    // if (lastDbSize != null && lastDbSize <= newDbSize) {
     final lastDbHash = prefs.getString(dbHashKey) ?? '';
     if (newDbHash != lastDbHash) {
       var r = await ApiCalls.remoteBackupDatabase(dbFile);
       await prefs.setString(dbHashKey, newDbHash);
-      // await prefs.setInt(dbSizeKey, newDbSize);
       return r.statusCode == 201;
     } else {
       return false;
     }
-    // } else {
-    //   return false;
-    // }
   }
 
   static Future<bool> restoreLocalDatabase() async {
@@ -319,7 +305,8 @@ class DatabaseHelper {
       '''
       SELECT 
         SUM(total_price) as cash,
-        SUM(total_profit) as profit
+        SUM(total_profit) as profit,
+        SUM(remainder) as remainders
       FROM 
         'transaction'
       WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
@@ -334,21 +321,13 @@ class DatabaseHelper {
       WHERE is_sale = 0 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
       ''',
     );
-    final List<Map<String, dynamic>>? remaindersResult = await db?.rawQuery(
-      '''
-      SELECT 
-        SUM(remainder) as remainders
-      FROM 
-        'transaction';
-      ''',
-    );
 
     if (cashResult!.isNotEmpty) {
       return {
         'cash': cashResult.first['cash'] ?? 0.0,
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
-        'remainders': remaindersResult!.first['remainders'] ?? 0.0,
+        'remainders': cashResult.first['remainders'] ?? 0.0,
       };
     } else {
       return {

@@ -141,3 +141,13 @@ void showResultSnackBar(BuildContext context, String message) {
     ),
   );
 }
+
+Future<bool?> initSyncDbState() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? isDbSyncOn = prefs.getBool("isDbSyncOn");
+  if (isDbSyncOn == null) {
+    prefs.setBool("isDbSyncOn", false);
+    isDbSyncOn = false;
+  }
+  return isDbSyncOn;
+}
