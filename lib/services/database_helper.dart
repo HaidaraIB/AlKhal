@@ -13,7 +13,6 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   static const externalDbPath = "/storage/emulated/0/AlKhal/database";
   static const String dbHashKey = 'db_hash_key';
-  // static const String dbSizeKey = 'db_size_key';
   static Database? _db;
 
   static Future<Database?> get db async {
@@ -34,7 +33,7 @@ class DatabaseHelper {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 5,
+      version: 6,
       onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
@@ -69,6 +68,15 @@ class DatabaseHelper {
       await db.execute(
         "ALTER TABLE 'transaction' RENAME COLUMN reminder TO remainder;",
       );
+    } else if (newVersion == 6) {
+      await db.execute("""
+        CREATE TABLE spending (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          amount REAL,
+          notes TEXT,
+          spending_date TIMESTAMP
+        );
+      """);
     }
   }
 
@@ -128,6 +136,14 @@ class DatabaseHelper {
           selling_price REAL,
           FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE,
           FOREIGN KEY (transaction_id) REFERENCES 'transaction' (id) ON DELETE CASCADE
+        );
+      """);
+    await db.execute("""
+        CREATE TABLE spending (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          amount REAL,
+          notes TEXT,
+          spending_date TIMESTAMP
         );
       """);
     await db.execute("""
@@ -322,12 +338,23 @@ class DatabaseHelper {
       ''',
     );
 
+    final List<Map<String, dynamic>>? spendingsResult = await db?.rawQuery(
+      '''
+      SELECT 
+        SUM(amount) as spendings 
+      FROM 
+        spending
+      WHERE date(spending_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
+      ''',
+    );
+
     if (cashResult!.isNotEmpty) {
       return {
         'cash': cashResult.first['cash'] ?? 0.0,
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
         'remainders': cashResult.first['remainders'] ?? 0.0,
+        'spendings': spendingsResult!.first['spendings'] ?? 0.0,
       };
     } else {
       return {
@@ -335,6 +362,7 @@ class DatabaseHelper {
         'profit': 0.0,
         'bills': 0.0,
         'remainders': 0.0,
+        'spendings': 0.0,
       };
     }
   }

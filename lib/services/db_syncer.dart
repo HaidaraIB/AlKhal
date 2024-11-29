@@ -23,8 +23,7 @@ class DbSyncer {
         }
         if ((result.contains(ConnectivityResult.wifi) ||
                 result.contains(ConnectivityResult.mobile)) &&
-            isDbSyncOn &&
-            !isDbSyncing) {
+            isDbSyncOn) {
           await prefs.setBool("isDbSyncing", true);
 
           try {

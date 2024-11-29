@@ -9,12 +9,14 @@ class CashCubit extends Cubit<CashState> {
   double profit = 0;
   double bills = 0;
   double remainders = 0;
+  double spendings = 0;
   CashCubit()
       : super(const CashInitial(
           cash: 0,
           profit: 0,
           bills: 0,
           remainders: 0,
+          spendings: 0,
         ));
 
   Future computeCash(DateTime startDate, DateTime endDate) async {
@@ -25,12 +27,14 @@ class CashCubit extends Cubit<CashState> {
         profit = res['profit'] ?? 0;
         bills = res['bills'] ?? 0;
         remainders = res['remainders'] ?? 0;
+        spendings = res['spendings'] ?? 0;
       });
       emit(CashRefreshed(
         cash: cash,
         profit: profit,
         bills: bills,
         remainders: remainders,
+        spendings: spendings,
       ));
     } catch (e) {
       emit(CashRefreshingFailed(err: e.toString()));

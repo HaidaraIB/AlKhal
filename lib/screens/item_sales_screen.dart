@@ -27,7 +27,7 @@ class _ItemSalesScreenState extends State<ItemSalesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('سجل مبيع ${widget.item.name.trim()}'),
+        title: Text('سجل مبيع/شراء ${widget.item.name.trim()}'),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0.0,
       ),

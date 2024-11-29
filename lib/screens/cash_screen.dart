@@ -1,7 +1,10 @@
+import 'package:alkhal/cubit/add_spending_fab_visibility/add_spending_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/screens/spendings_screen.dart';
 import 'package:alkhal/services/db_syncer.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
@@ -111,81 +114,26 @@ class _CashScreenState extends State<CashScreen>
         _buildNumberWidget('فواتير', state.bills),
         const Divider(),
         GestureDetector(
-          child: _buildNumberWidget('ديون', state.remainders),
+          child: _buildNumberWidget('مصروف', state.spendings),
           onTap: () async {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (navContext) {
-                  context
-                      .read<TransactionCubit>()
-                      .loadTransactions("remainder != 0");
-                  final transactionCubit =
-                      BlocProvider.of<TransactionCubit>(context);
-                  final transactionItemCubit =
-                      BlocProvider.of<TransactionItemCubit>(context);
-                  return PopScope(
-                    onPopInvokedWithResult: (didPop, result) =>
-                        BlocProvider.of<CashCubit>(context)
-                            .computeCash(startDate, endDate),
-                    child: Scaffold(
-                      appBar: AppBar(
-                        title: const Text("فواتير الديون"),
-                        backgroundColor: Colors.white,
-                        scrolledUnderElevation: 0.0,
+                builder: (newContext) {
+                  final cashCubit = BlocProvider.of<CashCubit>(context);
+                  return MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (context) => SpendingCubit(),
                       ),
-                      backgroundColor: Colors.white,
-                      body: BlocBuilder<TransactionCubit, TransactionState>(
-                        bloc: transactionCubit,
-                        builder: (transactionContext, transactionState) {
-                          if (transactionState is LoadingTransactions) {
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.purple,
-                              ),
-                            );
-                          } else if (transactionState
-                              is TransactionLoadingFailed) {
-                            return buildErrorWidget(transactionState.err);
-                          } else if (transactionState is TransactionList) {
-                            return MultiBlocProvider(
-                              providers: [
-                                BlocProvider<TransactionCubit>.value(
-                                  value: transactionCubit,
-                                ),
-                                BlocProvider<TransactionItemCubit>.value(
-                                  value: transactionItemCubit,
-                                ),
-                              ],
-                              child: Column(
-                                children: [
-                                  _buildNumberWidget(
-                                    'الإجمالي',
-                                    transactionState.transactions.fold(
-                                        0,
-                                        (sum, t) =>
-                                            sum + (t as Transaction).remainder),
-                                  ),
-                                  Expanded(
-                                    child: Transactions(
-                                      transactions:
-                                          transactionState.transactions,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            return const Center(
-                              child: Text(
-                                "لا فواتير بديون بعد!",
-                                style: TextStyle(fontSize: 20),
-                                textAlign: TextAlign.center,
-                                textDirection: TextDirection.rtl,
-                              ),
-                            );
-                          }
-                        },
+                      BlocProvider(
+                        create: (context) => AddSpendingFabVisibilityCubit(),
                       ),
+                      BlocProvider.value(value: cashCubit)
+                    ],
+                    child: SpendingsScreen(
+                      buildNumberWidget: _buildNumberWidget,
+                      endDate: endDate,
+                      startDate: startDate,
                     ),
                   );
                 },
@@ -193,7 +141,96 @@ class _CashScreenState extends State<CashScreen>
             );
           },
         ),
+        const Divider(),
+        GestureDetector(
+          child: _buildNumberWidget('ديون', state.remainders),
+          onTap: () async {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (newContext) {
+                  context
+                      .read<TransactionCubit>()
+                      .loadTransactions("remainder != 0");
+                  final transactionCubit =
+                      BlocProvider.of<TransactionCubit>(context);
+                  final transactionItemCubit =
+                      BlocProvider.of<TransactionItemCubit>(context);
+                  return _buildRemaindersScreen(
+                    transactionCubit,
+                    transactionItemCubit,
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ],
+    );
+  }
+
+  PopScope<Object> _buildRemaindersScreen(
+    TransactionCubit transactionCubit,
+    TransactionItemCubit transactionItemCubit,
+  ) {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) =>
+          BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("فواتير الديون"),
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0.0,
+        ),
+        backgroundColor: Colors.white,
+        body: BlocBuilder<TransactionCubit, TransactionState>(
+          bloc: transactionCubit,
+          builder: (transactionContext, transactionState) {
+            if (transactionState is LoadingTransactions) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.purple,
+                ),
+              );
+            } else if (transactionState is TransactionLoadingFailed) {
+              return buildErrorWidget(transactionState.err);
+            } else if (transactionState is TransactionList) {
+              return MultiBlocProvider(
+                providers: [
+                  BlocProvider<TransactionCubit>.value(
+                    value: transactionCubit,
+                  ),
+                  BlocProvider<TransactionItemCubit>.value(
+                    value: transactionItemCubit,
+                  ),
+                ],
+                child: Column(
+                  children: [
+                    _buildNumberWidget(
+                      'الإجمالي',
+                      transactionState.transactions.fold(
+                          0, (sum, t) => sum + (t as Transaction).remainder),
+                    ),
+                    Expanded(
+                      child: Transactions(
+                        transactions: transactionState.transactions,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return const Center(
+                child: Text(
+                  "لا فواتير بديون بعد!",
+                  style: TextStyle(fontSize: 20),
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,
+                ),
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 

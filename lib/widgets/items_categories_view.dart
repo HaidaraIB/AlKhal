@@ -2,6 +2,7 @@ import 'package:alkhal/cubit/add_item_fab_visibility/add_item_fab_visibility_cub
 import 'package:alkhal/cubit/category/category_cubit.dart';
 import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
 import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
+import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -188,6 +189,8 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
       onSelected: (Model selectedItem) {
         final itemCubit = BlocProvider.of<ItemCubit>(context);
         final itemHistoryCubit = BlocProvider.of<ItemHistoryCubit>(context);
+        final transactionItemCubit =
+            BlocProvider.of<TransactionItemCubit>(context);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (newContext) {
@@ -195,6 +198,8 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
                 providers: [
                   BlocProvider<ItemCubit>.value(value: itemCubit),
                   BlocProvider<ItemHistoryCubit>.value(value: itemHistoryCubit),
+                  BlocProvider<TransactionItemCubit>.value(
+                      value: transactionItemCubit),
                 ],
                 child: ItemSearchResultScreen(
                   item: selectedItem as Item,

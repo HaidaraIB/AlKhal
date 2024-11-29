@@ -90,9 +90,11 @@ class _ItemCardState extends State<ItemCard> {
                               return MultiBlocProvider(
                                 providers: [
                                   BlocProvider<ItemCubit>.value(
-                                      value: itemCubit),
+                                    value: itemCubit,
+                                  ),
                                   BlocProvider<TransactionItemCubit>.value(
-                                      value: transactionItemCubit),
+                                    value: transactionItemCubit,
+                                  ),
                                 ],
                                 child: ItemSalesScreen(item: widget.item),
                               );

@@ -25,6 +25,67 @@ class SyncDbScreen extends StatefulWidget {
 }
 
 class _SyncDbScreenState extends State<SyncDbScreen> {
+  Future<void> performDbSync(
+    SharedPreferences prefs,
+    BuildContext context,
+  ) async {
+    await prefs.setBool("isDbSyncing", true);
+    if (context.mounted) {
+      showLoadingDialog(context, 'جاري المزامنة...');
+    }
+    String msg = "";
+    try {
+      bool res = await DatabaseHelper.remoteBackupDatabase();
+      if (res) {
+        msg = "تمت مزامنة البيانات بنجاح";
+      } else {
+        msg = "حصل خطأ أثناء مزامنة البيانات يرجى إعادة المحاولة";
+      }
+    } catch (e) {
+      msg = "حصل خطأ أثناء مزامنة البيانات يرجى إعادة المحاولة";
+    }
+    if (context.mounted) {
+      showResultSnackBar(context, msg);
+      Navigator.of(context).pop();
+    }
+    await prefs.setBool("isDbSyncing", false);
+  }
+
+  Future<void> confirmCancelRunningSyncingAndSyncNow(
+    SharedPreferences prefs,
+    BuildContext context,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext newContext) {
+        return AlertDialog(
+          title: const Text(
+            'تأكيد المزامنة الآن',
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+          ),
+          content: const Text(
+            "هناك عملية مزامنة جارية الآن هل أنت متأكد أنك تريد إلغاءها والمزامنة الآن؟",
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.rtl,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(newContext).pop();
+              },
+              child: const Text('لا'),
+            ),
+            TextButton(
+              onPressed: () => performDbSync(prefs, context),
+              child: const Text('نعم'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,27 +146,13 @@ class _SyncDbScreenState extends State<SyncDbScreen> {
                 }
                 if (isDbSyncing) {
                   if (context.mounted) {
-                    showResultSnackBar(context,
-                        "هناك عملية مزامنة جارية الآن يرجى المحاولة لاحقاً");
+                    await confirmCancelRunningSyncingAndSyncNow(prefs, context);
                   }
                   return;
                 }
-                await prefs.setBool("isDbSyncing", true);
                 if (context.mounted) {
-                  showLoadingDialog(context, 'جاري المزامنة...');
+                  await performDbSync(prefs, context);
                 }
-                String msg = "";
-                try {
-                  await DatabaseHelper.remoteBackupDatabase();
-                  msg = "تمت مزامنة البيانات بنجاح";
-                } catch (e) {
-                  msg = "حصل خطأ أثناء مزامنة البيانات يرجى إعادة المحاولة";
-                }
-                if (context.mounted) {
-                  showResultSnackBar(context, msg);
-                  Navigator.of(context).pop();
-                }
-                await prefs.setBool("isDbSyncing", false);
               },
               title: "المزامنة الآن",
               trailing: const Icon(

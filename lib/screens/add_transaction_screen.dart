@@ -77,7 +77,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                   textDirection: TextDirection.rtl,
                 ),
               ),
-              TextField(
+              TextFormField(
                 controller: _notesController,
                 textAlign: TextAlign.right,
                 textDirection: TextDirection.rtl,
@@ -94,7 +94,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-              )
+              ),
             ],
           ),
           actions: [
