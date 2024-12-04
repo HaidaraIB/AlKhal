@@ -324,7 +324,8 @@ class DatabaseHelper {
       SELECT 
         SUM(total_price) as cash,
         SUM(total_profit) as profit,
-        SUM(remainder) as remainders
+        SUM(remainder) as remainders,
+        SUM(discount) as discounts
       FROM 
         'transaction'
       WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
@@ -356,6 +357,7 @@ class DatabaseHelper {
         'profit': cashResult.first['profit'] ?? 0.0,
         'bills': billsResult!.first['bills'] ?? 0.0,
         'remainders': cashResult.first['remainders'] ?? 0.0,
+        'discounts': cashResult.first['discounts'] ?? 0.0,
         'spendings': spendingsResult!.first['spendings'] ?? 0.0,
       };
     } else {
@@ -365,6 +367,7 @@ class DatabaseHelper {
         'bills': 0.0,
         'remainders': 0.0,
         'spendings': 0.0,
+        'discounts': 0.0,
       };
     }
   }

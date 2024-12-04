@@ -11,12 +11,14 @@ final class CashInitial extends CashState {
   final double bills;
   final double remainders;
   final double spendings;
+  final double discounts;
   const CashInitial({
     required this.cash,
     required this.profit,
     required this.bills,
     required this.remainders,
     required this.spendings,
+    required this.discounts,
   });
 }
 
@@ -35,12 +37,14 @@ final class CashRefreshed extends CashState {
   final double bills;
   final double remainders;
   final double spendings;
+  final double discounts;
   const CashRefreshed({
     required this.cash,
     required this.profit,
     required this.bills,
     required this.remainders,
     required this.spendings,
+    required this.discounts,
   });
 }
 

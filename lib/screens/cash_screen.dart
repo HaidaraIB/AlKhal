@@ -113,7 +113,15 @@ class _CashScreenState extends State<CashScreen>
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (newContext) {
-                  return ChartsScreen();
+                  return ChartsScreen(
+                    cashData: {
+                      "cash": state.cash,
+                      "spendings": state.spendings,
+                      "profit": state.profit,
+                      "remainders": state.remainders,
+                      "discounts": state.discounts,
+                    },
+                  );
                 },
               ),
             );
@@ -176,6 +184,8 @@ class _CashScreenState extends State<CashScreen>
             );
           },
         ),
+        const Divider(),
+        _buildNumberWidget('حسم', state.discounts),
       ],
     );
   }
