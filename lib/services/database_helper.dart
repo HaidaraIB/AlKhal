@@ -266,15 +266,17 @@ class DatabaseHelper {
   // Read all
   static Future<List<Model>> getAll(
     String tableName,
-    String model, [
+    String model, {
     String? where,
     List? whereArgs,
-  ]) async {
+    String? orderBy,
+  }) async {
     final db = await DatabaseHelper.db;
     final List<Map<String, Object?>>? maps = await db?.query(
       tableName,
       where: where,
       whereArgs: whereArgs,
+      orderBy: orderBy,
     );
     return List.generate(maps!.length, (i) => Model.fromMap(maps[i], model));
   }

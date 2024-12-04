@@ -16,14 +16,12 @@ class ItemHistoryCubit extends Cubit<ItemHistoryState> {
       await DatabaseHelper.getAll(
         ItemHistory.tableName,
         "ItemHistory",
-        "item_id = ?",
-        [itemId],
+        where: "item_id = ?",
+        whereArgs: [itemId],
+        orderBy: "update_date DESC",
       ).then((history) {
         itemHistory = history;
       });
-      itemHistory.sort((a, b) => (a as ItemHistory)
-          .updateDate
-          .compareTo((b as ItemHistory).updateDate));
       emit(HistoryLoaded(itemHistory: itemHistory));
     } catch (e) {
       emit(LoadingHistoryFailed(itemHistory: const [], err: e.toString()));

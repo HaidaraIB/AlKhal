@@ -38,8 +38,9 @@ class TransactionCubit extends Cubit<TransactionState> {
     await DatabaseHelper.getAll(
       Transaction.tableName,
       "Transaction",
-      "date(transaction_date) = ?",
-      [DateFormat(dateFormat).format(DateTime.parse(dateFilter))],
+      where: "date(transaction_date) = ?",
+      whereArgs: [DateFormat(dateFormat).format(DateTime.parse(dateFilter))],
+      orderBy: "transaction_date DESC",
     ).then(
       (value) {
         transactions = value.where((t) {
@@ -51,11 +52,6 @@ class TransactionCubit extends Cubit<TransactionState> {
                   [TransactionFilter.all, TransactionFilter.buy]
                       .contains(filter);
         }).toList();
-        transactions.sort(
-          (a, b) => (b as Transaction).transactionDate.compareTo(
-                (a as Transaction).transactionDate,
-              ),
-        );
       },
     );
   }
@@ -71,15 +67,11 @@ class TransactionCubit extends Cubit<TransactionState> {
         await DatabaseHelper.getAll(
           Transaction.tableName,
           "Transaction",
-          cond,
+          where: cond,
+          orderBy: "transaction_date DESC",
         ).then(
           (value) {
             transactions = value;
-            transactions.sort(
-              (a, b) => (b as Transaction).transactionDate.compareTo(
-                    (a as Transaction).transactionDate,
-                  ),
-            );
           },
         );
       }

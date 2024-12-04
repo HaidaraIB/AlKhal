@@ -31,13 +31,16 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
   late Future<Map<String, List<Model>>> _data;
 
   Future<Map<String, List<Model>>> _getData() async {
-    List<Model> categories =
-        await DatabaseHelper.getAll(Category.tableName, "Category");
-    List<Model> items = await DatabaseHelper.getAll(Item.tableName, "Item");
-
-    categories
-        .sort((a, b) => (a as Category).name.compareTo((b as Category).name));
-    items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
+    List<Model> categories = await DatabaseHelper.getAll(
+      Category.tableName,
+      "Category",
+      orderBy: "name",
+    );
+    List<Model> items = await DatabaseHelper.getAll(
+      Item.tableName,
+      "Item",
+      orderBy: "name",
+    );
 
     return {"categories": categories, "items": items};
   }

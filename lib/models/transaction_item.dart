@@ -47,8 +47,8 @@ class TransactionItem extends Model {
     List<Model> transactionItems = await DatabaseHelper.getAll(
       tableName,
       "TransactionItem",
-      "transaction_id = ?",
-      [transaction.id],
+      where: "transaction_id = ?",
+      whereArgs: [transaction.id],
     );
     double totalPrice = 0;
     double totalProfit = 0;

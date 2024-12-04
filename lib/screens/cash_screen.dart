@@ -4,6 +4,7 @@ import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
+import 'package:alkhal/screens/charts_screen.dart';
 import 'package:alkhal/screens/spendings_screen.dart';
 import 'package:alkhal/services/db_syncer.dart';
 import 'package:alkhal/utils/constants.dart';
@@ -107,7 +108,18 @@ class _CashScreenState extends State<CashScreen>
   Widget _buildNumberWidgets(CashRefreshed state) {
     return Column(
       children: [
-        _buildNumberWidget('كاش', state.cash),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (newContext) {
+                  return ChartsScreen();
+                },
+              ),
+            );
+          },
+          child: _buildNumberWidget('كاش', state.cash),
+        ),
         const Divider(),
         _buildNumberWidget('ربح', state.profit),
         const Divider(),

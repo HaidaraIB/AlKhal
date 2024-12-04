@@ -38,12 +38,13 @@ class SpendingCubit extends Cubit<SpendingState> {
   }
 
   Future _loadSpendings() async {
-    await DatabaseHelper.getAll(Spending.tableName, "Spending").then(
+    await DatabaseHelper.getAll(
+      Spending.tableName,
+      "Spending",
+      orderBy: "spending_date DESC",
+    ).then(
       (value) {
         spendings = value;
-        spendings.sort((a, b) => (a as Spending)
-            .spendingDate
-            .compareTo((b as Spending).spendingDate));
       },
     );
   }

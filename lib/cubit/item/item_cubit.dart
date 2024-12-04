@@ -126,7 +126,7 @@ class ItemCubit extends Cubit<ItemState> {
 
   Future _loadItems() async {
     await getFilter();
-    await DatabaseHelper.getAll(Item.tableName, "Item").then(
+    await DatabaseHelper.getAll(Item.tableName, "Item", orderBy: "name").then(
       (value) {
         items = value.where(
           (item) {
@@ -137,14 +137,12 @@ class ItemCubit extends Cubit<ItemState> {
             }
           },
         ).toList();
-        items.sort((a, b) => (a as Item).name.compareTo((b as Item).name));
       },
     );
-    await DatabaseHelper.getAll(Category.tableName, "Category").then(
+    await DatabaseHelper.getAll(Category.tableName, "Category", orderBy: "name")
+        .then(
       (value) {
         categories = value;
-        categories.sort(
-            (a, b) => (a as Category).name.compareTo((b as Category).name));
       },
     );
   }

@@ -41,11 +41,11 @@ class SpendingCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Column(
-                //   children: [
-                //     IconButton(onPressed: () {}, icon: const Icon(Icons.edit)),
-                //   ],
-                // ),
+                Column(
+                  children: [
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.edit)),
+                  ],
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

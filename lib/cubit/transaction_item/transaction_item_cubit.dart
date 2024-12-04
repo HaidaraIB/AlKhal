@@ -18,8 +18,9 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       await DatabaseHelper.getAll(
         TransactionItem.tableName,
         "TransactionItem",
-        transactionId != null ? "transaction_id = ?" : "item_id = ?",
-        [transactionId ?? itemId],
+        where: transactionId != null ? "transaction_id = ?" : "item_id = ?",
+        whereArgs: [transactionId ?? itemId],
+        orderBy: "transaction_id DESC",
       ).then(
         (value) => transactionItems = value,
       );
