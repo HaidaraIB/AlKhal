@@ -1,13 +1,20 @@
-import 'package:alkhal/utils/functions.dart';
-import 'package:alkhal/widgets/indicator.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:alkhal/widgets/my_bar_chart.dart';
+import 'package:alkhal/widgets/my_pie_chart.dart';
+import 'package:alkhal/widgets/pie_chart_indicator.dart';
 import 'package:flutter/material.dart';
 
 class ChartsScreen extends StatefulWidget {
   final Map<String, double> cashData;
   const ChartsScreen({
     super.key,
-    required this.cashData,
+    this.cashData = const {
+      "cash": 0,
+      "remainders": 0,
+      "profit": 0,
+      "discounts": 0,
+      "bills": 0,
+      "spendings": 0,
+    },
   });
 
   @override
@@ -15,173 +22,116 @@ class ChartsScreen extends StatefulWidget {
 }
 
 class _ChartsScreenState extends State<ChartsScreen> {
-  int touchedIndex = -1;
-
+  bool pieChartSelected = true;
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("تحليلات بيانية"),
-        backgroundColor: Colors.white,
+        title: const Text("رسوم بيانية"),
+        backgroundColor: theme.scaffoldBackgroundColor,
         scrolledUnderElevation: 0.0,
       ),
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          _buildPieChart(),
-        ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: pieChartSelected
+                ? [
+                    _buildChartsButton(),
+                    MyPieChart(cashData: widget.cashData),
+                    const SizedBox(height: 24.0),
+                    _buildPieChartLegend(),
+                    const Divider(),
+                  ]
+                : [
+                    _buildChartsButton(),
+                    MyBarChart(cashData: {
+                      "cash": widget.cashData['cash']!,
+                      "bills": widget.cashData['bills']!,
+                      "spendings": widget.cashData['spendings']!,
+                    }),
+                    const SizedBox(height: 24.0),
+                    _buildBarChartLegend(),
+                    const Divider(),
+                  ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildPieChart() {
-    return AspectRatio(
-      aspectRatio: 1.3,
+  Widget _buildChartsButton() {
+    return Align(
+      alignment: Alignment.topRight,
+      child: IconButton(
+        onPressed: () {
+          setState(() {
+            pieChartSelected = !pieChartSelected;
+          });
+        },
+        icon: Icon(
+          pieChartSelected ? Icons.bar_chart : Icons.pie_chart,
+          color: Colors.deepPurple,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBarChartLegend() {
+    return const Padding(
+      padding: EdgeInsets.only(right: 8.0),
       child: Row(
-        children: <Widget>[
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          touchedIndex = -1;
-                          return;
-                        }
-                        touchedIndex = pieTouchResponse
-                            .touchedSection!.touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 40,
-                  sections: showingSections(),
-                ),
-              ),
-            ),
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Indicator(
+            color: Colors.deepPurple,
+            text: 'كاش',
+            isSquare: true,
+            isLabelToTheRight: true,
           ),
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Indicator(
-                color: Colors.green,
-                text: 'ربح',
-                isSquare: true,
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Indicator(
-                color: Colors.blue,
-                text: 'كاش',
-                isSquare: true,
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Indicator(
-                color: Colors.red,
-                text: 'ديون',
-                isSquare: true,
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Indicator(
-                color: Colors.yellow,
-                text: 'حسم',
-                isSquare: true,
-              ),
-              SizedBox(
-                height: 18,
-              ),
-            ],
+          Indicator(
+            color: Colors.brown,
+            text: 'فواتير',
+            isSquare: true,
+            isLabelToTheRight: true,
           ),
-          const SizedBox(
-            width: 28,
+          Indicator(
+            color: Colors.black,
+            text: 'مصروف',
+            isSquare: true,
+            isLabelToTheRight: true,
           ),
         ],
       ),
     );
   }
 
-  List<PieChartSectionData> showingSections() {
-    return List.generate(
-      4,
-      (i) {
-        final isTouched = i == touchedIndex;
-        final fontSize = isTouched ? 15.0 : 12.0;
-        final radius = isTouched ? 60.0 : 50.0;
-        const shadows = [
-          Shadow(
-            color: Colors.black,
-            blurRadius: 5,
-          )
-        ];
-        TextStyle titleStyle = TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          shadows: shadows,
-        );
-        double cash = (((widget.cashData['cash']! -
-                    (widget.cashData['profit']! +
-                        widget.cashData['remainders']! +
-                        widget.cashData['discounts']!)) *
-                100) /
-            widget.cashData['cash']!);
-        double profit =
-            ((widget.cashData['profit']! * 100) / widget.cashData['cash']!);
-        double remainders =
-            ((widget.cashData['remainders']! * 100) / widget.cashData['cash']!);
-        double discounts =
-            ((widget.cashData['discounts']! * 100) / widget.cashData['cash']!);
-        switch (i) {
-          case 0:
-            return PieChartSectionData(
-              color: Colors.green,
-              value: profit,
-              title: "${formatDouble(profit)}%",
-              titleStyle: titleStyle,
-              radius: radius,
-            );
-          case 1:
-            return PieChartSectionData(
-              color: Colors.blue,
-              value: cash,
-              title: "${formatDouble(cash)}%",
-              titleStyle: titleStyle,
-              radius: radius,
-            );
-          case 2:
-            return PieChartSectionData(
-              color: Colors.red,
-              value: remainders,
-              title: "${formatDouble(remainders)}%",
-              titleStyle: titleStyle,
-              radius: radius,
-            );
-          case 3:
-            return PieChartSectionData(
-              color: Colors.yellow,
-              value: discounts,
-              title: "${formatDouble(discounts)}%",
-              titleStyle: titleStyle,
-              radius: radius,
-            );
-          default:
-            throw Error();
-        }
-      },
+  Widget _buildPieChartLegend() {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Indicator(
+          color: Colors.deepPurple,
+          text: 'كاش',
+          isSquare: true,
+        ),
+        Indicator(
+          color: Colors.red,
+          text: 'ديون',
+          isSquare: true,
+        ),
+        Indicator(
+          color: Colors.green,
+          text: 'ربح',
+          isSquare: true,
+        ),
+        Indicator(
+          color: Colors.yellow,
+          text: 'حسم',
+          isSquare: true,
+        ),
+      ],
     );
   }
 }

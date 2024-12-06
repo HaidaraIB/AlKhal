@@ -120,6 +120,7 @@ class _CashScreenState extends State<CashScreen>
                       "profit": state.profit,
                       "remainders": state.remainders,
                       "discounts": state.discounts,
+                      "bills": state.bills,
                     },
                   );
                 },
