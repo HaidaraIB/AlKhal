@@ -80,27 +80,36 @@ class _ItemCardState extends State<ItemCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final itemCubit = BlocProvider.of<ItemCubit>(context);
                         final transactionItemCubit =
                             BlocProvider.of<TransactionItemCubit>(context);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (newContext) {
-                              return MultiBlocProvider(
-                                providers: [
-                                  BlocProvider<ItemCubit>.value(
-                                    value: itemCubit,
+                        Map sellingsPurchases =
+                            await Item.computeSellingsPurchases(
+                                widget.item.id!);
+                        if (context.mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (newContext) {
+                                return MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider<ItemCubit>.value(
+                                      value: itemCubit,
+                                    ),
+                                    BlocProvider<TransactionItemCubit>.value(
+                                      value: transactionItemCubit,
+                                    ),
+                                  ],
+                                  child: ItemSalesScreen(
+                                    item: widget.item,
+                                    purchases: sellingsPurchases['purchases'],
+                                    sellings: sellingsPurchases['sellings'],
                                   ),
-                                  BlocProvider<TransactionItemCubit>.value(
-                                    value: transactionItemCubit,
-                                  ),
-                                ],
-                                child: ItemSalesScreen(item: widget.item),
-                              );
-                            },
-                          ),
-                        );
+                                );
+                              },
+                            ),
+                          );
+                        }
                       },
                       icon: const Icon(Icons.list),
                     ),

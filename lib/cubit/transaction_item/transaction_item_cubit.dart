@@ -27,7 +27,6 @@ class TransactionItemCubit extends Cubit<TransactionItemState> {
       emit(TransactionItemsLoaded(transactionItems: transactionItems));
     } catch (e) {
       emit(LoadingTransactionItemsFailed(
-        transactionItems: const [],
         err: e.toString(),
       ));
     }

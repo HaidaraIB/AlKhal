@@ -64,7 +64,7 @@ class _CashScreenState extends State<CashScreen>
                       const SizedBox(height: 20),
                       _buildDateRangeButton(context),
                       const SizedBox(height: 20),
-                      _buildNumberWidgets(state),
+                      buildNumberWidgets(state),
                       const SizedBox(height: 90),
                     ],
                   ),
@@ -105,7 +105,7 @@ class _CashScreenState extends State<CashScreen>
     );
   }
 
-  Widget _buildNumberWidgets(CashRefreshed state) {
+  Widget buildNumberWidgets(CashRefreshed state) {
     return Column(
       children: [
         GestureDetector(
@@ -127,15 +127,15 @@ class _CashScreenState extends State<CashScreen>
               ),
             );
           },
-          child: _buildNumberWidget('كاش', state.cash),
+          child: buildNumberWidget('كاش', state.cash),
         ),
         const Divider(),
-        _buildNumberWidget('ربح', state.profit),
+        buildNumberWidget('ربح', state.profit),
         const Divider(),
-        _buildNumberWidget('فواتير', state.bills),
+        buildNumberWidget('فواتير', state.bills),
         const Divider(),
         GestureDetector(
-          child: _buildNumberWidget('مصروف', state.spendings),
+          child: buildNumberWidget('مصروف', state.spendings),
           onTap: () async {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -152,7 +152,6 @@ class _CashScreenState extends State<CashScreen>
                       BlocProvider.value(value: cashCubit)
                     ],
                     child: SpendingsScreen(
-                      buildNumberWidget: _buildNumberWidget,
                       endDate: endDate,
                       startDate: startDate,
                     ),
@@ -164,7 +163,7 @@ class _CashScreenState extends State<CashScreen>
         ),
         const Divider(),
         GestureDetector(
-          child: _buildNumberWidget('ديون', state.remainders),
+          child: buildNumberWidget('ديون', state.remainders),
           onTap: () async {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -186,7 +185,7 @@ class _CashScreenState extends State<CashScreen>
           },
         ),
         const Divider(),
-        _buildNumberWidget('حسم', state.discounts),
+        buildNumberWidget('حسم', state.discounts),
       ],
     );
   }
@@ -228,7 +227,7 @@ class _CashScreenState extends State<CashScreen>
                 ],
                 child: Column(
                   children: [
-                    _buildNumberWidget(
+                    buildNumberWidget(
                       'الإجمالي',
                       transactionState.transactions.fold(
                           0, (sum, t) => sum + (t as Transaction).remainder),
@@ -257,27 +256,6 @@ class _CashScreenState extends State<CashScreen>
     );
   }
 
-  Widget _buildNumberWidget(String label, double value) {
-    return AnimatedContainer(
-      duration: const Duration(seconds: 1),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: NumberWidget(label: label, value: value),
-    );
-  }
-
   void _selectDateRange(BuildContext context) async {
     final DateTimeRange? pickedRange = await showDateRangePicker(
       context: context,
@@ -293,46 +271,5 @@ class _CashScreenState extends State<CashScreen>
         BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
       });
     }
-  }
-}
-
-class NumberWidget extends StatelessWidget {
-  final String label;
-  final double value;
-
-  const NumberWidget({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        TweenAnimationBuilder(
-          tween: Tween<double>(begin: 0, end: value),
-          duration: const Duration(milliseconds: 300),
-          builder: (context, double val, child) {
-            return Text(
-              '${formatDouble(val)} ل.س',
-              textDirection: TextDirection.rtl,
-              style: const TextStyle(
-                fontSize: 20,
-                color: Colors.purple,
-              ),
-            );
-          },
-        ),
-      ],
-    );
   }
 }

@@ -49,7 +49,8 @@ class _UpdateTransactionScreenState extends State<UpdateTransactionScreen> {
           );
         } else if (state is LoadingTransactionItemsFailed) {
           return buildErrorWidget(state.err);
-        } else if (state.transactionItems.isNotEmpty) {
+        } else if (state is TransactionItemList &&
+            state.transactionItems.isNotEmpty) {
           return Scaffold(
             appBar: AppBar(
               title: const Text('تعديل فاتورة'),

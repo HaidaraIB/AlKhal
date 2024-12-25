@@ -33,7 +33,7 @@ class DatabaseHelper {
     Database mydb = await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 6,
+      version: 7,
       onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
@@ -77,6 +77,9 @@ class DatabaseHelper {
           spending_date TIMESTAMP
         );
       """);
+    } else if (newVersion == 7) {
+      await db
+          .execute("ALTER TABLE spending ADD status TEXT DEFAULT 'active';");
     }
   }
 

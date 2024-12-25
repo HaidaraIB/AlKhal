@@ -324,7 +324,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
           }
 
           if (double.tryParse(value)! > totalPrice * 0.1) {
-            return 'يجب أن يكون الحسم أقل من 10% السعر الإجمالي: ${formatDouble(totalPrice * 0.1)}';
+            return 'يجب أن يكون الحسم أقل من 10% من السعر الإجمالي: ${formatDouble(totalPrice * 0.1)}';
           }
         }
         return null;

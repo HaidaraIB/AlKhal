@@ -6,12 +6,14 @@ class Spending extends Model {
   final double amount;
   final String notes;
   final String spendingDate;
+  final String status;
 
   Spending({
     super.id,
     required this.amount,
     required this.notes,
     required this.spendingDate,
+    required this.status,
   });
 
   @override
@@ -20,7 +22,8 @@ class Spending extends Model {
       'id': id,
       'amount': amount,
       'notes': notes,
-      'spending_date': spendingDate
+      'spending_date': spendingDate,
+      "status": status,
     };
   }
 
@@ -30,6 +33,7 @@ class Spending extends Model {
       amount: map['amount'],
       notes: map['notes'],
       spendingDate: map['spending_date'],
+      status: map['status'],
     );
   }
 }

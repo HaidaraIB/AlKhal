@@ -83,11 +83,13 @@ final class AddItemFail extends ItemOperationFailed {
 }
 
 final class UpdateItemSuccess extends ItemState {
+  final Item updatedItem;
   const UpdateItemSuccess({
     required super.items,
     required super.filter,
     required super.categories,
     required super.filterName,
+    required this.updatedItem,
   });
 }
 

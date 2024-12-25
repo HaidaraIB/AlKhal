@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:alkhal/widgets/number_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:permission_handler/permission_handler.dart';
@@ -150,4 +151,25 @@ Future<bool?> initSyncDbState() async {
     isDbSyncOn = false;
   }
   return isDbSyncOn;
+}
+
+Widget buildNumberWidget(String label, double value) {
+  return AnimatedContainer(
+    duration: const Duration(seconds: 1),
+    curve: Curves.easeInOut,
+    margin: const EdgeInsets.symmetric(vertical: 10),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 6,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: NumberWidget(label: label, value: value),
+  );
 }

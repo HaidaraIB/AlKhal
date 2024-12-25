@@ -2,7 +2,9 @@ import 'package:alkhal/cubit/add_spending_fab_visibility/add_spending_fab_visibi
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/models/spending.dart';
+import 'package:alkhal/models/spending_state.dart';
 import 'package:alkhal/utils/constants.dart';
+import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/add_spending_fab.dart';
 import 'package:alkhal/widgets/spendings.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +13,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SpendingsScreen extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
-  final Widget Function(String, double) buildNumberWidget;
   const SpendingsScreen({
     super.key,
     required this.startDate,
     required this.endDate,
-    required this.buildNumberWidget,
   });
 
   @override
@@ -60,10 +60,21 @@ class _SpendingsScreenState extends State<SpendingsScreen> {
             } else if (state is SpendingsList && state.spendings.isNotEmpty) {
               return Column(
                 children: [
-                  widget.buildNumberWidget(
+                  buildNumberWidget(
                     'الإجمالي',
                     state.spendings
                         .fold(0, (sum, t) => sum + (t as Spending).amount),
+                  ),
+                  buildNumberWidget(
+                    'الملغى',
+                    state.spendings.fold(
+                        0,
+                        (sum, t) =>
+                            sum +
+                            ((t as Spending).status ==
+                                    SpendingStatus.canceled.value
+                                ? t.amount
+                                : 0)),
                   ),
                   Expanded(
                     child: Spendings(

@@ -201,9 +201,19 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
                   BlocProvider<TransactionItemCubit>.value(
                       value: transactionItemCubit),
                 ],
-                child: ItemSearchResultScreen(
-                  item: selectedItem as Item,
-                  categories: categories,
+                child: BlocBuilder<ItemCubit, ItemState>(
+                  builder: (context, state) {
+                    if (state is UpdateItemSuccess) {
+                      return ItemSearchResultScreen(
+                        item: state.updatedItem,
+                        categories: categories,
+                      );
+                    }
+                    return ItemSearchResultScreen(
+                      item: selectedItem as Item,
+                      categories: categories,
+                    );
+                  },
                 ),
               );
             },
@@ -245,9 +255,19 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
                           BlocProvider<ItemHistoryCubit>.value(
                               value: itemHistoryCubit),
                         ],
-                        child: ItemSearchResultScreen(
-                          item: item as Item,
-                          categories: categories,
+                        child: BlocBuilder<ItemCubit, ItemState>(
+                          builder: (context, state) {
+                            if (state is UpdateItemSuccess) {
+                              return ItemSearchResultScreen(
+                                item: state.updatedItem,
+                                categories: categories,
+                              );
+                            }
+                            return ItemSearchResultScreen(
+                              item: item as Item,
+                              categories: categories,
+                            );
+                          },
                         ),
                       );
                     },

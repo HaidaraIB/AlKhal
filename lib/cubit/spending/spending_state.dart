@@ -46,3 +46,15 @@ final class AddSpendingFail extends SpendingOperationFailed {
     required super.err,
   });
 }
+
+final class CancelSpendingSuccess extends SpendingsList {
+  const CancelSpendingSuccess({
+    required super.spendings,
+  });
+}
+
+final class CancelSpendingFail extends SpendingOperationFailed {
+  const CancelSpendingFail({
+    required super.err,
+  });
+}

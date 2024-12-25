@@ -138,24 +138,20 @@ class _AddItemFormState extends State<UpdateItemForm> {
                             return "عليك تعديل حقل واحد على الأقل";
                           } else if (value!.isEmpty) {
                             return null;
-                          } else if (double.tryParse(value) == null) {
+                          }
+                          var newSellingPrice =
+                              double.tryParse(_sellingPriceController.text);
+                          var newPurchasePrice = double.tryParse(value);
+                          if (newPurchasePrice == null) {
                             return 'الرجاء إدخال رقم';
-                          } else if (double.tryParse(value)! <= 0) {
+                          } else if (newPurchasePrice <= 0) {
                             return 'الرجاء إدخال عدد موجب تماماً';
-                          } else if ((double.tryParse(
-                                          _sellingPriceController.text) !=
-                                      null &&
-                                  double.tryParse(
-                                          _sellingPriceController.text)! <=
-                                      double.tryParse(value)!) ||
-                              (widget.oldItem.sellingPrice <=
-                                  double.tryParse(value)!)) {
+                          } else if ((newSellingPrice != null &&
+                                  newSellingPrice <= newPurchasePrice) ||
+                              (newSellingPrice == null &&
+                                  widget.oldItem.sellingPrice <=
+                                      newPurchasePrice)) {
                             return 'سعر الشراء يجب أن يكون أصغر من سعر المبيع';
-                          } else if (_nameController.text.isEmpty &&
-                              _categoryController.text.isEmpty &&
-                              _sellingPriceController.text.isEmpty &&
-                              _purchasePriceController.text.isEmpty) {
-                            return "عليك تعديل حقل واحد على الأقل";
                           }
                           return null;
                         },
@@ -178,18 +174,19 @@ class _AddItemFormState extends State<UpdateItemForm> {
                             return "عليك تعديل حقل واحد على الأقل";
                           } else if (value!.isEmpty) {
                             return null;
-                          } else if (double.tryParse(value) == null) {
+                          }
+                          var newPurchasePrice =
+                              double.tryParse(_purchasePriceController.text);
+                          var newSellingPrice = double.tryParse(value);
+                          if (newSellingPrice == null) {
                             return 'الرجاء إدخال رقم';
-                          } else if (double.tryParse(value)! <= 0) {
+                          } else if (newSellingPrice <= 0) {
                             return 'الرجاء إدخال عدد موجب تماماً';
-                          } else if ((double.tryParse(
-                                          _purchasePriceController.text) !=
-                                      null &&
-                                  double.tryParse(
-                                          _purchasePriceController.text)! >=
-                                      double.tryParse(value)!) ||
-                              (widget.oldItem.purchasePrice >=
-                                  double.tryParse(value)!)) {
+                          } else if ((newPurchasePrice != null &&
+                                  newPurchasePrice >= newSellingPrice) ||
+                              (newPurchasePrice == null &&
+                                  widget.oldItem.purchasePrice >=
+                                      newSellingPrice)) {
                             return 'سعر المبيع يجب أن يكون أكبر من سعر الشراء';
                           }
                           return null;
@@ -199,7 +196,7 @@ class _AddItemFormState extends State<UpdateItemForm> {
                         height: 10,
                       ),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             final newItem = Item(
                               id: widget.oldItem.id,
@@ -241,9 +238,11 @@ class _AddItemFormState extends State<UpdateItemForm> {
                                 oldSellingPrice: widget.oldItem.sellingPrice,
                               ),
                             );
-                            BlocProvider.of<ItemCubit>(context)
+                            await BlocProvider.of<ItemCubit>(context)
                                 .updateItem(newItem);
-                            Navigator.pop(context);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(

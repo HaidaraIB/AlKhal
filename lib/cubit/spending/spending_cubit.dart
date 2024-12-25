@@ -1,5 +1,6 @@
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/spending.dart';
+import 'package:alkhal/models/spending_state.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,29 @@ class SpendingCubit extends Cubit<SpendingState> {
       ));
     } catch (e) {
       emit(AddSpendingFail(
+        err: e.toString(),
+      ));
+    }
+  }
+
+  Future cancelSpending(Spending spending) async {
+    try {
+      await DatabaseHelper.update(
+        Spending.tableName,
+        Spending(
+          id: spending.id,
+          amount: spending.amount,
+          notes: spending.notes,
+          spendingDate: spending.spendingDate,
+          status: SpendingStatus.canceled.value,
+        ),
+      );
+      await _loadSpendings();
+      emit(CancelSpendingSuccess(
+        spendings: spendings,
+      ));
+    } catch (e) {
+      emit(CancelSpendingFail(
         err: e.toString(),
       ));
     }

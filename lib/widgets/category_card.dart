@@ -25,13 +25,6 @@ class _CategoryCardState extends State<CategoryCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              widget.category.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
             // IconButton(
             //   onPressed: () {
             //     BlocProvider.of<CategoryCubit>(context)
@@ -54,6 +47,18 @@ class _CategoryCardState extends State<CategoryCard> {
                 );
               },
               icon: const Icon(Icons.edit),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 16,
+              ),
+              child: Text(
+                widget.category.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/models/spending.dart';
+import 'package:alkhal/models/spending_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,6 +74,7 @@ class _AddSpendingScreenState extends State<AddSpendingScreen> {
                         amount: double.parse(_amountController.text),
                         notes: _notesController.text,
                         spendingDate: DateTime.now().toString(),
+                        status: SpendingStatus.active.value,
                       );
                       BlocProvider.of<SpendingCubit>(context)
                           .addSpending(newSpending);

@@ -39,7 +39,8 @@ class _ItemsState extends State<TransactionItems> {
           );
         } else if (state is LoadingTransactionItemsFailed) {
           return buildErrorWidget(state.err);
-        } else if (state.transactionItems.isNotEmpty) {
+        } else if (state is TransactionItemList &&
+            state.transactionItems.isNotEmpty) {
           return ListView.builder(
             itemCount: state.transactionItems.length,
             itemBuilder: (BuildContext context, int index) {

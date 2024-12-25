@@ -69,12 +69,13 @@ class ItemCubit extends Cubit<ItemState> {
     }
   }
 
-  void updateItem(Item item) async {
+  Future updateItem(Item item) async {
     try {
       await DatabaseHelper.update(Item.tableName, item);
       await _loadItems();
       emit(UpdateItemSuccess(
         items: items,
+        updatedItem: item,
         filter: filter,
         categories: categories,
         filterName: filterName,
