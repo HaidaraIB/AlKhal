@@ -2,7 +2,7 @@ import 'package:alkhal/cubit/add_spending_fab_visibility/add_spending_fab_visibi
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
 import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/models/spending.dart';
-import 'package:alkhal/models/spending_state.dart';
+import 'package:alkhal/models/spending_status.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/add_spending_fab.dart';

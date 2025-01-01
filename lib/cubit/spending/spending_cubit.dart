@@ -1,6 +1,6 @@
 import 'package:alkhal/models/model.dart';
 import 'package:alkhal/models/spending.dart';
-import 'package:alkhal/models/spending_state.dart';
+import 'package:alkhal/models/spending_status.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';

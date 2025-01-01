@@ -36,7 +36,7 @@ Future<void> clearSharedPref() async {
 }
 
 String dateToISO(DateTime d) {
-  return "${d.year}-${d.month}-${d.day.toString().padLeft(2, "0")}";
+  return "${d.year}-${d.month.toString().padLeft(2, "0")}-${d.day.toString().padLeft(2, "0")}";
 }
 
 String? validateUsername(String? value) {

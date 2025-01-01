@@ -1,6 +1,6 @@
 import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/models/spending.dart';
-import 'package:alkhal/models/spending_state.dart';
+import 'package:alkhal/models/spending_status.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';

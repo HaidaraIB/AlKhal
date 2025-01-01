@@ -33,12 +33,13 @@ class CashCubit extends Cubit<CashState> {
         discounts = res['discounts'] ?? 0;
       });
       emit(CashRefreshed(
-          cash: cash,
-          profit: profit,
-          bills: bills,
-          remainders: remainders,
-          spendings: spendings,
-          discounts: discounts));
+        cash: cash,
+        profit: profit,
+        bills: bills,
+        remainders: remainders,
+        spendings: spendings,
+        discounts: discounts,
+      ));
     } catch (e) {
       emit(CashRefreshingFailed(err: e.toString()));
     }

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:alkhal/models/model.dart';
+import 'package:alkhal/models/spending_status.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/services/api_calls.dart';
 import 'package:alkhal/utils/functions.dart';
@@ -126,7 +127,8 @@ class DatabaseHelper {
           remainder REAL,
           total_price REAL,
           total_profit REAL,
-          is_sale INTEGER
+          is_sale INTEGER,
+          notes TEXT
         );
       """);
     await db.execute("""
@@ -146,7 +148,8 @@ class DatabaseHelper {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           amount REAL,
           notes TEXT,
-          spending_date TIMESTAMP
+          spending_date TIMESTAMP,
+          status TEXT DEFAULT 'active'
         );
       """);
     await db.execute("""
@@ -320,8 +323,12 @@ class DatabaseHelper {
   }
 
   static Future<Map<String, dynamic>> computeCash(
-      DateTime startDate, DateTime endDate) async {
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     final db = await DatabaseHelper.db;
+    String startISODate = dateToISO(startDate);
+    String endISODate = dateToISO(endDate);
     final List<Map<String, dynamic>>? cashResult = await db?.rawQuery(
       '''
       SELECT 
@@ -331,7 +338,7 @@ class DatabaseHelper {
         SUM(discount) as discounts
       FROM 
         'transaction'
-      WHERE is_sale = 1 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
+      WHERE is_sale = 1 AND date(transaction_date) BETWEEN '$startISODate' AND '$endISODate';
       ''',
     );
     final List<Map<String, dynamic>>? billsResult = await db?.rawQuery(
@@ -340,7 +347,7 @@ class DatabaseHelper {
         SUM(total_price) as bills 
       FROM 
         'transaction'
-      WHERE is_sale = 0 AND date(transaction_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
+      WHERE is_sale = 0 AND date(transaction_date) BETWEEN '$startISODate' AND '$endISODate';
       ''',
     );
 
@@ -350,7 +357,7 @@ class DatabaseHelper {
         SUM(amount) as spendings 
       FROM 
         spending
-      WHERE date(spending_date) BETWEEN '${dateToISO(startDate)}' AND '${dateToISO(endDate)}';
+      WHERE status = '${SpendingStatus.active.value}' AND date(spending_date) BETWEEN '$startISODate' AND '$endISODate';
       ''',
     );
 

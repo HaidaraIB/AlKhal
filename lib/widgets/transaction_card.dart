@@ -66,6 +66,7 @@ class TransactionCard extends StatelessWidget {
                                   child: Scaffold(
                                     appBar: AppBar(
                                       title: const Text('تفاصيل فاتورة'),
+                                      scrolledUnderElevation: 0.0,
                                     ),
                                     body: TransactionItems(
                                       transactionId: transaction.id!,
@@ -129,36 +130,58 @@ class TransactionCard extends StatelessWidget {
   }
 
   Widget _buildTransactionDetails() {
+    List<TextSpan> saleTransactionDetails = [
+      TextSpan(
+        text: formatDouble(transaction.totalPrice),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س\n"),
+      const TextSpan(text: 'الربح: '),
+      TextSpan(
+        text: formatDouble(transaction.totalProfit),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س\n"),
+      const TextSpan(text: 'الحسم: '),
+      TextSpan(
+        text: formatDouble(transaction.discount),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س\n"),
+      const TextSpan(text: 'الباقي: '),
+      TextSpan(
+        text: formatDouble(transaction.remainder),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س"),
+    ];
+    List<TextSpan> purchaseTransactionDetails = <TextSpan>[
+      TextSpan(
+        text: formatDouble(transaction.totalPrice),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س\n"),
+      const TextSpan(text: 'الحسم: '),
+      TextSpan(
+        text: formatDouble(transaction.discount),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س\n"),
+      const TextSpan(text: 'الباقي: '),
+      TextSpan(
+        text: formatDouble(transaction.remainder),
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const TextSpan(text: " ل.س"),
+    ];
     return RichText(
       textDirection: TextDirection.rtl,
       text: TextSpan(
         text: 'السعر الإجمالي: ',
         style: const TextStyle(fontSize: 18, color: Colors.black87),
-        children: <TextSpan>[
-          TextSpan(
-            text: formatDouble(transaction.totalPrice),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const TextSpan(text: " ل.س\n"),
-          const TextSpan(text: 'الربح: '),
-          TextSpan(
-            text: formatDouble(transaction.totalProfit),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const TextSpan(text: " ل.س\n"),
-          const TextSpan(text: 'الحسم: '),
-          TextSpan(
-            text: formatDouble(transaction.discount),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const TextSpan(text: " ل.س\n"),
-          const TextSpan(text: 'الباقي: '),
-          TextSpan(
-            text: formatDouble(transaction.remainder),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const TextSpan(text: " ل.س"),
-        ],
+        children: transaction.isSale == 1
+            ? saleTransactionDetails
+            : purchaseTransactionDetails,
       ),
     );
   }
