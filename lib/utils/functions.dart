@@ -173,3 +173,31 @@ Widget buildNumberWidget(String label, double value) {
     child: NumberWidget(label: label, value: value),
   );
 }
+
+Widget buildDateRangeButton({
+  required DateTime startDate,
+  required DateTime endDate,
+  required BuildContext context,
+  required void Function(BuildContext) selectDateRange,
+}) {
+  return ElevatedButton(
+    onPressed: () => selectDateRange(context),
+    style: ElevatedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      backgroundColor: Colors.white,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    child: Text(
+      'من: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(startDate)}\nإلى: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(endDate)}',
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    ),
+  );
+}

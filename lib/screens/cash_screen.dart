@@ -12,7 +12,6 @@ import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 
 class CashScreen extends StatefulWidget {
   const CashScreen({super.key});
@@ -62,7 +61,12 @@ class _CashScreenState extends State<CashScreen>
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
-                      _buildDateRangeButton(context),
+                      buildDateRangeButton(
+                        context: context,
+                        startDate: startDate,
+                        endDate: endDate,
+                        selectDateRange: _selectDateRange,
+                      ),
                       const SizedBox(height: 20),
                       buildNumberWidgets(state),
                       const SizedBox(height: 90),
@@ -79,29 +83,6 @@ class _CashScreenState extends State<CashScreen>
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDateRangeButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () => _selectDateRange(context),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        backgroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Text(
-        'من: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(startDate)}\nإلى: ${intl.DateFormat("EEE d MMM y", "ar_SA").format(endDate)}',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
     );
   }
 

@@ -15,13 +15,13 @@ part 'transaction_state.dart';
 class TransactionCubit extends Cubit<TransactionState> {
   List<Model> transactions = [];
   TransactionFilter filter = TransactionFilter.all;
-  String dateFilter = DateFormat(dateFormat).format(DateTime.now());
+  String startDateFilter = DateFormat(dateFormat).format(DateTime.now());
+  String endDateFilter = DateFormat(dateFormat).format(DateTime.now());
 
   TransactionCubit()
-      : super(TransactionInitial(
-          transactions: const [],
+      : super(const TransactionInitial(
+          transactions: [],
           filter: TransactionFilter.all,
-          dateFilter: DateFormat(dateFormat).format(DateTime.now()),
         ));
 
   Future<TransactionFilter> getFilter() async {
@@ -38,8 +38,11 @@ class TransactionCubit extends Cubit<TransactionState> {
     await DatabaseHelper.getAll(
       Transaction.tableName,
       "Transaction",
-      where: "date(transaction_date) = ?",
-      whereArgs: [DateFormat(dateFormat).format(DateTime.parse(dateFilter))],
+      where: "date(transaction_date) BETWEEN ? AND ?",
+      whereArgs: [
+        DateFormat(dateFormat).format(DateTime.parse(startDateFilter)),
+        DateFormat(dateFormat).format(DateTime.parse(endDateFilter)),
+      ],
       orderBy: "transaction_date DESC",
     ).then(
       (value) {
@@ -78,7 +81,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       emit(TransactionsLoaded(
         transactions: transactions,
         filter: filter,
-        dateFilter: dateFilter,
       ));
     } catch (e) {
       emit(TransactionLoadingFailed(
@@ -102,7 +104,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       emit(AddTransactionSuccess(
         transactions: transactions,
         filter: filter,
-        dateFilter: dateFilter,
       ));
       return true;
     } catch (e) {
@@ -122,19 +123,18 @@ class TransactionCubit extends Cubit<TransactionState> {
       TransactionsFiltered(
         filter: filter,
         transactions: transactions,
-        dateFilter: dateFilter,
       ),
     );
   }
 
-  void filterTransactions(String d) async {
-    dateFilter = d;
+  void filterTransactions(String startDate, String endDate) async {
+    startDateFilter = startDate;
+    endDateFilter = endDate;
     await _loadTransactions();
     emit(
       TransactionsFiltered(
         filter: filter,
         transactions: transactions,
-        dateFilter: dateFilter,
       ),
     );
   }
@@ -148,7 +148,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       emit(TransactionCashRefreshed(
         transactions: transactions,
         filter: filter,
-        dateFilter: dateFilter,
       ));
     } catch (e) {
       emit(TransactionCashRefreshingFailed(
@@ -173,7 +172,6 @@ class TransactionCubit extends Cubit<TransactionState> {
       emit(UpdateTransactionSuccess(
         updatedTransaction: newTransaction,
         transactions: transactions,
-        dateFilter: dateFilter,
         filter: filter,
       ));
     } catch (e) {

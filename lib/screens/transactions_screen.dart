@@ -3,13 +3,13 @@ import 'package:alkhal/cubit/item/item_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/utils/constants.dart';
+import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/add_transaction_fab.dart';
 import 'package:alkhal/widgets/transaction_filter.dart';
 import 'package:alkhal/widgets/transaction_filter_drop_down.dart';
 import 'package:alkhal/widgets/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart' as intl;
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -20,12 +20,13 @@ class TransactionsScreen extends StatefulWidget {
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
   final ScrollController _transactionsScrollController = ScrollController();
-  late DateTime selectedDate;
-
+  late DateTime startDate;
+  late DateTime endDate;
   @override
   void initState() {
     super.initState();
-    selectedDate = DateTime.now();
+    startDate = DateTime.now();
+    endDate = DateTime.now();
     BlocProvider.of<TransactionCubit>(context).loadTransactions();
     context
         .read<AddTransactionFabVisibilityCubit>()
@@ -79,7 +80,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               body: Column(
                 children: [
                   const SizedBox(height: 10),
-                  _buildDatePickerTextButton(state.dateFilter),
+                  buildDateRangeButton(
+                    context: context,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectDateRange: _selectDateRange,
+                  ),
                   const SizedBox(height: 10),
                   _buildFilterRow(state.filter),
                   const SizedBox(height: 10),
@@ -100,7 +106,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               body: Column(
                 children: [
                   const SizedBox(height: 10),
-                  _buildDatePickerTextButton(state.dateFilter),
+                  buildDateRangeButton(
+                    context: context,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectDateRange: _selectDateRange,
+                  ),
                   const SizedBox(height: 10),
                   _buildFilterRow(state.filter),
                   const SizedBox(height: 10),
@@ -124,29 +135,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildDatePickerTextButton(String dateFilter) {
-    return ElevatedButton(
-      onPressed: () => _selectDate(context, dateFilter),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        backgroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Text(
-        intl.DateFormat("EEEE d MMMM y", "ar_SA")
-            .format(DateTime.parse(dateFilter)),
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-
   Widget _buildFilterRow(TransactionFilter filter) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -157,18 +145,22 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  void _selectDate(BuildContext context, String initialDate) async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _selectDateRange(BuildContext context) async {
+    final DateTimeRange? pickedRange = await showDateRangePicker(
       context: context,
-      initialDate: DateTime.parse(initialDate),
+      initialDateRange: DateTimeRange(start: startDate, end: endDate),
       firstDate: DateTime(2023, 1, 1),
       lastDate: DateTime.now(),
     );
-    if (pickedDate != null && pickedDate != selectedDate) {
+
+    if (pickedRange != null) {
       setState(() {
-        selectedDate = pickedDate;
-        BlocProvider.of<TransactionCubit>(context)
-            .filterTransactions(selectedDate.toString());
+        startDate = pickedRange.start;
+        endDate = pickedRange.end;
+        BlocProvider.of<TransactionCubit>(context).filterTransactions(
+          startDate.toString(),
+          endDate.toString(),
+        );
       });
     }
   }
