@@ -35,10 +35,12 @@ class _SyncDbScreenState extends State<SyncDbScreen> {
     }
     String msg = "";
     try {
-      bool res = await DatabaseHelper.remoteBackupDatabase();
-      if (res) {
+      int res = await DatabaseHelper.syncPendingOperations();
+      if ([200, 201].contains(res)) {
         msg = "تمت مزامنة البيانات بنجاح";
-      } else {
+      } else if (res == -200) {
+        msg = "البيانات محدثة بالفعل";
+      } else if (res == 503) {
         msg = "حصل خطأ أثناء مزامنة البيانات يرجى إعادة المحاولة";
       }
     } catch (e) {

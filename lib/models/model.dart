@@ -1,6 +1,7 @@
 import 'package:alkhal/models/category.dart';
 import 'package:alkhal/models/item.dart';
 import 'package:alkhal/models/item_history.dart';
+import 'package:alkhal/models/pending_operation.dart';
 import 'package:alkhal/models/spending.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/models/transaction_item.dart';
@@ -22,6 +23,8 @@ abstract class Model {
       return Category.fromMap(map);
     } else if (type == "Spending") {
       return Spending.fromMap(map);
+    } else if (type == "PendingOperation") {
+      return PendingOperation.fromMap(map);
     } else {
       throw Exception('Unknown model type');
     }

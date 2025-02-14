@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/sync_db_screen.dart';
 import 'package:alkhal/screens/user_info_screen.dart';
-import 'package:alkhal/services/api_calls.dart';
 import 'package:alkhal/services/database_helper.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:flutter/material.dart';
@@ -118,17 +115,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () async {
                   Navigator.of(newContext).pop();
                   showLoadingDialog(context, 'جاري الاستعادة...');
-                  var res = await ApiCalls.getRemoteDb(
-                      (await User.userInfo())['username']);
                   String msg = "";
-                  if (res.statusCode == 200) {
-                    await DatabaseHelper.restoreRemoteDatabase(
-                      base64Decode(
-                        jsonDecode(res.body)['db'],
-                      ),
-                    );
+                  final prefs = await SharedPreferences.getInstance();
+                  int? lastPendingOperationTimestamp =
+                      prefs.getInt("last_pending_operation_timestamp") ?? 0;
+                  int statusCode = await DatabaseHelper.getPendingOperations(
+                    (await User.userInfo())['username'],
+                    lastPendingOperationTimestamp,
+                  );
+                  if (statusCode == 200) {
                     msg = "تمت استعادة البيانات بنجاح";
-                  } else if (res.statusCode == 503) {
+                  } else if (statusCode == -200) {
+                    msg = "البيانات محدثة بالفعل";
+                  } else if (statusCode == 503) {
                     msg = "تحقق من اتصالك بالإنترنت";
                   } else {
                     msg = "لم يتم العثور على نسخة احتياطية";

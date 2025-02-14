@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:alkhal/models/user.dart';
+import 'package:alkhal/utils/functions.dart';
 
 import 'package:http/http.dart' as http;
 
 class ApiCalls {
+  // static String baseUrl = "http://127.0.0.1:8000";
   static String baseUrl = "http://haidaraib.pythonanywhere.com";
 
   static Future<http.Response> addUser(User user) async {
@@ -71,6 +73,38 @@ class ApiCalls {
     request.files.add(await http.MultipartFile.fromPath('file', db.path));
     final response = await request.send();
     return response;
+  }
+
+  static Future<http.Response> syncPendingOperations(
+    String username,
+    List pendingOperations,
+  ) async {
+    String body = jsonEncode({
+      "username": username,
+      "operations": pendingOperations,
+    });
+    final response = await http.post(
+      Uri.parse('$baseUrl/syncPendingOperations/'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: body,
+    );
+    return response;
+  }
+
+  static Future<http.Response> getPendingOperations(
+    String username,
+    int lastPendingOperationTimestamp,
+  ) async {
+    try {
+      var url = Uri.parse(
+          "$baseUrl/getPendingOperations/$username/$lastPendingOperationTimestamp/${await getOrCreateUUID()}/");
+      var r = await http.get(url);
+      return r;
+    } on SocketException {
+      return http.Response("No Internet", 503);
+    }
   }
 
   static Future<http.Response> getRemoteDb(String username) async {

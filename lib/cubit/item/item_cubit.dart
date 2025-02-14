@@ -93,7 +93,7 @@ class ItemCubit extends Cubit<ItemState> {
 
   void deleteItem(int itemId) async {
     try {
-      await DatabaseHelper.delete(Item.tableName, itemId);
+      await DatabaseHelper.deleteOne(Item.tableName, itemId);
       await _loadItems();
       emit(DeleteItemSuccess(
         items: items,

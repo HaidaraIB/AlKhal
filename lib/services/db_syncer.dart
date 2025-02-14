@@ -27,7 +27,7 @@ class DbSyncer {
           await prefs.setBool("isDbSyncing", true);
 
           try {
-            await DatabaseHelper.remoteBackupDatabase();
+            await DatabaseHelper.syncPendingOperations();
           } catch (e) {
             debugPrint(e.toString());
           }

@@ -67,7 +67,7 @@ class CategoryCubit extends Cubit<CategoryState> {
       if (f == null) {
         sharedPreferences.setString("items_filter", "all");
       }
-      await DatabaseHelper.delete(Category.tableName, categoryId);
+      await DatabaseHelper.deleteOne(Category.tableName, categoryId);
       await _loadCategories();
       emit(DeleteCategorySuccess(categories: categories));
     } catch (e) {

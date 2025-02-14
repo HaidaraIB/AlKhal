@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:alkhal/widgets/number_widget.dart';
 import 'package:flutter/material.dart';
@@ -200,4 +201,16 @@ Widget buildDateRangeButton({
       ),
     ),
   );
+}
+
+Future<String> getOrCreateUUID() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? uniqueId = prefs.getString('uniqueId');
+  if (uniqueId == null) {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+    int random = Random().nextInt(1000000);
+    uniqueId = '${timestamp}_$random';
+    await prefs.setString('uniqueId', uniqueId);
+  }
+  return uniqueId;
 }
