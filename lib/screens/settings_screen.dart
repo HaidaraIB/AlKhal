@@ -117,11 +117,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   showLoadingDialog(context, 'جاري الاستعادة...');
                   String msg = "";
                   final prefs = await SharedPreferences.getInstance();
-                  int? lastPendingOperationTimestamp =
-                      prefs.getInt("last_pending_operation_timestamp") ?? 0;
+                  int? lastPendingOperationId =
+                      prefs.getInt("last_pending_operation_id") ?? 0;
                   int statusCode = await DatabaseHelper.getPendingOperations(
                     (await User.userInfo())['username'],
-                    lastPendingOperationTimestamp,
+                    lastPendingOperationId,
                   );
                   if (statusCode == 200) {
                     msg = "تمت استعادة البيانات بنجاح";

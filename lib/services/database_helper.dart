@@ -454,12 +454,12 @@ class DatabaseHelper {
 
   static Future<int> getPendingOperations(
     String username,
-    int lastPendingOperationTimestamp,
+    int lastPendingOperationId,
   ) async {
     // get the pending operations
     var r = await ApiCalls.getPendingOperations(
       username,
-      lastPendingOperationTimestamp,
+      lastPendingOperationId,
     );
 
     if (r.statusCode != 200) {
@@ -487,7 +487,8 @@ class DatabaseHelper {
               )
               .toList()
               .join(", ");
-          db!.rawInsert("INSERT INTO ${o.tName} ($columns) VALUES ($values);");
+          db!.rawInsert(
+              "INSERT INTO '${o.tName}' ($columns) VALUES ($values);");
           break;
 
         case "update":
@@ -499,11 +500,11 @@ class DatabaseHelper {
               .join(", ");
 
           db!.rawUpdate(
-              "UPDATE ${o.tName} SET $updates WHERE id = ${o.recordId};");
+              "UPDATE '${o.tName}' SET $updates WHERE id = ${o.recordId};");
           break;
 
         case "delete":
-          db!.rawDelete("DELETE FROM ${o.tName} WHERE id = ${o.recordId};");
+          db!.rawDelete("DELETE FROM '${o.tName}' WHERE id = ${o.recordId};");
           break;
 
         default:
@@ -512,8 +513,8 @@ class DatabaseHelper {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      "last_pending_operation_timestamp",
-      pendingOperations.last.timestamp,
+      "last_pending_operation_id",
+      pendingOperations.last.id!,
     );
     return r.statusCode;
   }
@@ -594,15 +595,16 @@ class DatabaseHelper {
     await _initDatabase();
 
     // getting the last pending operation to store its timestamp.
-    Model? pendingOperation = await getById(
-      PendingOperation.tableName,
-      "PendingOperation",
-      "MAX(id)",
-    );
+    final db = await DatabaseHelper.db;
+    var lastPendingOperationId = await db!.rawQuery(
+        "SELECT MAX(id) as last_pending_operation_id FROM ${PendingOperation.tableName}");
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      "last_pending_operation_timestamp",
-      (pendingOperation as PendingOperation).timestamp,
+      "last_pending_operation_id",
+      lastPendingOperationId.isNotEmpty
+          ? int.parse(lastPendingOperationId.first['last_pending_operation_id']
+              .toString())
+          : 0,
     );
     await deleteAll(PendingOperation.tableName);
     return true;

@@ -31,8 +31,12 @@ Future<void> requestStoragePermission() async {
   }
 }
 
-Future<void> clearSharedPref() async {
+Future<void> clearSharedPref([String? key]) async {
   SharedPreferences instance = await SharedPreferences.getInstance();
+  if (key != null) {
+    await instance.remove(key);
+    return;
+  }
   await instance.clear();
 }
 

@@ -95,11 +95,11 @@ class ApiCalls {
 
   static Future<http.Response> getPendingOperations(
     String username,
-    int lastPendingOperationTimestamp,
+    int lastPendingOperationId,
   ) async {
     try {
       var url = Uri.parse(
-          "$baseUrl/getPendingOperations/$username/$lastPendingOperationTimestamp/${await getOrCreateUUID()}/");
+          "$baseUrl/getPendingOperations/$username/$lastPendingOperationId/${await getOrCreateUUID()}/");
       var r = await http.get(url);
       return r;
     } on SocketException {
