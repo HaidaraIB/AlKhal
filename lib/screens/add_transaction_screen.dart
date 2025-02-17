@@ -207,8 +207,7 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       "quantity": 0.0,
       "price": 0.0,
     };
-    context
-        .read<TransactionItemInCartCubit>()
+    BlocProvider.of<TransactionItemInCartCubit>(context)
         .addTransactionItemToCart(newItem);
   }
 

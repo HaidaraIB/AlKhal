@@ -60,8 +60,7 @@ class _SpendingCardState extends State<SpendingCard> {
                 widget.spending.status == SpendingStatus.active.value
                     ? IconButton(
                         onPressed: () async {
-                          await context
-                              .read<SpendingCubit>()
+                          await BlocProvider.of<SpendingCubit>(context)
                               .cancelSpending(widget.spending);
                         },
                         icon: const Icon(Icons.cancel_outlined),

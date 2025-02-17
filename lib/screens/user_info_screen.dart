@@ -64,7 +64,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
               }
             },
             child: Scaffold(
+              backgroundColor: Colors.white,
               appBar: AppBar(
+                backgroundColor: Colors.white,
                 title: const Text("معلومات الحساب"),
                 actions: [
                   IconButton(
@@ -269,14 +271,14 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           : ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  await context.read<UserCubit>().updateUserInfo(
-                        id: snapshot.data!['id'],
-                        username: _usernameController.text,
-                        email: _emailController.text,
-                        password: _newPasswordController.text.isEmpty
-                            ? snapshot.data!['password']
-                            : _newPasswordController.text,
-                      );
+                  await BlocProvider.of<UserCubit>(context).updateUserInfo(
+                    id: snapshot.data!['id'],
+                    username: _usernameController.text,
+                    email: _emailController.text,
+                    password: _newPasswordController.text.isEmpty
+                        ? snapshot.data!['password']
+                        : _newPasswordController.text,
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(

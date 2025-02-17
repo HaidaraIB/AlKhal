@@ -50,7 +50,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
         BlocListener<CategoryCubit, CategoryState>(
           listener: (context, state) {
             if (state.categories.isNotEmpty) {
-              context.read<ItemCubit>().loadItems();
+              BlocProvider.of<ItemCubit>(context).loadItems();
             }
           },
         ),
@@ -76,8 +76,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
   }
 
   Widget _buildItemsView(BuildContext context) {
-    context
-        .read<AddItemFabVisibilityCubit>()
+    BlocProvider.of<AddItemFabVisibilityCubit>(context)
         .listenToScrolling(_itemsScrollController);
     BlocProvider.of<ItemCubit>(context).loadItems();
     BlocProvider.of<SearchBarCubit>(context).loadVisibility();
@@ -284,8 +283,7 @@ class _ItemsCategoriesViewState extends State<ItemsCategoriesView>
   }
 
   Widget _buildCategoriesView(BuildContext context) {
-    context
-        .read<AddCategoryFabVisibilityCubit>()
+    BlocProvider.of<AddCategoryFabVisibilityCubit>(context)
         .listenToScrolling(_categoriesScrollController);
     BlocProvider.of<CategoryCubit>(context).loadCategories();
     return BlocBuilder<CategoryCubit, CategoryState>(
@@ -430,7 +428,7 @@ class ItemsFilterDropDown extends StatelessWidget {
             child: Text("الكل"),
           )),
         onChanged: (newFilter) {
-          context.read<ItemCubit>().setFilter(newFilter ?? "all");
+          BlocProvider.of<ItemCubit>(context).setFilter(newFilter ?? "all");
         },
       ),
     );

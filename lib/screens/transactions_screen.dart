@@ -1,7 +1,6 @@
 import 'package:alkhal/cubit/add_transaction_fab_visibility/add_transaction_fab_visibility_cubit.dart';
-import 'package:alkhal/cubit/item/item_cubit.dart';
+import 'package:alkhal/cubit/date_range/date_range_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
-import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/add_transaction_fab.dart';
@@ -25,11 +24,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   @override
   void initState() {
     super.initState();
-    startDate = DateTime.now();
-    endDate = DateTime.now();
-    BlocProvider.of<TransactionCubit>(context).loadTransactions();
-    context
-        .read<AddTransactionFabVisibilityCubit>()
+    final dateRangeCubit = BlocProvider.of<DateRangeCubit>(context);
+    startDate = dateRangeCubit.startDate;
+    endDate = dateRangeCubit.endDate;
+    BlocProvider.of<TransactionCubit>(context).filterTransactions(
+      startDate.toString(),
+      endDate.toString(),
+    );
+    BlocProvider.of<AddTransactionFabVisibilityCubit>(context)
         .listenToScrolling(_transactionsScrollController);
   }
 
@@ -41,15 +43,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => ItemCubit(),
-        ),
-        BlocProvider(
-          create: (context) => TransactionItemCubit(),
-        ),
-      ],
+    return BlocListener<DateRangeCubit, DateRangeState>(
+      listener: (context, state) {
+        startDate = state.startDate;
+        endDate = state.endDate;
+        BlocProvider.of<TransactionCubit>(context).filterTransactions(
+          startDate.toString(),
+          endDate.toString(),
+        );
+      },
       child: BlocBuilder<TransactionCubit, TransactionState>(
         bloc: BlocProvider.of<TransactionCubit>(context),
         builder: (context, state) {
@@ -80,11 +82,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               body: Column(
                 children: [
                   const SizedBox(height: 10),
-                  buildDateRangeButton(
-                    context: context,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectDateRange: _selectDateRange,
+                  BlocBuilder<DateRangeCubit, DateRangeState>(
+                    builder: (context, state) {
+                      return buildDateRangeButton(
+                        context: context,
+                        startDate: state.startDate,
+                        endDate: state.endDate,
+                        selectDateRange: _selectDateRange,
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   _buildFilterRow(state.filter),
@@ -106,11 +112,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               body: Column(
                 children: [
                   const SizedBox(height: 10),
-                  buildDateRangeButton(
-                    context: context,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectDateRange: _selectDateRange,
+                  BlocBuilder<DateRangeCubit, DateRangeState>(
+                    builder: (context, state) {
+                      return buildDateRangeButton(
+                        context: context,
+                        startDate: state.startDate,
+                        endDate: state.endDate,
+                        selectDateRange: _selectDateRange,
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   _buildFilterRow(state.filter),
@@ -118,7 +128,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        "لا فواتير ${state.filter.name != 'all' ? TransactionFilter.toArabic(state.filter.name) : ''} بعد!",
+                        "لا فواتير ${state.filter.name != 'all' ? "${TransactionFilter.toArabic(state.filter.name)} " : ''}بعد!",
                         style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
@@ -154,14 +164,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
 
     if (pickedRange != null) {
-      setState(() {
-        startDate = pickedRange.start;
-        endDate = pickedRange.end;
-        BlocProvider.of<TransactionCubit>(context).filterTransactions(
-          startDate.toString(),
-          endDate.toString(),
+      if (context.mounted) {
+        BlocProvider.of<DateRangeCubit>(context).changeDateRange(
+          startDate: pickedRange.start,
+          endDate: pickedRange.end,
         );
-      });
+      }
     }
   }
 }

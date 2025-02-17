@@ -94,9 +94,7 @@ class _AddItemFormState extends State<AddItemForm> {
                             ? _categoryController.text
                             : null,
                         onChanged: (value) {
-                          setState(
-                            () => _categoryController.text = value!.toString(),
-                          );
+                          _categoryController.text = value!.toString();
                         },
                         items: snapshot.data!
                             .map(
@@ -120,8 +118,7 @@ class _AddItemFormState extends State<AddItemForm> {
                             ? _unitController.text
                             : null,
                         onChanged: (value) {
-                          setState(
-                              () => _unitController.text = value!.toString());
+                          _unitController.text = value!.toString();
                         },
                         items: MeasurementUnit.values.map((unit) {
                           return DropdownMenuItem<String>(

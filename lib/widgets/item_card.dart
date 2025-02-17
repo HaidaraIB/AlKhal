@@ -138,9 +138,10 @@ class _ItemCardState extends State<ItemCard> {
                       icon: const Icon(Icons.edit),
                     ),
                     // IconButton(
-                    // onPressed: () {
-                    //   context.read<ItemCubit>().deleteItem(widget.item.id!);
-                    // },
+                    //   onPressed: () {
+                    //     BlocProvider.of<ItemCubit>(context)
+                    //         .deleteItem(widget.item.id!);
+                    //   },
                     //   icon: const Icon(Icons.delete),
                     // ),
                   ],

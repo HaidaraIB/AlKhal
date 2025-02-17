@@ -234,7 +234,7 @@ class _SignupPageState extends State<SignupPage> {
                     username: _usernameController.text,
                     password: _passwordController.text,
                   );
-                  await context.read<UserCubit>().signUp(user);
+                  await BlocProvider.of<UserCubit>(context).signUp(user);
                 }
               },
               style: ElevatedButton.styleFrom(

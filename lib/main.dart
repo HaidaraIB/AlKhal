@@ -1,17 +1,23 @@
+import 'package:alkhal/cubit/add_category_fab_visibility/add_category_fab_visibility_cubit.dart';
+import 'package:alkhal/cubit/add_item_fab_visibility/add_item_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/add_transaction_fab_visibility/add_transaction_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/cubit/category/category_cubit.dart';
+import 'package:alkhal/cubit/date_range/date_range_cubit.dart';
+import 'package:alkhal/cubit/item/item_cubit.dart';
+import 'package:alkhal/cubit/item_history/item_history_cubit.dart';
 import 'package:alkhal/cubit/search_bar/search_bar_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/cubit/user/user_cubit.dart';
 import 'package:alkhal/models/user.dart';
 import 'package:alkhal/screens/cash_screen.dart';
-import 'package:alkhal/screens/items_categories_screen.dart';
 import 'package:alkhal/screens/log_in_screen.dart';
 import 'package:alkhal/screens/pin_screen.dart';
 import 'package:alkhal/screens/settings_screen.dart';
 import 'package:alkhal/screens/sign_up_screen.dart';
 import 'package:alkhal/screens/transactions_screen.dart';
+import 'package:alkhal/widgets/items_categories_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -44,6 +50,9 @@ class MyApp extends StatelessWidget {
                   ),
                   BlocProvider(
                     create: (context) => CashCubit(),
+                  ),
+                  BlocProvider(
+                    create: (context) => DateRangeCubit(),
                   ),
                 ],
                 child: const MyHomePage(),
@@ -131,7 +140,29 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _widgetOptions = <Widget>[
-      const ItemsScreen(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => ItemCubit(),
+          ),
+          BlocProvider(
+            create: (context) => CategoryCubit(),
+          ),
+          BlocProvider(
+            create: (context) => ItemHistoryCubit(),
+          ),
+          BlocProvider(
+            create: (context) => AddItemFabVisibilityCubit(),
+          ),
+          BlocProvider(
+            create: (context) => AddCategoryFabVisibilityCubit(),
+          ),
+          BlocProvider(
+            create: (context) => TransactionItemCubit(),
+          ),
+        ],
+        child: const ItemsCategoriesView(),
+      ),
       MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -150,6 +181,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BlocProvider(
             create: (context) => AddTransactionFabVisibilityCubit(),
+          ),
+          BlocProvider(
+            create: (context) => ItemCubit(),
+          ),
+          BlocProvider(
+            create: (context) => TransactionItemCubit(),
           ),
         ],
         child: const TransactionsScreen(),
@@ -198,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: _selectedIndex == 0
             ? IconButton(
                 onPressed: () {
-                  context.read<SearchBarCubit>().changeVisibility();
+                  BlocProvider.of<SearchBarCubit>(context).changeVisibility();
                 },
                 icon: const Icon(Icons.search),
               )

@@ -45,10 +45,10 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
       );
       return;
     }
-    context
-        .read<TransactionItemInCartCubit>()
+    BlocProvider.of<TransactionItemInCartCubit>(context)
         .removeTransactionItemFromCart(widget.transactionItem);
-    context.read<TransactionCashCubit>().updateCash(calculateTotalPrice());
+    BlocProvider.of<TransactionCashCubit>(context)
+        .updateCash(calculateTotalPrice());
   }
 
   @override
@@ -276,7 +276,8 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
       },
       onChanged: (value) {
         widget.transactionItem['price'] = double.tryParse(value);
-        context.read<TransactionCashCubit>().updateCash(calculateTotalPrice());
+        BlocProvider.of<TransactionCashCubit>(context)
+            .updateCash(calculateTotalPrice());
       },
     );
   }
@@ -328,7 +329,8 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
       },
       onChanged: (value) {
         widget.transactionItem['quantity'] = double.tryParse(value);
-        context.read<TransactionCashCubit>().updateCash(calculateTotalPrice());
+        BlocProvider.of<TransactionCashCubit>(context)
+            .updateCash(calculateTotalPrice());
       },
     );
   }

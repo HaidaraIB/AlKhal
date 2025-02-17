@@ -227,10 +227,10 @@ class _LoginPageState extends State<LoginPage> {
         : ElevatedButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
-                await context.read<UserCubit>().login(
-                      _usernameController.text,
-                      _passwordController.text,
-                    );
+                await BlocProvider.of<UserCubit>(context).login(
+                  _usernameController.text,
+                  _passwordController.text,
+                );
               }
             },
             style: ElevatedButton.styleFrom(

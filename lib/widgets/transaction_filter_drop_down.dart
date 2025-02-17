@@ -34,7 +34,7 @@ class TransactionFilterDropDown extends StatelessWidget {
           );
         }).toList(),
         onChanged: (filter) =>
-            context.read<TransactionCubit>().setFilter(filter!),
+            BlocProvider.of<TransactionCubit>(context).setFilter(filter!),
       ),
     );
   }

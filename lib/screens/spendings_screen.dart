@@ -28,10 +28,9 @@ class _SpendingsScreenState extends State<SpendingsScreen> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<AddSpendingFabVisibilityCubit>()
+    BlocProvider.of<AddSpendingFabVisibilityCubit>(context)
         .listenToScrolling(spendingsScrollController);
-    context.read<SpendingCubit>().loadSpendings();
+    BlocProvider.of<SpendingCubit>(context).loadSpendings();
   }
 
   @override

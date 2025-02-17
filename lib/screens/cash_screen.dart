@@ -1,5 +1,6 @@
 import 'package:alkhal/cubit/add_spending_fab_visibility/add_spending_fab_visibility_cubit.dart';
 import 'package:alkhal/cubit/cash/cash_cubit.dart';
+import 'package:alkhal/cubit/date_range/date_range_cubit.dart';
 import 'package:alkhal/cubit/spending/spending_cubit.dart';
 import 'package:alkhal/cubit/transaction/transaction_cubit.dart';
 import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
@@ -28,61 +29,80 @@ class _CashScreenState extends State<CashScreen>
   @override
   void initState() {
     super.initState();
-    startDate = DateTime.now();
-    endDate = DateTime.now();
-    context.read<CashCubit>().computeCash(startDate, endDate);
+    final dateRangeCubit = BlocProvider.of<DateRangeCubit>(context);
+    startDate = dateRangeCubit.startDate;
+    endDate = dateRangeCubit.endDate;
+    BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
     DbSyncer();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CashCubit, CashState>(
-      bloc: BlocProvider.of<CashCubit>(context),
+    return BlocListener<DateRangeCubit, DateRangeState>(
       listener: (context, state) {
-        if (state is SettingsScreenPopped) {
-          context.read<CashCubit>().computeCash(startDate, endDate);
-        }
+        startDate = state.startDate;
+        endDate = state.endDate;
+        BlocProvider.of<CashCubit>(context).computeCash(
+          startDate,
+          endDate,
+        );
       },
-      builder: (context, state) {
-        if (state is CashRefreshingFailed) {
-          return buildErrorWidget(state.err);
-        } else if (state is CashRefreshed) {
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: RefreshIndicator(
-              onRefresh: () async {
-                await BlocProvider.of<CashCubit>(context)
-                    .computeCash(startDate, endDate);
-              },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      buildDateRangeButton(
-                        context: context,
-                        startDate: startDate,
-                        endDate: endDate,
-                        selectDateRange: _selectDateRange,
-                      ),
-                      const SizedBox(height: 20),
-                      buildNumberWidgets(state),
-                      const SizedBox(height: 90),
-                    ],
+      child: BlocConsumer<CashCubit, CashState>(
+        bloc: BlocProvider.of<CashCubit>(context),
+        listener: (context, state) {
+          if (state is SettingsScreenPopped) {
+            BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
+          }
+        },
+        builder: (context, state) {
+          if (state is CashRefreshingFailed) {
+            return buildErrorWidget(state.err);
+          } else if (state is CashRefreshed) {
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  await BlocProvider.of<CashCubit>(context).computeCash(
+                    startDate,
+                    endDate,
+                  );
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        BlocBuilder<DateRangeCubit, DateRangeState>(
+                          builder: (context, state) {
+                            return buildDateRangeButton(
+                              context: context,
+                              startDate:
+                                  BlocProvider.of<DateRangeCubit>(context)
+                                      .startDate,
+                              endDate: endDate,
+                              selectDateRange: _selectDateRange,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        buildNumberWidgets(state),
+                        const SizedBox(height: 90),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            );
+          }
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.purple,
             ),
           );
-        }
-        return const Center(
-          child: CircularProgressIndicator(
-            color: Colors.purple,
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 
@@ -133,8 +153,8 @@ class _CashScreenState extends State<CashScreen>
                       BlocProvider.value(value: cashCubit)
                     ],
                     child: SpendingsScreen(
-                      endDate: endDate,
-                      startDate: startDate,
+                      endDate: startDate,
+                      startDate: endDate,
                     ),
                   );
                 },
@@ -149,8 +169,7 @@ class _CashScreenState extends State<CashScreen>
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (newContext) {
-                  context
-                      .read<TransactionCubit>()
+                  BlocProvider.of<TransactionCubit>(context)
                       .loadTransactions("remainder != 0");
                   final transactionCubit =
                       BlocProvider.of<TransactionCubit>(context);
@@ -177,7 +196,10 @@ class _CashScreenState extends State<CashScreen>
   ) {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) =>
-          BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate),
+          BlocProvider.of<CashCubit>(context).computeCash(
+        startDate,
+        endDate,
+      ),
       child: Scaffold(
         appBar: AppBar(
           title: const Text("فواتير الديون"),
@@ -240,17 +262,21 @@ class _CashScreenState extends State<CashScreen>
   void _selectDateRange(BuildContext context) async {
     final DateTimeRange? pickedRange = await showDateRangePicker(
       context: context,
-      initialDateRange: DateTimeRange(start: startDate, end: endDate),
+      initialDateRange: DateTimeRange(
+        start: startDate,
+        end: endDate,
+      ),
       firstDate: DateTime(2023, 1, 1),
       lastDate: DateTime.now(),
     );
 
     if (pickedRange != null) {
-      setState(() {
-        startDate = pickedRange.start;
-        endDate = pickedRange.end;
-        BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
-      });
+      if (context.mounted) {
+        BlocProvider.of<DateRangeCubit>(context).changeDateRange(
+          startDate: pickedRange.start,
+          endDate: pickedRange.end,
+        );
+      }
     }
   }
 }
