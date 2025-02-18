@@ -7,7 +7,6 @@ import 'package:alkhal/cubit/transaction_item/transaction_item_cubit.dart';
 import 'package:alkhal/models/transaction.dart';
 import 'package:alkhal/screens/charts_screen.dart';
 import 'package:alkhal/screens/spendings_screen.dart';
-import 'package:alkhal/services/db_syncer.dart';
 import 'package:alkhal/utils/constants.dart';
 import 'package:alkhal/utils/functions.dart';
 import 'package:alkhal/widgets/transactions.dart';
@@ -33,7 +32,6 @@ class _CashScreenState extends State<CashScreen>
     startDate = dateRangeCubit.startDate;
     endDate = dateRangeCubit.endDate;
     BlocProvider.of<CashCubit>(context).computeCash(startDate, endDate);
-    DbSyncer();
   }
 
   @override

@@ -17,14 +17,18 @@ import 'package:alkhal/screens/pin_screen.dart';
 import 'package:alkhal/screens/settings_screen.dart';
 import 'package:alkhal/screens/sign_up_screen.dart';
 import 'package:alkhal/screens/transactions_screen.dart';
+import 'package:alkhal/services/workmanager_helper.dart';
 import 'package:alkhal/widgets/items_categories_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().registerPeriodicTask("dbSyncTask", "dbSyncTask");
   runApp(const MyApp());
 }
 
