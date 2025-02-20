@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PinScreen extends StatefulWidget {
   const PinScreen({super.key});
@@ -10,7 +11,7 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> {
   final TextEditingController _pinController = TextEditingController();
-  final String correctPin = "101967";
+  final String? correctPin = dotenv.env['PIN'];
 
   @override
   void initState() {

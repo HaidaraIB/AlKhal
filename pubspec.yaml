@@ -1,6 +1,6 @@
 name: alkhal
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
 
@@ -23,6 +23,7 @@ dependencies:
   http: ^1.2.1
   fl_chart: ^0.69.2
   workmanager: ^0.5.2
+  flutter_dotenv: ^5.2.1  
 
 dev_dependencies:
   flutter_test:
@@ -31,12 +32,10 @@ dev_dependencies:
   flutter_lints: ^4.0.0
 
 flutter:
-
   uses-material-design: true
 
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - .env
 
   fonts:
     - family: me

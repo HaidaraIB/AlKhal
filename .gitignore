@@ -45,3 +45,4 @@ app.*.map.json
 test.dart
 alkhal.db
 haidara.db
+.env
