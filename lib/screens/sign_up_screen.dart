@@ -114,7 +114,7 @@ class _SignupPageState extends State<SignupPage> {
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
               ),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: Colors.purple.withValues(alpha: 0.1),
               filled: true,
               prefixIcon: const Icon(Icons.person),
               errorStyle: const TextStyle(
@@ -136,7 +136,7 @@ class _SignupPageState extends State<SignupPage> {
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
               ),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: Colors.purple.withValues(alpha: 0.1),
               filled: true,
               prefixIcon: const Icon(Icons.email),
               errorStyle: const TextStyle(
@@ -158,7 +158,7 @@ class _SignupPageState extends State<SignupPage> {
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
               ),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: Colors.purple.withValues(alpha: 0.1),
               filled: true,
               prefixIcon: IconButton(
                 icon: Icon(
@@ -193,7 +193,7 @@ class _SignupPageState extends State<SignupPage> {
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none,
               ),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: Colors.purple.withValues(alpha: 0.1),
               filled: true,
               prefixIcon: IconButton(
                 icon: Icon(

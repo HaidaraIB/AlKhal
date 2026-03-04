@@ -90,7 +90,7 @@ class _AddItemFormState extends State<AddItemForm> {
                       ),
                       DropdownButtonFormField<String>(
                         isExpanded: true,
-                        value: _categoryController.text != "all"
+                        initialValue: _categoryController.text != "all"
                             ? _categoryController.text
                             : null,
                         onChanged: (value) {
@@ -114,7 +114,7 @@ class _AddItemFormState extends State<AddItemForm> {
                         },
                       ),
                       DropdownButtonFormField<String>(
-                        value: _unitController.text.isNotEmpty
+                        initialValue: _unitController.text.isNotEmpty
                             ? _unitController.text
                             : null,
                         onChanged: (value) {

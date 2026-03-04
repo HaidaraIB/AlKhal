@@ -125,7 +125,7 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: DropdownButtonFormField<String>(
-        value: widget.transactionItem['item_id'] != 0
+        initialValue: widget.transactionItem['item_id'] != 0
             ? widget.transactionItem['item_id'].toString()
             : null,
         isExpanded: true,
@@ -189,7 +189,7 @@ class _TransactionItemInCartCardState extends State<TransactionItemInCartCard> {
       textDirection: TextDirection.rtl,
       child: DropdownButtonFormField<String>(
         isExpanded: true,
-        value: widget.transactionItem['category_id'] != 0
+        initialValue: widget.transactionItem['category_id'] != 0
             ? widget.transactionItem['category_id']
             : null,
         decoration: const InputDecoration(labelText: 'المجموعة'),

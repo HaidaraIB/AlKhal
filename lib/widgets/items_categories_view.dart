@@ -416,7 +416,7 @@ class ItemsFilterDropDown extends StatelessWidget {
         elevation: 3,
         dropdownColor: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        value: itemsFilter,
+        initialValue: itemsFilter,
         items: categories.map((category) {
           return DropdownMenuItem(
             value: category.id.toString(),

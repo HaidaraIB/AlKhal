@@ -166,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
                   ),
-                  fillColor: Colors.purple.withOpacity(0.1),
+                  fillColor: Colors.purple.withValues(alpha: 0.1),
                   filled: true,
                   prefixIcon: const Icon(Icons.person),
                   errorStyle: const TextStyle(
@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
                   ),
-                  fillColor: Colors.purple.withOpacity(0.1),
+                  fillColor: Colors.purple.withValues(alpha: 0.1),
                   filled: true,
                   prefixIcon: IconButton(
                     icon: Icon(

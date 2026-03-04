@@ -89,7 +89,7 @@ class _AddItemFormState extends State<UpdateItemForm> {
                       ),
                       DropdownButtonFormField<String>(
                         isExpanded: true,
-                        value: _categoryController.text.isNotEmpty
+                        initialValue: _categoryController.text.isNotEmpty
                             ? _categoryController.text
                             : widget.oldItem.categoryId.toString(),
                         onChanged: (value) {

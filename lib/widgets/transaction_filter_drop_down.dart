@@ -26,7 +26,7 @@ class TransactionFilterDropDown extends StatelessWidget {
         elevation: 3,
         dropdownColor: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        value: filter ?? TransactionFilter.all,
+        initialValue: filter ?? TransactionFilter.all,
         items: TransactionFilter.values.map((filter) {
           return DropdownMenuItem(
             value: filter,
